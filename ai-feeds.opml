@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<opml version="2.0">
+	<head>
+		<title>AI & Agent & OpenClaw Feeds</title>
+	</head>
+	<body>
+		<outline text="Labs & BigTech AI" title="Labs & BigTech AI">
+			<outline type="rss" text="OpenAI News" xmlUrl="https://openai.com/news/rss.xml" htmlUrl="https://openai.com/news"/>
+			<outline type="rss" text="OpenAI Blog" xmlUrl="https://openai.com/blog/rss" htmlUrl="https://openai.com/blog"/>
+			<outline type="rss" text="Anthropic News" xmlUrl="https://www.anthropic.com/news/rss" htmlUrl="https://www.anthropic.com/news"/>
+			<outline type="rss" text="Google AI Blog" xmlUrl="https://blog.google/technology/ai/rss/" htmlUrl="https://blog.google/technology/ai/"/>
+			<outline type="rss" text="DeepMind Blog" xmlUrl="https://deepmind.google/discover/blog/feed/" htmlUrl="https://deepmind.google/discover/blog/"/>
+			<outline type="rss" text="Meta AI Blog" xmlUrl="https://ai.meta.com/blog/rss/" htmlUrl="https://ai.meta.com/blog/"/>
+			<outline type="rss" text="Microsoft AI Blog" xmlUrl="https://blogs.microsoft.com/ai/feed/" htmlUrl="https://blogs.microsoft.com/ai/"/>
+			<outline type="rss" text="Amazon Science" xmlUrl="https://www.amazon.science/rss" htmlUrl="https://www.amazon.science/"/>
+			<outline type="rss" text="NVIDIA Technical Blog – AI" xmlUrl="https://developer.nvidia.com/blog/tag/ai/feed/" htmlUrl="https://developer.nvidia.com/blog/tag/ai/"/>
+			<outline type="rss" text="Hugging Face Blog" xmlUrl="https://huggingface.co/blog/feed.xml" htmlUrl="https://huggingface.co/blog"/></outline>
+		<outline text="LLM & Agent & OpenClaw" title="LLM & Agent & OpenClaw">
+			<outline type="rss" text="LangChain Blog" xmlUrl="https://blog.langchain.dev/rss/" htmlUrl="https://blog.langchain.dev/"/>
+			<outline type="rss" text="LangGraph / LangSmith" xmlUrl="https://blog.langchain.dev/tag/langgraph/rss/" htmlUrl="https://blog.langchain.dev/tag/langgraph/"/>
+			<outline type="rss" text="MarkTechPost – AI" xmlUrl="https://www.marktechpost.com/feed/" htmlUrl="https://www.marktechpost.com/"/>
+			<outline type="rss" text="Milvus Blog" xmlUrl="https://milvus.io/blog/feed.xml" htmlUrl="https://milvus.io/blog/"/>
+			<outline type="rss" text="Tencent Cloud Techpedia (AI & OpenClaw)" xmlUrl="https://www.tencentcloud.com/techpedia/rss" htmlUrl="https://www.tencentcloud.com/techpedia"/>
+			<outline type="rss" text="The Data Guy" xmlUrl="https://thedataguy.pro/feed/" htmlUrl="https://thedataguy.pro/"/>
+			<outline type="rss" text="Atomic Mail Blog" xmlUrl="https://atomicmail.io/blog/rss/" htmlUrl="https://atomicmail.io/blog/"/>
+			<outline type="rss" text="Clawbot / OpenClaw Blog" xmlUrl="https://www.clawbot.blog/feed/" htmlUrl="https://www.clawbot.blog/"/>
+			<outline type="rss" text="ai.jp.net (AI & Agents)" xmlUrl="https://ai.jp.net/feed/" htmlUrl="https://ai.jp.net/"/></outline>
+		<outline text="AI Business & Industry" title="AI Business & Industry">
+			<outline type="rss" text="MIT Technology Review – AI" xmlUrl="https://www.technologyreview.com/topic/artificial-intelligence/feed/" htmlUrl="https://www.technologyreview.com/topic/artificial-intelligence/"/>
+			<outline type="rss" text="TechCrunch – Artificial Intelligence" xmlUrl="https://techcrunch.com/category/artificial-intelligence/feed/" htmlUrl="https://techcrunch.com/category/artificial-intelligence/"/>
+			<outline type="rss" text="VentureBeat – AI" xmlUrl="https://venturebeat.com/category/ai/feed/" htmlUrl="https://venturebeat.com/category/ai/"/>
+			<outline type="rss" text="The Verge – AI" xmlUrl="https://www.theverge.com/ai-artificial-intelligence/rss/index.xml" htmlUrl="https://www.theverge.com/ai-artificial-intelligence"/>
+			<outline type="rss" text="Wired – AI" xmlUrl="https://www.wired.com/feed/tag/artificial-intelligence/latest/rss" htmlUrl="https://www.wired.com/tag/artificial-intelligence/"/>
+			<outline type="rss" text="Financial Times – AI" xmlUrl="https://www.ft.com/artificial-intelligence?format=rss" htmlUrl="https://www.ft.com/artificial-intelligence"/>
+			<outline type="rss" text="The Information – AI" xmlUrl="https://www.theinformation.com/feed/ai" htmlUrl="https://www.theinformation.com/topics/ai"/>
+			<outline type="rss" text="a16z – AI" xmlUrl="https://a16z.com/tag/ai/feed/" htmlUrl="https://a16z.com/tag/ai/"/>
+			<outline type="rss" text="Sequoia – AI" xmlUrl="https://www.sequoiacap.com/article/tag/artificial-intelligence/feed/" htmlUrl="https://www.sequoiacap.com/article/tag/artificial-intelligence/"/>
+			<outline type="rss" text="MarTech – AI" xmlUrl="https://martech.org/tag/artificial-intelligence/feed/" htmlUrl="https://martech.org/tag/artificial-intelligence/"/></outline>
+		<outline text="Engineering & DevTools" title="Engineering & DevTools">
+			<outline type="rss" text="GitHub Blog – AI" xmlUrl="https://github.blog/changelog/label/ai/feed/" htmlUrl="https://github.blog/changelog/label/ai/"/>
+			<outline type="rss" text="GitHub Copilot Blog" xmlUrl="https://github.blog/tag/copilot/feed/" htmlUrl="https://github.blog/tag/copilot/"/>
+			<outline type="rss" text="OpenAI Platform Changelog" xmlUrl="https://platform.openai.com/docs/changelog/rss" htmlUrl="https://platform.openai.com/docs/changelog/"/>
+			<outline type="rss" text="Anthropic Changelog / Dev" xmlUrl="https://docs.anthropic.com/changelog/rss" htmlUrl="https://docs.anthropic.com/changelog"/>
+			<outline type="rss" text="JetBrains AI Assistant" xmlUrl="https://blog.jetbrains.com/tag/ai-assistant/feed/" htmlUrl="https://blog.jetbrains.com/tag/ai-assistant/"/>
+			<outline type="rss" text="VS Code Blog" xmlUrl="https://code.visualstudio.com/feed.xml" htmlUrl="https://code.visualstudio.com/blogs/"/>
+			<outline type="rss" text="AWS Machine Learning Blog" xmlUrl="https://aws.amazon.com/blogs/machine-learning/feed/" htmlUrl="https://aws.amazon.com/blogs/machine-learning/"/>
+			<outline type="rss" text="Google Cloud – AI & ML" xmlUrl="https://cloud.google.com/blog/topics/ai-machine-learning/rss" htmlUrl="https://cloud.google.com/blog/topics/ai-machine-learning"/>
+			<outline type="rss" text="Apple Machine Learning" xmlUrl="https://machinelearning.apple.com/rss.xml" htmlUrl="https://machinelearning.apple.com/"/>
+			<outline type="rss" text="Engineering at Meta – AI" xmlUrl="https://engineering.fb.com/tag/artificial-intelligence/feed/" htmlUrl="https://engineering.fb.com/tag/artificial-intelligence/"/></outline>
+		<outline text="Chinese AI & Ecosystem" title="Chinese AI & Ecosystem">
+			<outline type="rss" text="量子位" xmlUrl="https://www.qbitai.com/feed" htmlUrl="https://www.qbitai.com/"/>
+			<outline type="rss" text="机器之心" xmlUrl="https://www.jiqizhixin.com/rss" htmlUrl="https://www.jiqizhixin.com/"/>
+			<outline type="rss" text="极市平台" xmlUrl="https://www.cvmart.net/rss" htmlUrl="https://www.cvmart.net/"/>
+			<outline type="rss" text="InfoQ 中文 – AI" xmlUrl="https://www.infoq.cn/topic/AI/rss" htmlUrl="https://www.infoq.cn/topic/AI"/>
+			<outline type="rss" text="少数派 – AI" xmlUrl="https://sspai.com/feed/topics/ai" htmlUrl="https://sspai.com/topic/ai"/>
+			<outline type="rss" text="掘金 – 人工智能" xmlUrl="https://juejin.cn/rss/tag/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD" htmlUrl="https://juejin.cn/tag/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD"/>
+			<outline type="rss" text="HashMeta – AI 动态" xmlUrl="https://www.hashmeta.ai/zh/generative-ai/ai-updates-industry-news.html" htmlUrl="https://www.hashmeta.ai/zh/generative-ai/ai-updates-industry-news.html"/>
+			<outline type="rss" text="风闪科技 RSS 汇总" xmlUrl="https://windflash.us/rss-sources" htmlUrl="https://windflash.us/rss-sources"/>
+			<outline type="rss" text="掘金：AI 热点追踪系统" xmlUrl="https://juejin.cn/post/7613231238364823587" htmlUrl="https://juejin.cn/post/7613231238364823587"/>
+			<outline type="rss" text="Feedspot Top 100 AI Feeds" xmlUrl="https://rss.feedspot.com/ai_rss_feeds/" htmlUrl="https://rss.feedspot.com/ai_rss_feeds/"/></outline>
+	</body>
+</opml>

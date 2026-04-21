@@ -1,0 +1,33 @@
+# Environment Variables
+.env
+.env.local
+.env.*.local
+
+# Node
+node_modules/
+dist/
+.cache/
+
+# PostgreSQL
+*.sql.bak
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Prisma
+prisma/migrations/**/migration_lock.toml
+
+# Test
+coverage/
+test-results/
+playwright-report/
+
+# Build
+*.tsbuildinfo

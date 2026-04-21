@@ -1,0 +1,13 @@
+{
+  "_comment": "端口分配表 — 所有服务端口统一在此管理，禁止硬编码",
+  "dev": {
+    "_comment": "开发环境 — 用户手动 npm run dev 使用",
+    "website": 4321,
+    "admin": 4322
+  },
+  "e2e": {
+    "_comment": "E2E 测试 — Playwright / Antigravity 自动测试使用，禁止占用 dev 端口",
+    "website": 14321,
+    "admin": 14322
+  }
+}
