@@ -202,3 +202,16 @@
 
 ### 下一步
 - 观察日常抓取任务中是否存在其他隐性的 API 超负荷瓶颈。
+
+---
+
+## 2026-04-22 10:50 — [Chore] 优化多仓库同步工作流 (Multi-Repo Sync Workflow) ✅
+
+### 完成事项
+1. **清理全局 Git 追踪**: 移除了工作区错误挂载的全局 Git 追踪，并分别为 `admin`, `crawler`, `database`, `docs`, `spike`, `website` 正确初始化了独立的 Git 仓库。
+2. **配置上游 Remote**: 为所有子模块配置了正确的 remote (包括修复缺失的 database 和 website 关联)。
+3. **优化 .gitignore 规则**: 细化了 `.gitignore`，安全地移除了冗余沉重的编译产物（如 node_modules），同时保留了 Prisma database migration 脚本及相关的 Schema 配置。
+4. **验证 Session-Push 工作流**: 检查与完善了 `session-push-all.sh` 脚本，确保其能平滑地提交所有的代码变更并自动化地 push 到各自的远程 GitHub 仓库。
+
+### 下一步
+- 执行一键会话归档并推送所有代码至远程。
