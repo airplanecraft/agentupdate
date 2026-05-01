@@ -93,3 +93,12 @@
 - **修复方案**: 通过采用 `if(el) el.value = val;` 安全兜底处理前端属性填充，并额外为 API 层（`enrich.ts`）补全基于指数退避的 `Delay 2000ms -> Retry 3 Times` 自愈重发防线。最后将硬核打断网页行为的 `alert` 换血为 `showToast`。
 - **结果**: PASS
 - **相关文件**: `admin/src/pages/admin/product.astro`, `admin/src/pages/api/variants/enrich.ts`
+
+## BUG-114: Website Release Timeline 排序错乱 (Nulls Last)
+- **发现时间**: 2026-05-01 14:20
+- **自愈轮次**: 1 / 5
+- **症状**: 网站 Release Hub 页面显示的最新版本是 4 月 23 日，而管理后台显示今日已有多次更新发布。新发现的 Release 动态在前端页面被推到了列表最末尾。
+- **根因**: 在 `website/src/lib/releases.ts` 的 `orderBy` 逻辑中使用了 `nulls: 'last'`。新抓取的 Release 动态由于尚未提取到官方发布日期，`publishedAt` 字段为 `null`，导致它们在降序排列时被错误地视为“最旧”的内容。
+- **修复方案**: 将 `orderBy` 中的 `nulls: 'last'` 修改为 `nulls: 'first'`。这样，没有日期的最新动态将排在最前，并辅助以 `createdAt` 降序排列，确保 Timeline 的时效性。
+- **结果**: PASS。
+- **相关文件**: `website/src/lib/releases.ts`

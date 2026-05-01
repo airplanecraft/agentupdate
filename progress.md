@@ -262,4 +262,28 @@
 ### 下一步
 - 确认内容排版和翻译质量后准备正式发布。
 
+
+---
+
+## 2026-05-01 14:35 — [Feature] GSD 实战教程重构与 Website 排序修复 ✅
+
+### 完成事项
+1. **GSD 实战教程 V2 迁移**:
+   - 清理了旧版的理论教程，基于计算器实战项目重新编写了 9 节课（6 节实战 + 3 节深度 Q&A）。
+   - 实现了完整的双语化支持（CN/EN），并确保所有 Frontmatter 符合规范。
+   - 编写并成功运行了 `seed-gsd-tutorial-v2.ts` 同步脚本，将新内容以 `draft` 状态同步至数据库。
+2. **Website 排序逻辑修复**:
+   - 修复了 `website/src/lib/releases.ts` 中 Release 动态的排序 Bug。
+   - 将 `nulls: 'last'` 修改为 `nulls: 'first'`，确保最新抓取的（即便 `publishedAt` 为空）产品动态能正确出现在 Timeline 顶端。
+3. **教程页统计补全**:
+   - 为 `http://localhost:4321/tutorial/` 页面集成了 `SectionTodayBar` 统计组件，实现了与全站一致的数据汇总展示。
+
+### 技术细节
+- 运行了数据库种子脚本确保 GSD V2 内容覆盖旧数据。
+- 修改了 3 个核心 Website 文件以优化排序和统计展示。
+
+### 下一步
+- 确认 GSD 教程在后台的预览效果。
+- 准备将 GSD 教程状态从 `draft` 改为 `published` 以正式上线。
+
 ---
