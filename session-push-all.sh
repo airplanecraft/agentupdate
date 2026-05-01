@@ -8,22 +8,9 @@ echo "======================================"
 echo "🚀 Starting session-push-all sync..."
 echo "======================================"
 
-# 1. Sync Root Repository (which includes website/)
+# 1. Sync Independent Modules
 echo ""
-echo "📦 1. Syncing Root & Website Workspace..."
-git add -A
-if ! git diff-index --quiet HEAD; then
-    git commit -m "chore: archive session and sync root/website"
-    git push
-    echo "✅ Root workspace pushed successfully."
-else
-    echo "⏭️  Root workspace is clean, skipping commit."
-    git push
-fi
-
-# 2. Sync Independent Modules
-echo ""
-echo "📦 2. Syncing Sub-Modules..."
+echo "📦 1. Syncing Sub-Modules..."
 for MOD in "${MODULES[@]}"; do
     if [ -d "$MOD" ] && [ -d "$MOD/.git" ]; then
         echo "   -> Processing $MOD..."
@@ -53,6 +40,19 @@ for MOD in "${MODULES[@]}"; do
         echo "   ⚠️  $MOD module or its .git directory not found, skipping."
     fi
 done
+
+# 2. Sync Root Repository (which includes submodule pointers)
+echo ""
+echo "📦 2. Syncing Root Workspace..."
+git add -A
+if ! git diff-index --quiet HEAD; then
+    git commit -m "chore: archive session and sync root pointers"
+    git push
+    echo "✅ Root workspace pushed successfully."
+else
+    echo "⏭️  Root workspace is clean, skipping commit."
+    git push
+fi
 
 echo ""
 echo "🎉 All code synced to GitHub successfully!"
