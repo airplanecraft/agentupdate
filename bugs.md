@@ -1,4 +1,14 @@
-# Bugs Record
+# 缺陷记录 (Bugs)
+
+## BUG-115: 教程列表排序失效 (时间戳不更新)
+- **发现时间**: 2026-05-03 09:00
+- **自愈轮次**: 1 / 5
+- **症状**: 后台审批发布新课时后，前端教程列表排序无变化，日期显示陈旧。
+- **根因**: ① 修改课时未触碰父系列 `updatedAt`；② 列表排序仍在使用静态 `sortOrder`。
+- **修复方案**: 在发布 API 中显式强制更新系列 `updatedAt`，并修改 Website 排序为 `updatedAt desc`。
+- **结果**: PASS。
+- **相关文件**: `admin/src/pages/api/tutorial.ts`, `website/src/lib/tutorials.ts`
+
 
 ## BUG-001: Inspector Drawer Header Hidden under TopBar
 

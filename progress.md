@@ -1,4 +1,20 @@
-# OpenClawEco - Session Progress
+# 项目进度 (Progress)
+
+## 2026-05-03 21:55 — [Tutorial Migration & Platform Optimization]
+- **完成事项**:
+    - 完成《AI Coding Agents 终极对比指南》迁移：在 `admin/content/agents-comparison-tutorial/` 下创建 10 集双语课时。
+    - 生成并同步了对比系列的高清封面图。
+    - 编写并运行 `seed-agents-comparison-tutorial.ts` 脚本，将系列 (ID: 225) 导入数据库。
+    - 修复教程发布时间戳不更新问题：课时发布时现在会自动刷新父系列的 `updatedAt`。
+    - 优化网站教程排序：列表现在按 `updatedAt` 降序排列（最新发布置顶）。
+    - 为网站根目录添加了百度站点验证文件 `baidu_verify_codeva-8Cfj2Ko6aW.html`。
+- **关键决策**:
+    - 在 API 层强制更新 `updatedAt`，确保“最新发布”逻辑能准确反映课时审批变动。
+    - 统一使用 `updatedAt` 作为教程列表的第一排序因子。
+- **下一步**:
+    - 检查对比表在各端的 Mermaid 渲染效果。
+    - 继续迁移 GSD 其余技术文档。
+
 
 ## 2026-04-18 10:41 — [Feature] SectionTodayBar 全站统一覆盖 ✅
 
@@ -127,7 +143,7 @@
 3. **爬虫架构**: 三策略路由 (html_llm/github_atom/github_raw) + 三层过滤漏斗
 4. **配置化**: 轮询频率/LLM 模型/哈希算法全部通过 .env 控制
 5. **文档更新**
-6. **Stabilization & Fixes (In Progress)**
+6. **Stabilization & Fixes**:
    - Initial problem reported in Admin Dashboard (`/admin/news?stage=pending`) where the "Batch Publish/Approve/Retry" buttons became ineffective after a single click and just flashed their loading state.
    - Diagnosed root cause: Direct event listeners attached to DOM elements were getting dropped/lost; additionally, when all items were batch-processed, the batch menu incorrectly remained visible leading to confusing empty states.
    - Refactored `news.astro` to use a unified event delegation pattern on `#batch-bar`, resolving the listener race conditions, reducing code repetition, and correctly unmounting the table + showing a success state when the queue is emptied.
