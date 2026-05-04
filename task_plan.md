@@ -12,6 +12,10 @@
     - [x] Manually fix Series 222 timestamp
 - [x] Add Baidu Verification File
     - [x] Create `website/public/baidu_verify_codeva-8Cfj2Ko6aW.html`
+- [x] Migrate "Firecrawl Tutorial" to bilingual lessons
+    - [x] Create 12 lessons in `admin/content/firecrawl-tutorial/`
+    - [x] Generate and sync cover image
+    - [x] Seed lessons into database (Series ID: 226)
 - [x] Session Archive
     - [x] Update `progress.md`
     - [x] Update `bugs.md`

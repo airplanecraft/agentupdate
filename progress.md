@@ -1,5 +1,18 @@
 # 项目进度 (Progress)
 
+## [2026-05-04] Firecrawl Tutorial Migration & Database Seeding
+- **完成事项**:
+    - 完成《Firecrawl 从入门到精通 — AI 网页抓取全指南》迁移：在 `admin/content/firecrawl-tutorial/` 下创建 12 集双语课时。
+    - 生成并同步了 Firecrawl 系列的高清封面图。
+    - 编写并运行 `seed-firecrawl-tutorial.ts` 脚本，将系列 (ID: 226) 导入数据库。
+    - 验证了所有课时的中英双语内容完整性，Markdown 结构清晰。
+- **关键决策**:
+    - 采用 12 课时结构，涵盖从云端基础到本地自建、高级交互、文件解析及 Agent 调研的全链路内容。
+    - 统一将新导入的系列设为 `draft` 状态，以便后续通过 Admin 面板进行最终审批发布。
+- **下一步**:
+    - 在 Admin 界面完成 Firecrawl 教程的审批与发布。
+    - 开始进行其余技术文档（如 Jina, Crawl4AI）的迁移。
+
 ## 2026-05-03 21:55 — [Tutorial Migration & Platform Optimization]
 - **完成事项**:
     - 完成《AI Coding Agents 终极对比指南》迁移：在 `admin/content/agents-comparison-tutorial/` 下创建 10 集双语课时。
