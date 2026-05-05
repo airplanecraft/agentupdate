@@ -111,4 +111,3 @@
 - **根因**: 在 `website/src/lib/releases.ts` 的 `orderBy` 逻辑中使用了 `nulls: 'last'`。新抓取的 Release 动态由于尚未提取到官方发布日期，`publishedAt` 字段为 `null`，导致它们在降序排列时被错误地视为“最旧”的内容。
 - **修复方案**: 将 `orderBy` 中的 `nulls: 'last'` 修改为 `nulls: 'first'`。这样，没有日期的最新动态将排在最前，并辅助以 `createdAt` 降序排列，确保 Timeline 的时效性。
 - **结果**: PASS。
-- **相关文件**: `website/src/lib/releases.ts`

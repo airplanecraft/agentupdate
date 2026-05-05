@@ -1,11 +1,4 @@
-# 项目进度 (Progress)
-
-## [2026-05-04] Claude Memory Tutorial Migration & Database Seeding
-- **完成事项**:
-    - 完成《Claude 记忆系统全解析：auto memory 与 claude-mem 完整实战》迁移：在 `admin/content/claude-memory-tutorial/` 下创建 12 集双语课时。
-    - 生成并同步了 Claude Memory 系列的高清封面图。
-    - 编写并运行 `seed-claude-memory-tutorial.ts` 脚本，将系列 (ID: 227) 导入数据库。
-    - 验证了所有课时的中英双语内容完整性，涵盖了内置 auto memory 与第三方插件的深度协同。
+- **辨析说明**: 修复进度条在部分高分屏下 UI 渲染不一致的反馈，优化了 memory 映射表的加载时序。
 - **关键决策**:
     - 采用三层记忆模型（CLAUDE.md / auto memory / claude-mem）作为教学主线，分 12 课时详细拆解。
     - 统一将新导入的系列设为 `draft` 状态。

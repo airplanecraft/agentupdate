@@ -1,22 +1,24 @@
-# Session Task Plan — 2026-05-03
+# Session Task Plan — 2026-05-05
 
-## [Tutorial & Platform Optimization]
+## [Tutorial Migration & Bilingual Standardization]
 
-- [x] Migrate "AI Coding Agents Comparison" to bilingual tutorials
-    - [x] Create 10 lessons in `admin/content/agents-comparison-tutorial/`
+- [x] Migrate "Claude Code Remote Control" to bilingual tutorials
+    - [x] Author 12 modular lessons (ZH/EN)
     - [x] Generate and sync cover image
-    - [x] Seed lessons into database (Series ID: 225)
-- [x] Fix Tutorial Publication Timestamp Issue
-    - [x] Update `admin/api/tutorial.ts` to force `updatedAt` update on parent series
-    - [x] Update `website/lib/tutorials.ts` to sort by `updatedAt desc`
-    - [x] Manually fix Series 222 timestamp
-- [x] Add Baidu Verification File
-    - [x] Create `website/public/baidu_verify_codeva-8Cfj2Ko6aW.html`
-- [x] Migrate "Firecrawl Tutorial" to bilingual lessons
-    - [x] Create 12 lessons in `admin/content/firecrawl-tutorial/`
+    - [x] Generate and embed technical illustrations
+    - [x] Seed lessons into database (Series ID: 228)
+- [x] Migrate "Claude Code Permission Modes" to bilingual tutorials
+    - [x] Author 12 modular lessons (ZH/EN)
     - [x] Generate and sync cover image
-    - [x] Seed lessons into database (Series ID: 226)
+    - [x] Generate and embed technical illustrations
+    - [x] Seed lessons into database (Series ID: 230)
+- [x] Standardization: Bilingual File Splitting
+    - [x] Split mixed `.md` files into `.md` (ZH) and `.en.md` (EN) for both tutorials
+    - [x] Update seeding scripts to support dual-file reading
+- [x] UI/UX Fix: Illustration Syncing
+    - [x] Restore missing illustrations in admin dashboard by syncing `website/public/illustrations` to `admin/public/illustrations`
 - [x] Session Archive
     - [x] Update `progress.md`
+    - [x] Update `findings.md`
     - [x] Update `bugs.md`
     - [x] Execute multi-repo sync (`session-push-all.sh`)
