@@ -1,5 +1,14 @@
 # 缺陷记录 (Bugs)
 
+## BUG-116: Astro 构建因类型导入未分离导致崩溃 (getAdjacentArticles is not exported)
+- **发现时间**: 2026-05-06 19:40
+- **自愈轮次**: 1 / 5
+- **症状**: 运行 `npm run build` 时报错 `src/components/RelatedNews.astro (2:9): "getAdjacentArticles" is not exported by "src/lib/articles.ts"`，导致整个 Website 模块静态生成失败退出。
+- **根因**: 由于在利用工具自动注入内链代码时，正则表达式或替换块匹配失误，不仅没有正确在 `articles.ts` 追加方法，反而删除了原有的正常函数。
+- **修复方案**: 重新在 `articles.ts` 的尾部安全地追加所需的 `getAdjacentArticles` 和 `getLatestArticles` 逻辑，同时在 `RelatedNews.astro` 中修正了 `import` 引用，隔离了 TS 类型导入。
+- **结果**: PASS。二次构建已成功生成全部静态文件。
+- **相关文件**: `website/src/lib/articles.ts`, `website/src/components/RelatedNews.astro`
+
 ## BUG-115: 教程列表排序失效 (时间戳不更新)
 - **发现时间**: 2026-05-03 09:00
 - **自愈轮次**: 1 / 5

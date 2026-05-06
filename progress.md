@@ -319,3 +319,22 @@
 - 准备将 GSD 教程状态从 `draft` 改为 `published` 以正式上线。
 
 ---
+## 2026-05-06 19:30 — [Feature] Internal Link Weaving & LAN Access Troubleshooting ✅
+
+### 完成事项
+1. **解决 Astro/Vite 局域网访问 400 错误**:
+   - 排查并解决了通过 `192.168.8.142:4322` 访问 Admin Dashboard 时出现的 HTTP 400 Bad Request 问题。
+   - 更新了 `admin/astro.config.mjs`，设置了 `host: '0.0.0.0'`，`allowedHosts: true`，以及关闭了 `security: { checkOrigin: false }`，允许开发环境通过 IP 直接被局域网设备访问。
+   - 详细向用户解释了浏览器端（特别是 Chrome 的 HTTPS First 和 PNA 机制）与底层 `curl` 行为的差异。
+2. **全站内链织网策略落地 (SEO Optimization)**:
+   - 分析了 Google Search Console 中 535 个新闻页面“已发现 - 尚未编入索引”的原因（孤岛页面、抓取预算限制）。
+   - 实施了“相邻时间文章”的组件链接策略以建立高效的爬虫抓取链 (Crawl Chain)。
+   - 在 `articles.ts` 数据服务中新增了 `getAdjacentArticles` 和 `getLatestArticles` 函数。
+   - 创建了 `RelatedNews.astro` 组件（双语自适应的卡片式布局）。
+   - 将组件全方位挂载于：中英文的 **新闻详情页** (按时间相邻读取) 和 **产品详情页** (拉取最新动态)，完美实现了整站内容的动态内链互联。
+3. **修复构建报错**:
+   - 发现并修复了 Astro build 阶段由于漏加模块导出导致的 `getAdjacentArticles is not exported` 编译故障。
+
+### 下一步
+- 监控 Google Search Console，观察孤岛文章的收录率变化。
+- 继续跟进网站内容补充或新业务需求开发。
