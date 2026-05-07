@@ -338,3 +338,24 @@
 ### 下一步
 - 监控 Google Search Console，观察孤岛文章的收录率变化。
 - 继续跟进网站内容补充或新业务需求开发。
+
+---
+
+## 2026-05-07 15:03 — [Feature] Admin UI Enhancements & Deep Deduplication ✅
+
+### 完成事项
+1. **产品查重与底层去重逻辑增强**:
+   - 更新了 `crawler/src/product-scraper/product-writer.ts`。在传统的 `sourceType` + `sourceId` 去重基础上，额外增加了 `githubUrl` 和 `websiteUrl` 的深度查重机制，彻底避免手动录入的产品被爬虫重复抓取创建。
+   - 优化了“认领”逻辑：当爬虫抓取到已存在的“手动录入”产品时，会自动将该产品的 `sourceType` 认领更新，确保其享有后续的自动化数据更新（如 star 数量追踪）。
+2. **待审产品列表自动隐藏机制**:
+   - 修改了 `admin/src/pages/admin/product.astro` 的查询逻辑，通过对比 `Variant` 表中已绑定的 `sourceArticleId`，在初审文章列表中动态过滤掉已经被提取/认领过的文章。实现了“提取即消失”的极致爽快工作流。
+3. **“失败队列”废弃废料源头屏蔽**:
+   - 为后台 `/admin/news?stage=failed` 页面添加了“屏蔽该源并废弃”的破坏性按钮，同时支持了键盘快捷键 `D` 操作。
+   - 编写了 `api/review.ts` 中的 `disable_source` 逻辑：提取废弃文章的 `sourceUrl` 解析 Hostname，对涉及该域名的上游订阅源 `Feed` 批量执行禁用，避免浪费服务器轮询算力。
+4. **前端教程页精细化打磨**:
+   - 修改了网站中文版教程的前端渲染模板 (`website/src/pages/zh/tutorial/[series]/[lesson].astro`)，在标题区域动态插入高转换率的“微信进群”提示挂件（支持响应式布局适配），且保持英文版页面免受影响，避免了用脚本批量污染 `.md` 源文件的笨拙操作。
+   - 修复了 `website/src/lib/tutorials.ts` 的小 Bug：让英文站点的底部“上一篇/下一篇”按钮读取到正确的 `titleEn` 英文标题。
+
+### 下一步
+- 监控产品管理后台是否彻底消灭了重复录入现象。
+- 继续关注并清理无效的 RSS 新闻源，保持整体订阅池的高质量。

@@ -120,3 +120,12 @@
 - **根因**: 在 `website/src/lib/releases.ts` 的 `orderBy` 逻辑中使用了 `nulls: 'last'`。新抓取的 Release 动态由于尚未提取到官方发布日期，`publishedAt` 字段为 `null`，导致它们在降序排列时被错误地视为“最旧”的内容。
 - **修复方案**: 将 `orderBy` 中的 `nulls: 'last'` 修改为 `nulls: 'first'`。这样，没有日期的最新动态将排在最前，并辅助以 `createdAt` 降序排列，确保 Timeline 的时效性。
 - **结果**: PASS。
+
+## BUG-117: 英文教程底部上下篇导航仍显示中文标题
+- **发现时间**: 2026-05-07 14:54
+- **自愈轮次**: 1 / 5
+- **症状**: 在访问英文版教程（如 `http://localhost:4321/tutorial/agents-comparison-tutorial/lesson-01/`）时，虽然正文和侧边目录均为英文，但页面底部的 "Next" 按钮中的标题依然显示为中文。
+- **根因**: `website/src/lib/tutorials.ts` 里的 `getLessonWithNav` 方法在组合返回对象的 `nav.prev` 和 `nav.next` 时，直接将数据库查询出的原始实体塞了进去，并没有像 `mappedLesson` 和 `allLessons` 那样应用 `lang === 'en'` 时切换到 `titleEn` 的多语言判断逻辑，导致前端模板总是读取到默认存为中文的 `.title` 字段。
+- **修复方案**: 在拼接 `nav` 对象时，对 `series.lessons` 中的前后文章节点执行相同的扩展映射：当 `lang === 'en'` 时使用 `titleEn` 覆盖 `title`，确保向模板输出正确的语种文字。
+- **结果**: PASS。
+- **相关文件**: `website/src/lib/tutorials.ts`

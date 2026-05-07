@@ -22,3 +22,17 @@
     - [x] Update `findings.md`
     - [x] Update `bugs.md`
     - [x] Execute multi-repo sync (`session-push-all.sh`)
+
+## [Admin UI & Crawler Deduplication]
+
+- [x] Implement database-level deduplication for product scraping
+    - [x] Add GitHub URL and Website URL deduplication checks in `product-writer.ts`
+    - [x] Automatically claim manual entries when the crawler encounters them
+- [x] Implement product screening filtering
+    - [x] Exclude articles already converted to products from the screening view (`product.astro`)
+- [x] Implement Failed News management improvements
+    - [x] Add "Disable Source" UI button in the `news.astro` admin view
+    - [x] Implement `disable_source` batch action in `review.ts` to set Feed `enabled=false` by hostname
+    - [x] Add keyboard shortcut (D) and confirm dialog for the action
+- [x] Implement WeChat community badge dynamically in Chinese tutorials frontend template
+- [x] Fix missing localization of `nav.prev` and `nav.next` titles in `website/src/lib/tutorials.ts`
