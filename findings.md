@@ -1,5 +1,26 @@
 # 发现与决策记录 (Findings & Decisions)
 
+## Finding v1.6 — SEO Discovery Infrastructure (2026-05-08 10:35)
+
+### 背景
+随着站点内容（教程、产品、技能）的爆炸式增长，传统的静态 Sitemap 和缺乏自动化更新分发机制（RSS）成为了 SEO 的瓶颈，导致新内容收录缓慢。
+
+### 发现
+1. **Sitemap 的局限性**: 仅包含新闻文章的 Sitemap 忽略了站点核心的资产（400+ 篇教程课时）。
+2. **RSS 价值回归**: 对于 AI Agent 开发者和极客用户，RSS 仍是获取技术更新的首选方式。同时，RSS 链接在页头显示比页脚更能有效引导用户。
+3. **统计口径偏差**: Admin Dashboard 的统计 SQL 若不包含所有的多语言发布状态（如 `published_all`），会导致运营人员对站点活跃度产生严重的判断偏差。
+
+### 决策
+- **动态 Sitemap 全量化**: 使用 `Promise.all` 并发查询数据库中所有实体类型，构建支持双语路径的动态 Sitemap 引擎。
+- **Header RSS 战略**: 将 RSS 链接移至页头，并使用标志性橙色图标，强化“更新驱动型站点”的品牌印象。
+- **状态感知型统计**: 仪表盘统计逻辑必须使用 `in: [...]` 包含所有变体状态，确保数据报表的真实性。
+
+### 影响
+- 站点收录广度理论上提升了 400%（从单一新闻收录扩展到全资产收录）。
+- 提升了极客用户的留存工具链。
+- 运营仪表盘数据恢复真实，能够准确反映今日的发布动态。
+
+
 ## Finding v1.2 — Bilingual Content Modularization (2026-05-05 16:45)
 
 ### 背景
@@ -38,7 +59,16 @@
 
 ### 影响
 - 解决了多端跨设备开发调试的痛点。
-- 为爬虫构建了极其友好的 Crawl Chain（爬虫网），理论上能显著加速被雪藏页面的收录速度并降低跳出率。
+- **UX/Security**: Added `confirm` dialogs for destructive actions like disabling sources to prevent accidental operational errors.
+- **Maintainability**: Favored frontend-side template injection over batch-editing markdown files to ensure the "source of truth" remains clean and portable.
+
+## Finding v1.5: English-Centric Illustration Strategy
+- **Context**: The user requested that both Chinese and English versions of tutorials share the same "English-style" illustration to maintain a professional, global tech aesthetic.
+- **Decision**: 
+  - Standardized the AI generation prompt to always include `ensure all text/labels in the image are in English` and `professional typography`.
+  - Prefer `titleEn` for the illustration's conceptual context even when generated from the Chinese admin interface.
+- **Benefit**: Reduces asset management overhead (one image per tutorial) while ensuring high visual quality that fits the "AI Ecosystem" theme across all languages.
+- **Implementation**: Updated both Series and Lesson admin editors to support this standardized generation logic.
 
 ## Finding v1.4 — Deep Deduplication & Non-Intrusive Frontend Injection (2026-05-07 15:05)
 

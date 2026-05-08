@@ -1,5 +1,15 @@
 # 缺陷记录 (Bugs)
 
+## BUG-118: Admin Dashboard 教程统计数值严重偏低 (仅显示 94)
+- **发现时间**: 2026-05-08 10:27
+- **自愈轮次**: 1 / 5
+- **症状**: 仪表盘显示 "Tutorials: 94"，而实际数据库中有 462 个已发布课时。新发布的 ID 230 课时也不在统计中。
+- **根因**: 统计逻辑 `getAdminDailyStats` 中使用了硬编码的 `status: 'published'` 过滤条件。由于迁移了双语支持，绝大多数课时现在使用 `'published_all'` 等状态码，导致它们被统计引擎忽略。
+- **修复方案**: 修改 `admin/src/lib/daily-stats.ts`，将过滤条件改为 `status: { in: ['published', 'published_all', 'published_zh', 'published_en'] }`。
+- **结果**: PASS。统计数值恢复到 462，且“今日更新”指标显示正常。
+- **相关文件**: `admin/src/lib/daily-stats.ts`
+
+
 ## BUG-116: Astro 构建因类型导入未分离导致崩溃 (getAdjacentArticles is not exported)
 - **发现时间**: 2026-05-06 19:40
 - **自愈轮次**: 1 / 5

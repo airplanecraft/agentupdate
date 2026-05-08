@@ -3,7 +3,21 @@
     - 采用三层记忆模型（CLAUDE.md / auto memory / claude-mem）作为教学主线，分 12 课时详细拆解。
     - 统一将新导入的系列设为 `draft` 状态。
 
-## [2026-05-04] Firecrawl Tutorial Migration & Database Seeding
+## 2026-05-08 10:30 — [SEO & Content Infrastructure]
+- **完成事项**:
+    - 完成《用 Claude Code + OpenSpec + 多角色 Agent 开发软件项目》教程迁移 (ID: 324)，共 30 个双语章节。
+    - 对教程 ID 230 和 324 进行了中英文简介的深度重写，提升了营销感与专业度。
+    - **SEO 增强**: 实现了动态 `sitemap.xml`，自动聚合全站文章、教程、产品、技能、插件及标签，支持中英双语路径。
+    - **RSS 支持**: 集成 `@astrojs/rss`，创建了 `/rss.xml` (EN) 和 `/zh/rss.xml` (ZH) 订阅源，并在页头（Header）添加了显眼的订阅图标。
+    - **Bug 修复**: 修复了 Admin Dashboard 统计看板的计数逻辑错误，使其能够正确识别并统计带有 `published_all/zh/en` 状态的教程课时。
+- **关键决策**:
+    - 将 RSS 订阅链接从页脚移至页头，并采用标志性的橙色图标，以提升极客用户的订阅转化率。
+    - 统一统计口径，将所有发布的变体状态均纳入“已发布”大盘。
+- **下一步**:
+    - 监控 Google 搜索对新生成的 Sitemap 的抓取情况。
+    - 继续完善 OpenSpec 教程系列的后续高级章节。
+
+## 2026-05-05 16:30 — [Tutorial Migration & Bilingual Standardization]
 - **完成事项**:
     - 完成《Firecrawl 从入门到精通 — AI 网页抓取全指南》迁移：在 `admin/content/firecrawl-tutorial/` 下创建 12 集双语课时。
     - 生成并同步了 Firecrawl 系列的高清封面图。
