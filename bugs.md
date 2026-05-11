@@ -1,5 +1,23 @@
 # 缺陷记录 (Bugs)
 
+## BUG-120: `purge-stale` API 无法清理失败队列
+- **发现时间**: 2026-05-11 09:45
+- **自愈轮次**: 1 / 5
+- **症状**: 在“失败队列” Tab 点击“清理 3 天前数据”后，后端返回 200 但实际删除条数为 0，且数据库中过期的失败文章依然存在。
+- **根因**: 后端 API 只接受字符串格式的 `status` 参数（如 `raw`），但从失败队列发送的是数组格式 `['error', 'dead_letter']`。Prisma 查询时未正确使用 `{ in: [...] }` 运算符，导致查询条件失效。
+- **修复方案**: 在 `purge-stale.ts` 中增加了对数组参数的识别逻辑，并统一使用 Prisma 的 `where: { status: { in: statusArray } }` 语法进行批量删除。
+- **结果**: PASS。
+- **相关文件**: `admin/src/pages/api/articles/purge-stale.ts`
+
+## BUG-119: Admin News 页面脚本 SyntaxError 及分发全选失效
+- **发现时间**: 2026-05-11 09:30
+- **自愈轮次**: 1 / 5
+- **症状**: 访问 `/admin/news` 时控制台报错 `Uncaught SyntaxError: missing ) after argument list`，导致清理旧数据按钮无反应，全网分发面板的“抖音图文”平台无法被全选选中。
+- **根因**: ① 在 `news.astro` 的 `define:vars` 脚本块中，`instanceof HTMLElement` 的复杂判断在 Astro 编译注入时触发了括号解析歧义，且模板字符串嵌套三元运算未进行转义。② 全选逻辑使用了不够稳健的 `closest` 查找，漏掉了处于特定 DOM 层级的平台复选框。
+- **修复方案**: 简化了事件委派逻辑，移除了不稳定的 `instanceof` 类型检查，改用 `.closest('.batch-btn')` 配合 `target` 基础判定。重写了 `PublishPanel.astro` 的全选逻辑，确保遍历所有非 `disabled` 的输入框。
+- **结果**: PASS。
+- **相关文件**: `admin/src/pages/admin/news.astro`, `admin/src/components/PublishPanel.astro`
+
 ## BUG-118: Admin Dashboard 教程统计数值严重偏低 (仅显示 94)
 - **发现时间**: 2026-05-08 10:27
 - **自愈轮次**: 1 / 5

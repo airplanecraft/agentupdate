@@ -372,4 +372,26 @@
 
 ### 下一步
 - 监控产品管理后台是否彻底消灭了重复录入现象。
-- 继续关注并清理无效的 RSS 新闻源，保持整体订阅池的高质量。
+- 继续跟进并清理无效的 RSS 新闻源，保持整体订阅池的高质量。
+
+## 2026-05-11 10:10 — [Stabilization & Distribution Optimization]
+- **完成事项**:
+    - **全站模型升级**: 将 `ai-draft.ts`、`skills-ai-fill.ts` 及 `crawler-console.astro` 中的模型引用全部升级至 **`gemini-3-flash-preview`**，确保新功能默认使用高性能的 Gemini 3 系列。
+    - **DistroHub 逻辑优化**: 
+        - 修复了 `PublishPanel.astro` 的 CSS 拼写错误 (`hieght` -> `height`)。
+        - 重构了全选逻辑，解决了“抖音图文”等已登录平台在批量勾选时被遗漏的问题。
+    - **Admin News 页面修复**: 
+        - 彻底修复了 `news.astro` 的 `SyntaxError`（由于 `instanceof HTMLElement` 及复杂模板字符串转义导致）。
+        - 修复并增强了 `purge-stale` API，支持数组状态过滤，解决了“失败队列”清理失效的 Bug。
+    - **流量入口优化**: 
+        - 验证了 Google Analytics 统计代码在教程全站（首页+子课时页）的覆盖情况。
+        - 标准化了全网分发内容的引流文案，统一指向官网教程中心，提升流量回流率。
+    - **基础架构更新**: 
+        - **llms.txt 同步**: 修正了产品总数事实（20+ -> 400+），并同步了最近新增的 20+ 门大师课教程，采用更清晰的分类结构。
+        - **robots.txt 增强**: 切换至**严格白名单模式**，仅允许信任的头部爬虫访问，并屏蔽了 `/api/`、`/_astro/`、`/pagefind/` 等敏感路径。
+- **关键决策**:
+    - 采取“白名单模式”来管理爬虫，优先保障优质 AI 爬虫（如 GPTBot, ClaudeBot）和主流搜索引擎的抓取效率，同时通过 Disallow 规则保护 API 算力和构建资源。
+    - 废弃了脚本中不稳定且难以跨环境编译的 `instanceof` 判断，改用更健壮的 `.closest()` 事件委派方案。
+- **下一步**:
+    - 观察 Gemini 3 Flash 在文章改写和产品丰富场景下的语义表现。
+    - 监控白名单模式开启后，长尾流量的变化情况。

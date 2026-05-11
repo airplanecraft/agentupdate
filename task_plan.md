@@ -43,3 +43,10 @@
     - [x] Add keyboard shortcut (D) and confirm dialog for the action
 - [x] Implement WeChat community badge dynamically in Chinese tutorials frontend template
 - [x] Fix missing localization of `nav.prev` and `nav.next` titles in `website/src/lib/tutorials.ts`
+- [x] [Stabilization] Fix Admin News UI SyntaxError and Batch Selection logic
+- [x] [Stabilization] Fix `purge-stale` API to support array-based status filters
+- [x] [Optimization] Upgrade all Gemini endpoints to `gemini-3-flash-preview`
+- [x] [SEO] Standardize robots.txt whitelist and sync llms.txt with 400+ products
+- [x] [SEO] Verify Google Analytics coverage across all tutorial routes
+- [x] [Social] Standardize CTA for multi-platform content distribution
+- [/] Session Archive
