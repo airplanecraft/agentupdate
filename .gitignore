@@ -31,3 +31,15 @@ playwright-report/
 
 # Build
 *.tsbuildinfo
+
+# Independent Modules (tracked in their own repositories)
+/admin/
+/crawler/
+/database/
+/docs/
+/spike/
+/website/
+/websync/
+
+# Scratch & Temporary
+/scratch/
