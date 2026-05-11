@@ -28,7 +28,7 @@ description: 开发会话结束时的归档检查流程
 
 ## 阶段 2: Git Commit 与多模块同步
 
-5. 提交并同步所有模块的代码与文档（覆盖 root, website, admin, crawler, database, docs 等）：
+5. 提交并同步所有模块的代码与文档（覆盖 root, website, admin, crawler, database, docs, websync 等）：
    本项目含有多个独立的 Git 子模块。现在提供了一键式的归档与同步脚本。
    
 // turbo
