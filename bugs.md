@@ -1,5 +1,14 @@
 # 缺陷记录 (Bugs)
 
+## BUG-121: OpenSpec 教程 Frontmatter 嵌套双引号导致解析失败
+- **发现时间**: 2026-05-12 14:10
+- **自愈轮次**: 1 / 5
+- **症状**: 自动化翻译脚本 `translate_openspec_disk.ts` 在处理 `lesson-01.md` 时报错 `YAMLException: can not read a block mapping entry`，导致流程中断。
+- **根因**: 中文源文件的 YAML Frontmatter 中 `title` 或 `summary` 字段包含了未转义的双引号（如 `title: "第 01 章 | 为什么需要"AI + 规约 + 多角色""`）。`gray-matter` 将其识别为非法的块映射，因为内部的双引号提前结束了字符串。
+- **修复方案**: 编写了 `fix_titles_v2.py` 脚本，利用正则匹配提取标题/摘要内容，并将其内部的双引号统一替换为单引号，从而保证了 YAML 结构的合法性。
+- **结果**: PASS。
+- **相关文件**: `admin/content/claude-openspec-tutorial/lessons/*.md`
+
 ## BUG-120: `purge-stale` API 无法清理失败队列
 - **发现时间**: 2026-05-11 09:45
 - **自愈轮次**: 1 / 5

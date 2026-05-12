@@ -49,4 +49,11 @@
 - [x] [SEO] Standardize robots.txt whitelist and sync llms.txt with 400+ products
 - [x] [SEO] Verify Google Analytics coverage across all tutorial routes
 - [x] [Social] Standardize CTA for multi-platform content distribution
-- [/] Session Archive
+- [x] Translate "Claude OpenSpec" tutorial series into English (30 lessons)
+- [x] Standardize and fix YAML frontmatter in OpenSpec lessons
+- [x] Implement database synchronization for OpenSpec bilingual content
+- [x] Generate and sync professional cover image for OpenSpec tutorial
+- [x] Sync all tutorial assets between Website and Admin public directories
+- [x] Set up local self-hosted Firecrawl instance with Docker
+- [x] Set up local Firecrawl MCP server for AI integration
+- [x] Session Archive

@@ -3,7 +3,27 @@
     - 采用三层记忆模型（CLAUDE.md / auto memory / claude-mem）作为教学主线，分 12 课时详细拆解。
     - 统一将新导入的系列设为 `draft` 状态。
 
-## 2026-05-08 10:30 — [SEO & Content Infrastructure]
+## 2026-05-12 16:00 — [OpenSpec Bilingual Expansion & Local Firecrawl MCP Deployment]
+- **完成事项**:
+    - **OpenSpec 教程双语化**: 成功翻译并同步了《用 Claude Code + OpenSpec + 多角色 Agent 开发软件项目》系列（共 30 个章节）。
+        - 修复了 30 个中文源文件中的 YAML Frontmatter 格式漏洞（嵌套双引号）。
+        - 实现了 `translate_openspec_disk.ts` 与 `sync_openspec_all_to_db.ts` 自动化翻译与入库流程。
+        - 确保数据库中的 `titleEn`、`descriptionEn` 及所有课时内容均为最新英文版。
+    - **视觉资源优化**:
+        - 为 OpenSpec 系列生成了符合项目高端美学的高清封面图。
+        - 实现了 `public/covers` 目录在 Website 与 Admin 模块间的自动化镜像同步（补全了 19 张缺失封面）。
+    - **Firecrawl 本地化部署**:
+        - 在 `openclaweco.com/firecrawl` 通过 Docker 搭建了全量自托管 Firecrawl 实例。
+        - 在 `openclaweco.com/firecrawl-mcp` 部署了本地 MCP Server 适配器，支持不依赖云端的 AI 网页交互。
+    - **系统集成**: 将 `firecrawl` 与 `firecrawl-mcp` 纳入 `session-push-all.sh` 一键同步流水线。
+- **关键决策**:
+    - **架构解耦**: 将 MCP 适配器与核心服务作为并列模块管理，互不干扰，便于独立升级。
+    - **资源镜像化**: 强制执行 Website 与 Admin 的静态资源 100% 对齐，消灭预览 404。
+- **下一步**:
+    - 在复杂爬虫任务中观察本地 Firecrawl 服务的稳定性。
+    - 验证新发布章节的 SEO 索引情况。
+
+## 2026-05-11 10:30 — [Stabilization & AI Pipeline Upgrade]
 - **完成事项**:
     - 完成《用 Claude Code + OpenSpec + 多角色 Agent 开发软件项目》教程迁移 (ID: 324)，共 30 个双语章节。
     - 对教程 ID 230 和 324 进行了中英文简介的深度重写，提升了营销感与专业度。

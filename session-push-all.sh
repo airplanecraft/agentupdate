@@ -2,7 +2,7 @@
 # Sync all independent modules and root repository to GitHub
 
 # Define independent git repositories inside the workspace
-MODULES=("admin" "crawler" "database" "docs" "spike" "website" "websync")
+MODULES=("admin" "crawler" "database" "docs" "spike" "website" "websync" "firecrawl" "firecrawl-mcp")
 
 echo "======================================"
 echo "🚀 Starting session-push-all sync..."

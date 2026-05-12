@@ -40,6 +40,8 @@ playwright-report/
 /spike/
 /website/
 /websync/
+/firecrawl/
+/firecrawl-mcp/
 
 # Scratch & Temporary
 /scratch/

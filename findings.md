@@ -1,5 +1,23 @@
 # 发现与决策记录 (Findings & Decisions)
 
+## Finding v1.7 — Local MCP Server Orchestration (2026-05-12 15:50)
+
+### 背景
+用户希望在本地环境中完全运行 Firecrawl 服务，并将其作为 MCP 节点供 AI 助手（如 Claude / Cursor）调用，以绕过云端 API 限制或出于数据隐私考虑。
+
+### 发现
+1. **服务解耦**: Firecrawl 核心服务（API/Worker/DB/Redis）与 MCP 适配器是两个不同的仓库。核心服务负责数据抓取逻辑，而 MCP 适配器负责 Model Context Protocol 的 stdio 通讯。
+2. **多源目录同步**: 后台管理系统 (Admin) 与 官网 (Website) 采用独立的静态资源目录，若不同步 `public/covers`，会导致在管理界面预览时图片“穿透”失败（404）。
+
+### 决策
+- **目录级架构隔离**: 在根目录下将 `firecrawl` (核心服务) 与 `firecrawl-mcp` (适配器) 设为并列的 Git 模块。
+- **本地启动脚本化**: 创建 `start-local.sh` 整合 Docker 启动与健康检查，并显式指定 `FIRECRAWL_API_URL=http://localhost:3002` 以便 MCP 适配器正确连接本地实例。
+- **资源镜像同步策略**: 引入 `rsync` 机制同步 `covers` 目录，确保 Website 生成的所有 AI 封面在 Admin Dashboard 同样立即可见。
+
+### 影响
+- 实现了 100% 本地化的“爬虫-AI”闭环，AI 助手现在可以利用本地 Firecrawl 能力执行复杂的网页调研任务。
+- 解决了长期困扰管理后台的封面图加载失败问题。
+
 ## Finding v1.6 — SEO Discovery Infrastructure (2026-05-08 10:35)
 
 ### 背景
