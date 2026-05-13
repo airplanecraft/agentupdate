@@ -1,3 +1,24 @@
+## 2026-05-13 10:22 — [Crawler IP 保护 & 模型对齐]
+
+- **完成事项**:
+    - **Cloudflare WARP 代理**: 配置 SOCKS5 隧道 `localhost:40000`，验证 `warp=on` 状态，成功突破爬虫 IP 封锁。
+    - **Firecrawl 本地集群启动**: 通过 Docker Compose 启动本地 Firecrawl 服务，解决了 Docker 未启动的初始障碍，消除了大量无用 WARN 日志。
+    - **Layer 3 降级接入**: `readability-extractor.ts` 原生抓取失败时自动切换 Firecrawl，日志验证 `✅ 抓取成功 (5739 bytes)` 运行正常。
+    - **Layer 1 降级接入**: `rss-fetcher.ts` 在 RSS 列表遭遇 403 时静默调用 Firecrawl 穿透，不再刷屏日志。
+    - **模型 ID 根治**: 编写 `list-models.mjs` 实时查询 API，彻底终结反复出现的 `gemini-3-flash 404` 问题：
+        - 文本改写确认使用：`gemini-3-flash-preview`（ListModels 返回的唯一有效 Gemini 3 Flash ID）
+        - 图像生成确认使用：`imagen-4.0-fast-generate-001`（账号下无 Imagen 3.0，只有 4.0 系列）
+    - **日志降噪**: 屏蔽 Layer 1 RSS 抓取失败打印，只保留文章内容层的关键日志，控制台更清爽。
+- **关键决策**:
+    - **`gemini-3.0-flash` 不存在**：Google API 命名跳过了整数版本，直接用 `gemini-3-flash-preview`（Preview 后缀不可省）。
+    - **RSS 失败静默**：RSS 源不稳定属正常现象，失败记录写入 `DeadLetter` 数据库即可，无需控制台暴露。
+    - **Firecrawl 仅在失败时触发**：避免每次都走 Docker 浏览器渲染带来的额外延迟。
+- **下一步**:
+    - 观察 `gemini-3-flash-preview` 模型在文章改写中的质量与速度。
+    - 监控 Firecrawl 在 WARP 代理下对高强度反爬网站（Reddit、Futurism）的穿透成功率。
+    - 考虑用 `pm2` 将 Crawler 配置为后台守护进程，实现 7×24 持续运行。
+- **遗留问题**: 无
+
 - **辨析说明**: 修复进度条在部分高分屏下 UI 渲染不一致的反馈，优化了 memory 映射表的加载时序。
 - **关键决策**:
     - 采用三层记忆模型（CLAUDE.md / auto memory / claude-mem）作为教学主线，分 12 课时详细拆解。

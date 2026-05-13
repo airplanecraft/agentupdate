@@ -57,3 +57,16 @@
 - [x] Set up local self-hosted Firecrawl instance with Docker
 - [x] Set up local Firecrawl MCP server for AI integration
 - [x] Session Archive
+
+## [Crawler IP Protection & Model Alignment — 2026-05-12/13]
+
+- [x] Cloudflare WARP 代理集成：配置 SOCKS5 隧道 (localhost:40000) 突破 IP 封锁
+- [x] Firecrawl 本地服务启动（Docker），并验证 `warp=on` 状态
+- [x] Crawler Layer 3 接入 Firecrawl 自动降级（原生抓取失败时切换）
+- [x] Crawler Layer 1 (RSS 列表) 接入 Firecrawl 穿透（静默处理 403，不打印日志）
+- [x] 编写 `list-models.mjs` 脚本实时查询可用模型 ID
+- [x] 根据 ListModels 实际返回结果修正全系统模型配置：
+    - [x] 文本改写：`gemini-3-flash-preview` (✅ generateContent 已确认)
+    - [x] 图像生成：`imagen-4.0-fast-generate-001` + 备用 `imagen-4.0-generate-001`
+- [x] 屏蔽 RSS 抓取失败日志（只保留文章内容层日志）
+- [x] Session Archive
