@@ -1,3 +1,41 @@
+## Finding v1.6 — AI-First Discoverability via llms.txt (2026-05-15 07:50)
+
+### 背景
+随着平台上教程数量的增加，单纯依靠 Sitemap 对 AI Agent 的引导力逐渐减弱。
+
+### 发现
+1.  **llms.txt 的优先级**：现代 AI 爬虫（如 GPTBot, PerplexityBot）在访问网站时会优先寻找并解析 /llms.txt。
+2.  **结构化引导**：在 llms.txt 中提供带描述的 Markdown 链接，比纯 URL 列表更能帮助 LLM 理解内容价值。
+3.  **双语索引**：在 llms.txt 中保留中文首页链接，有助于 AI 在中文语境下也给出准确的推荐。
+
+### 决策
+- **教程上线必更**：确立“新教程上线必须同步更新 llms.txt”的开发红线。
+- **摘要优化**：在 llms.txt 中使用的描述应包含核心关键词（如 Masterclass, AI-accelerated 等）。
+
+### 影响
+- 预计将显著提升教程在 AI 搜索建议中的排名和点击率。
+
+---
+
+# Project Findings
+
+## Finding v1.6 — AI-First Discoverability via llms.txt (2026-05-15 07:50)
+
+### 背景
+随着平台上教程数量的增加，单纯依靠 Sitemap 对 AI Agent 的引导力逐渐减弱。
+
+### 发现
+1.  **llms.txt 的优先级**：现代 AI 爬虫（如 GPTBot, PerplexityBot）在访问网站时会优先寻找并解析 。
+2.  **结构化引导**：在  中提供带描述的 Markdown 链接，比纯 URL 列表更能帮助 LLM 理解内容价值。
+3.  **双语索引**：在  中保留中文首页链接，有助于 AI 在中文语境下也给出准确的推荐。
+
+### 决策
+- **教程上线必更**：确立“新教程上线必须同步更新 llms.txt”的开发红线。
+- **摘要优化**：在  中使用的描述应包含核心关键词（如 Masterclass, AI-accelerated 等）。
+
+### 影响
+- 预计将显著提升教程在 AI 搜索建议中的排名和点击率。
+
 ## Finding v1.5 — Command Set Versioning & Official Spec Alignment (2026-05-14 14:20)
 
 ### 背景

@@ -89,3 +89,13 @@
 - [x] Replace old 6-chapter tutorial with comprehensive 15-file guide from `my-pomodoro` (12 chapters + Intro + 2 Appendices)
 - [x] Verify and sync all 15 lessons to database via Import API
 - [x] Session Archive
+
+## [GStack Superpowers Tutorial & AI Discovery — 2026-05-14/15]
+
+- [x] Migrate 17-lesson GStack Superpowers tutorial (14 chapters + Intro + 2 Appendices)
+- [x] Author bilingual series metadata (series.json)
+- [x] Generate professional 3D isometric cover image with AI
+- [x] Author bilingual content (.en.md) for all lessons
+- [x] Sync series and lessons to database via targeted import API
+- [x] Update llms.txt with new tutorial for AI agent discoverability
+- [x] Session Archive
