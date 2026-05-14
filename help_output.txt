@@ -1,0 +1,21 @@
+**Claude Code Help**
+
+**Navigation:**
+- `/help` — Show help
+- `/exit` — Exit Claude Code
+
+**Key Commands:**
+- `/compact` — Compact conversation context
+- `/clear` — Clear conversation history
+- `/tasks` — List background tasks
+- `/caveman lite|full|ultra` — Toggle caveman mode
+- `/remember` — Save to memory
+- `/forget` — Remove from memory
+
+**Other:**
+- `/loop` — Run autonomous loop
+- `/fast` — Toggle fast mode
+- Ctrl+C — Cancel current operation
+- Ctrl+D — Exit
+
+Need anything else? `/exit` will close session.

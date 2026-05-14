@@ -1,3 +1,21 @@
+## Finding v1.5 — Command Set Versioning & Official Spec Alignment (2026-05-14 14:20)
+
+### 背景
+在优化 Claude Code 教程时发现，随着工具版本的快速迭代（如从 v1.x 到 v2.x），大量的 UX 指令（如 `/scroll-speed`, `/statusline`）被移除或整合进 `/config`。
+
+### 发现
+1.  **指令不稳定性**：CLI 工具的内部斜杠命令变动频率高于主要 CLI 参数。
+2.  **官方规范偏差**：第三方或早期的 AI 生成文档往往包含大量过时的“幻觉”命令。
+3.  **add-dir 的本质**：`/add-dir` 并非简单的“添加路径”，而是“添加工作目录”，涉及会话恢复（--resume/--continue）和配置隔离（.claude/）。
+
+### 决策
+- **动态校验机制**：在编写 Command 教程时，必须通过 `strings` 扫描二进制文件或运行 `claude help` 实时校验命令存在性。
+- **以官方 Spec 为准**：当 AI 生成内容与官方定义冲突时，必须强制对齐官方 Spec（如 `/add-dir` 的详细定义）。
+
+### 影响
+- 显著提升了教程的准确性，减少了用户的调试挫败感。
+- 确立了未来所有 CLI 相关教程的“实时扫描校验”规范。
+
 # 发现与决策记录 (Findings & Decisions)
 
 ## Finding v1.7 — Local MCP Server Orchestration (2026-05-12 15:50)
@@ -104,3 +122,21 @@
 ### 影响
 - 极大提升了数据入库质量，彻底消灭了双源冗余产品。
 - 确保了 Markdown 纯语料文件的干净程度，大幅降低了运营需求的开发和维护成本。
+
+
+## Finding v1.5 — 破坏性全量同步的危害与靶向导入架构 (2026-05-13)
+
+### 背景
+在使用全局同步脚本 `sync_bilingual_all.ts` 导入单篇新教程 (`anti-scraping-tutorial`) 时，由于其默认机制会将缺失 `status` 或 `coverImage` 字段的 Frontmatter 强制覆盖入库，导致线上 25 个旧系列和近 500 篇文章的发布状态被重置为 `draft`，封面全部被置为 `null`，且触发了 Prisma `@updatedAt` 强制更新了时间线。
+
+### 发现
+1. **全局扫射的灾难性后果**: 批处理脚本如果缺乏增量控制或选择性执行的能力，极易造成生产数据的无差别篡改。
+2. **Prisma 拦截的盲区**: Prisma ORM 的 `update` 会无视传入的时间戳字段并强行触发 `updatedAt = now()`，导致系统发布时间流紊乱。
+
+### 决策
+- **废弃全局同步，转向靶向导入 (Targeted Import)**: 放弃在后台随意跑 `sync_all` 脚本。建议开发一套基于 Admin 网页的可视化导入器。
+- **强制前置备份拦截器**: 未来所有牵涉到全量修改、大规模 Upsert 的自动化脚本当中，必须主动通过子进程调用 `pg_dump` 形成按时间戳命名的硬备份文件 (`database/backups/`)。
+- **原生 SQL 降级**: 当必须精准修复具有生命周期字段（如 `created_at`, `updated_at`）的数据时，必须使用 `prisma.$executeRawUnsafe` 绕过 ORM 的自作主张。
+
+### 影响
+- 成功地从 `.sql` 备份文件中抽取出历史数据，写了两个专门的修复脚本 (`restore_covers.ts`, `restore_dates.ts`) 完美逆转了灾难。

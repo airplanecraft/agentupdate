@@ -70,3 +70,22 @@
     - [x] 图像生成：`imagen-4.0-fast-generate-001` + 备用 `imagen-4.0-generate-001`
 - [x] 屏蔽 RSS 抓取失败日志（只保留文章内容层日志）
 - [x] Session Archive
+
+
+## [Admin UI Feature: Visual Tutorial Importer — 2026-05-13]
+
+- [x] Implement backend API `/api/tutorials/scan` to read `admin/content/` folders
+- [x] Implement backend API `/api/tutorials/import` for targeted single-series Prisma upsert
+- [x] Implement backend API `/api/generate-cover` for AI image generation and local saving
+- [x] Build Frontend Admin UI (Dropdown, Dry Run Preview, Visual Warnings for missing frontmatter)
+- [x] Implement E2E / Integration tests for the UI importer and targeted sync API
+- [x] Session Archive
+
+## [Claude Code Command Tutorial Optimization — 2026-05-13/14]
+
+- [x] Fix Lesson 1: Remove deprecated commands (/scroll-speed, etc.), add /config, /model
+- [x] Restore missing sections: Development Phase (Execution & Testing) and MCP Plugins
+- [x] Refine /add-dir description to match official behavior (Working Dir, Persistence, Resumability)
+- [x] Replace old 6-chapter tutorial with comprehensive 15-file guide from `my-pomodoro` (12 chapters + Intro + 2 Appendices)
+- [x] Verify and sync all 15 lessons to database via Import API
+- [x] Session Archive

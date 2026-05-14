@@ -1,3 +1,13 @@
+## BUG-012: Admin Tutorial Importer UI Regression (Fixed 2026-05-13)
+
+- **发现时间**: 2026-05-13 10:00
+- **自愈轮次**: 1 / 5
+- **症状**: Git 重置后，`admin/tutorial.astro` 中的“导入教程”按钮和弹窗交互逻辑丢失。
+- **根因**: 上次会话的非受控 Git 操作覆盖了未提交的 UI 代码。
+- **修复方案**: 手动恢复丢失的 Astro 组件代码、弹窗 State 逻辑以及前端交互 Script。
+- **结果**: PASS
+- **相关文件**: `admin/src/pages/admin/tutorial.astro`
+
 # 缺陷记录 (Bugs)
 
 ## BUG-121: OpenSpec 教程 Frontmatter 嵌套双引号导致解析失败
@@ -166,3 +176,16 @@
 - **修复方案**: 在拼接 `nav` 对象时，对 `series.lessons` 中的前后文章节点执行相同的扩展映射：当 `lang === 'en'` 时使用 `titleEn` 覆盖 `title`，确保向模板输出正确的语种文字。
 - **结果**: PASS。
 - **相关文件**: `website/src/lib/tutorials.ts`
+
+
+## BUG-118: sync_bilingual_all.ts 造成数据库全量属性覆盖 (灾难级)
+- **发现时间**: 2026-05-13 11:51
+- **自愈轮次**: 3 / 5
+- **症状**: 在仅需导入 `anti-scraping-tutorial` 的场景中，全局脚本重新 Upsert 了所有教程。导致旧教程的发布状态被重置为 `draft`，`coverImage` 被置为 `null`，`updated_at` 属性被更新为最新时间。
+- **根因**: 脚本在找不到本地 Frontmatter 属性时采用了暴力置空的回退策略；且 Prisma ORM 在 `update` 操作时会强制更新带有 `@updatedAt` 修饰符的字段。
+- **修复方案**: 
+  1. 运行 `restore_status.ts` 利用 Prisma 更新全部记录回到 `published` 状态。
+  2. 运行 `restore_covers.ts` 通过解析上午的 pg_dump 备份提取封面字段回写。
+  3. 运行 `restore_dates.ts` 使用 Prisma `$executeRawUnsafe` 执行原生 SQL，注入了备份文件中的 `created_at` 和 `updated_at` 绕过拦截。
+- **结果**: PASS (全面还原了灾难现场)
+- **相关文件**: `admin/scripts/sync_bilingual_all.ts`, `admin/scripts/restore_dates.ts`
