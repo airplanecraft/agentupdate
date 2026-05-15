@@ -99,3 +99,11 @@
 - [x] Sync series and lessons to database via targeted import API
 - [x] Update llms.txt with new tutorial for AI agent discoverability
 - [x] Session Archive
+
+## [Antigravity Masterclass Translation & Fixes — 2026-05-15]
+
+- [x] Fix the "---" missing title bug by standardizing `order` to `sortOrder` and `description` to `summary` in frontmatter.
+- [x] Translate remaining 24 chapters (07-30) of Antigravity Masterclass into English.
+- [x] Write Python script with multithreading and Gemini API for bulk automated translation.
+- [x] Synchronize database and verify `titleEn` population for ID 55.
+- [x] Session Archive
