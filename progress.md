@@ -1,3 +1,20 @@
+## 2026-05-15 17:00 — [SEO] Robots.txt 开放模式切换
+
+### 完成事项
+- **robots.txt 开放化**: 将 `robots.txt` 从严格白名单模式（30+ 命名 User-agent）切换为全面开放模式（`User-agent: *` Allow），从 50 行简化为 17 行。
+- **保护路径保留**: 继续屏蔽 `/api/`、`/_astro/`、`/pagefind/` 等内部资源路径。
+- **线上验证**: 确认本地 `public/robots.txt` 与线上 `www.agentupdate.ai/robots.txt` 内容一致，部署后即可生效。
+- **llms.txt 审查**: 确认 `llms.txt` 内容结构完整，涵盖 20+ 教程系列、产品目录、技能市场等核心板块。发现部分新教程尚未收录（如 caveman-tutorial、claude-memory-tutorial 等），待后续补充。
+
+### 关键决策
+- **开放优于封锁**: 作为内容驱动型平台，最大化 SEO 和 AI 可发现性比防刷更重要。Cloudflare WAF + Rate Limiting 足以兜底流量保护，无需在 robots.txt 层面维护 UA 白名单。
+
+### 下一步
+- 部署更新后的 robots.txt 至线上。
+- 补充 llms.txt 中缺失的新教程条目。
+
+---
+
 ## 2026-05-15 07:45 — GStack Superpowers Tutorial & AI Discoverability
 
 ### 完成事项

@@ -107,3 +107,12 @@
 - [x] Write Python script with multithreading and Gemini API for bulk automated translation.
 - [x] Synchronize database and verify `titleEn` population for ID 55.
 - [x] Session Archive
+
+## [SEO: Robots.txt Open Mode — 2026-05-15]
+
+- [x] Switch robots.txt from strict whitelist (30+ UA) to open mode (`User-agent: *`)
+- [x] Keep internal path protections (`/api/`, `/_astro/`, `/pagefind/`)
+- [x] Verify live site vs local source consistency
+- [ ] Deploy updated robots.txt to production
+- [ ] Update llms.txt with missing tutorials (caveman, claude-memory, claude-remote-control, etc.)
+- [x] Session Archive
