@@ -172,8 +172,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         console.log("⏹️ [brbott|Content] 收到停止指令...");
         sendResponse({ success: true });
     } else if (request.action === 'fetch_content_biz') {
+        sendResponse({ success: true, message: '批量拉取文章任务已启动' });
         (async () => {
-            const { token, fingerprint, accounts, maxPage, delay } = request.payload;
+            const payload = request.payload || request;
+            const { token, fingerprint, accounts, maxPage, delay } = payload;
             const count = 5; // 微信每次默认返回 5 条文章
 
             isContentBizPaused = false;
@@ -308,19 +310,19 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
                 const finalStatus = isContentBizStopped ? 'stopped' : 'completed';
                 chrome.runtime.sendMessage({ action: 'content_biz_status', status: finalStatus });
-                sendResponse({ success: true, message: `任务结束: ${finalStatus}` });
 
             } catch (e) {
                 console.error('❌ [brbott|Content] 批量抓取中途失败:', e);
                 chrome.runtime.sendMessage({ action: 'content_biz_status', status: 'error' });
-                sendResponse({ success: false, error: e.toString() });
             }
         })();
 
         return true;
     } else if (request.action === 'fetch_repost_biz') {
+        sendResponse({ success: true, message: '微信后台转载抓取任务已成功接收并启动' });
         (async () => {
-            const { token, fingerprint, queries, maxPage, delay } = request.payload;
+            const payload = request.payload || request;
+            const { token, fingerprint, queries, maxPage, delay } = payload;
             const count = 20; // 从示例来看一次取10条
 
             isRepostBizPaused = false;
@@ -443,18 +445,17 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
                 const finalStatus = isRepostBizStopped ? 'stopped' : 'completed';
                 chrome.runtime.sendMessage({ action: 'repost_biz_status', status: finalStatus });
-                sendResponse({ success: true, message: `任务结束: ${finalStatus}` });
 
             } catch (e) {
                 console.error('❌ [brbott|Repost] 批量查询中途失败:', e);
                 chrome.runtime.sendMessage({ action: 'repost_biz_status', status: 'error' });
-                sendResponse({ success: false, error: e.toString() });
             }
         })();
-        return true;
     } else if (request.action === 'fetch_search_biz') {
+        sendResponse({ success: true, message: 'Search Biz抓取任务已启动' });
         (async () => {
-            const { token, fingerprint, query, maxPage, delay } = request.payload;
+            const payload = request.payload || request;
+            const { token, fingerprint, query, maxPage, delay } = payload;
             const count = 5; // 微信每次默认返回 5 条
             const results = [];
 
@@ -550,15 +551,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
                 const finalStatus = isSearchBizStopped ? 'stopped' : 'completed';
                 chrome.runtime.sendMessage({ action: 'search_biz_status', status: finalStatus });
-                sendResponse({ success: true, message: `任务结束: ${finalStatus}`, data: results });
 
             } catch (e) {
                 console.error('❌ [brbott] Search Biz 批量抓取中途失败:', e);
                 chrome.runtime.sendMessage({ action: 'search_biz_status', status: 'error' });
-                sendResponse({ success: false, error: e.toString() });
             }
         })();
-        return true;
     }
 });
 

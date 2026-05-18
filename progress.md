@@ -1,4 +1,28 @@
+## 2026-05-18 21:40 — [WeChat Article Rewrite & AI Synthesis Phase 2 Completed] ✅
+
+### 完成事项
+1. **Cloudflare Worker 代理环境变量集成**: 将 Edge Crawler 代理链接 `EDGE_CRAWLER_PROXY_URL="https://edge-crawler-proxy.exploit1205.workers.dev"` 完美合并至 `admin/.env` 中。
+2. **后端 Edge-Scrape 抓取净化接口**: 编写了高内聚的 `/api/blog/edge-scrape` Astro API，接收原文 URL 并经由 Cloudflare Worker 代理并发获取 HTML，利用高精度 Regex 模块精准抓取 `#js_content` 正文并滤除 `script`, `style` 及 DOM 杂质。
+3. **后端 AI-Rewrite 融合改写引擎**: 编写了 `/api/blog/ai-rewrite` Astro API，基于 Prisma 从 `WechatRepost` 提取所选文章实体，开启并发代理抓取，将合并的多维正文、SEO 专属 System Prompt 送入 Gemini 3.0，强制开启 `response_mime_type: "application/json"`，完美解析生成结构化的 Title、Slug、Summary、Content Markdown 内容，并持久化插入 `BlogPost` 数据库为 `draft` 状态。
+4. **前端 Premium 融合改写工作台**: 创建了极具美感与震撼视觉体验的 `/admin/blog/rewrite.astro`：
+   - **左侧类别边栏**: 基于 `groupBy` 动态聚合 `WechatRepost` 的 `query` 词条及所含文章总数。
+   - **主展示表**: 支持多选 (Multiselect)、原文新窗口跳转 (🔗 原文链接) 以及简介预览。
+   - **智能浮动条**: 选中 2 篇及以上文章时，自动自底部优雅滑出渐变色触发条。
+   - **高级毛玻璃进度模版**: 点击后呈现毛玻璃遮罩 filter，展示炫丽微动画 spinner、实时分步进度追踪 (Step Tracker) 及底层开发日志输出 (Live Logs)，操作顺畅无比。
+5. **全量构建验证**: 在 `/admin` 目录下运行 `npm run build` 全量打包，Astro 静态及服务端打包 100% 成功，完全无 TS 类型警告与代码隐患。
+
+### 关键决策
+- **前端 Vanilla 轻量高内聚**: 前端全部采用原生 Vanilla JS + Astro SSR 相结合，零外部多余插件依赖，保证了无敌的页面加载速度与最高内聚性。
+- **数据库 ID 驱动机制**: 改写接口不传递繁重的 URL 或原文，仅需传入勾选的文章数据库 ID，由后端并发拉取，最大化确保了接口安全、防爬和数据一致。
+
+### 下一步
+- 将该改写工作台合并到线上部署。
+- 准备开始进行微信公众号改写生成博文的运营发布测试。
+
+---
+
 ## 2026-05-15 17:00 — [SEO] Robots.txt 开放模式切换
+
 
 ### 完成事项
 - **robots.txt 开放化**: 将 `robots.txt` 从严格白名单模式（30+ 命名 User-agent）切换为全面开放模式（`User-agent: *` Allow），从 50 行简化为 17 行。

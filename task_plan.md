@@ -142,3 +142,16 @@ Plan: `docs/plans/2026-05-16-tech-blog-phase1.md`
 - [x] Fix homepage cover image rendering bug: support bilingual English covers on the English homepage.
 - [x] Fix homepage product icon fallback: replace duplicate robot emoji 🤖 fallback with dynamic capitalized product initials and premium color palettes.
 - [x] Session Archive
+
+## [Tech Blog Module — Phase 2: WeChat Article Rewrite & AI Synthesis — 2026-05-18]
+
+Design: `/Users/eric/.gemini/antigravity/brain/9e66e54f-2b4b-4cbd-8598-e79985882527/wechat_article_rewrite_architecture.md`
+
+- [x] Task 1: Environment Integration — Add EDGE_CRAWLER_PROXY_URL to admin/.env
+- [x] Task 2: Backend Scraper API — Create `/api/blog/edge-scrape` utilizing the Cloudflare Worker proxy and cleaning js_content
+- [x] Task 3: Backend AI Synthesis Route — Create `/api/blog/ai-rewrite` to aggregate multiple scraper results, synthesize with Gemini, and Prisma upsert Draft BlogPost
+- [x] Task 4: Frontend UI Dashboard — Create `/admin/blog/rewrite.astro` (Keywords group sidebar, WeChat articles table with multiselect, live dynamic progress modal, and auto-redirect)
+- [x] Task 5: Integration & E2E Validation
+- [x] Session Archive
+
+
