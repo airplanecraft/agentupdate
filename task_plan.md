@@ -131,13 +131,15 @@ Plan: `docs/plans/2026-05-16-tech-blog-phase1.md`
 - [x] Task 7: Integration testing & smoke test
 - [x] Session Archive
 
-## [Product i18n & Symmetry Alignment — 2026-05-18]
+## [Product i18n, Layout Sync & Nano Banana Pro Fallback — 2026-05-18]
 
 - [x] Fix i18n nullish coalescing fallback bug (`??` -> `||`) on English list & details pages to handle empty string metadata.
 - [x] Align Chinese product detail page: implement tags and related products grid.
 - [x] Remove Related AI News (`RelatedNews`) section completely from all product pages to keep clean layout.
 - [x] Run full Astro build validation to verify zero compile errors.
-- [x] Session Archive
+- [x] Integrate **Nano Banana Pro (`gemini-3-pro-image-preview`)** as the 3rd priority backup model with intelligent endpoint and protocol auto-routing.
+- [x] Execute `patch-covers.ts` to successfully batch generate and upload 37 missing article covers to R2.
+- [/] Session Archive
 
 
 

@@ -36,6 +36,23 @@
 
 # Progress Log
 
+## 2026-05-18 10:45 — [Product i18n, Layout Sync & Nano Banana Pro Fallback]
+
+### 完成事项
+- **中英文详情功能与布局完美对齐**：为中文产品详情页新增了“Tags 标签”与“相关产品”推荐卡片，清除“相关 AI 行业动态”以保持极简排版，并修复了英文端 `??` -> `||` 的空字段容错 Bug。
+- **集成 Nano Banana Pro 灾备生图**：在 `crawler/src/ai/image-generator.ts` 中集成了 **Nano Banana Pro (`gemini-3-pro-image-preview`)** 作为第三优先级备份生图工具。实现了智能前缀检测和协议自适应，当模型以 `gemini-` 开头时自动重定向至 `:generateContent` API 协议，并智能解析其 candidates.content 中的 Base64 inlineData，实现了双协议完美融合。
+- **全量 37 篇历史文章配图全自动补全**：运行后台全自动补全脚本，前两款 Imagen 4 模型因额度耗尽触发 429 报错时，系统秒级自动熔断降级至 Nano Banana Pro 成功接替生图，将 **37 篇封面图为空的已发布文章完美绘制了中英双语配图**，并 100% 成功裁剪、优化且同步上传至 Cloudflare R2 CDN 及数据库！
+- **全量构建验证**：再次运行 Astro build，完美编译无任何警告。
+
+### 关键决策
+- **多协议自适应**：使用 `isGeminiModel` 区分 API 端点（Imagen 的 `:predict` vs Gemini 的 `:generateContent`），避免为每个模型手动编写单独逻辑，实现了极高内聚的优雅设计。
+- **独立额度隔离**：利用 Gemini 3 Pro 独立且富余的图像生成配额，绕过每日 Imagen 限额，一次性彻底解决了全站历史文章配图缺失的痛点。
+
+### 下一步
+- 执行 `npm run build` 以在本地或生产环境渲染最新的数据库配图页面。
+
+---
+
 ## 2026-05-18 10:15 — [Product i18n & Symmetry Alignment]
 
 ### 完成事项

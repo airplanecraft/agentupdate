@@ -19,6 +19,25 @@
 
 # Project Findings
 
+## Finding v1.8 — Multi-Protocol Adaptive Image Generation & CDN Automation (2026-05-18 10:50)
+
+### 背景
+Imagen 4 系列生图模型（如 `imagen-4.0-generate` 与 `imagen-4.0-fast-generate`）在 Google AI Studio 下每日共享 70 次的调用限额。一旦发生高强度改写与频繁生图，极易频繁触发 429 Resource Exhausted 额度耗尽报错，从而阻断全自动文章分发管线。
+
+### 发现
+1. **多模态生图新选择**：**Nano Banana Pro (`gemini-3-pro-image-preview`)** 大模型支持高质量图像生成，且其配额与 Imagen 4 完全隔离独立。
+2. **底层协议不兼容**：传统的 Imagen 4 模型属于图像生成模型，需调用 API 专用 `:predict` 端点；而 Nano Banana Pro 属于多模态大模型，必须调用 Google 统一的 `:generateContent` 端点。
+3. **数据解包差异**：`:predict` 的出参为 base64 的 predictions 数组，而 `:generateContent` 的出参是 candidates.content.parts 下的 Base64 `inlineData`。
+
+### 决策
+- **实现协议自适应适配器 (Adapter)**：在 `image-generator.ts` 中根据 `modelName` 前缀智能分流。以 `gemini-` 开头时自动切换端点为 `:generateContent` 并打包大模型 Payload；提取时检测其 `inlineData` 字段，实现协议高度解耦。
+- **自动熔断与降级级联**：配置 `IMAGE_GENERATOR_MODEL` 变量，将 Nano Banana Pro 作为第三优先级兜底，前两层 429 报错时，系统秒级无缝下线并由第三层完美接管。
+
+### 影响
+- 在实测中成功秒级熔断降级并由 Nano Banana Pro 成功接替，批量生成并同步上传了 **37 篇** 历史空封面文章的双语配图至 Cloudflare R2，打通了全站多模型灾备架构。
+
+---
+
 ## Finding v1.6 — AI-First Discoverability via llms.txt (2026-05-15 07:50)
 
 ### 背景

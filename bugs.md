@@ -10,6 +10,26 @@
 
 # 缺陷记录 (Bugs)
 
+## BUG-122: 英文产品列表与详情空字段空合并漏洞
+- **发现时间**: 2026-05-18 10:15
+- **自愈轮次**: 1 / 5
+- **症状**: 在访问英文版产品列表与详情页面时，有些产品在页面上显示为完全空白的名称和公司名，并且控制台没有任何报错。
+- **根因**: 在英文版产品数据流渲染时，使用 nullish coalescing 操作符 `p.nameEn ?? p.name` 来进行回退。但实际上，数据库中部分未被 AI 改写的英文属性并非 `null`，而是空字符串 `""`。根据 JavaScript 运算规则，`"" ?? "foo"` 会返回 `""`，导致前端模板拿到了空字符串进行渲染，造成了视觉上的空白。
+- **修复方案**: 将 `??` 替换为 falsy coalescing `||`。因为在 JS 中 `""` 被视为 falsy 值，`"" || "foo"` 会正确回退到 `"foo"`（中文名称），完美实现了双语平滑降级。
+- **结果**: PASS。
+- **相关文件**: `website/src/pages/en/product/[slug].astro`, `website/src/pages/en/product/index.astro`, `website/src/lib/variants.ts`
+
+## BUG-123: Imagen 4.0 429 Resource Exhausted 额度耗尽导致全站配图阻断
+- **发现时间**: 2026-05-18 10:30
+- **自愈轮次**: 1 / 5
+- **症状**: 进行批量历史文章封面补全或高频次改写时，Imagen API 100% 报错 429 Resource Exhausted，导致生成的双语图片 URL 均为空白，无法修补全站的灰色占位图。
+- **根因**: Google AI Studio 为每个账号配置了严格的每日 Imagen 系列生图限额（全天共 70 次），且无处申诉。而在高强度的新闻处理管线中，每日改写文章很容易超限，一旦超限，系统前两道防线全数下线。
+- **修复方案**: 在 `crawler/src/ai/image-generator.ts` 中集成了最新的 **Nano Banana Pro (`gemini-3-pro-image-preview`)** 作为第三优先级兜底模型。由于其调用端点和出参协议与传统的 Imagen 完全不同，在此实现了协议自适应适配器（如果是 `gemini-` 开头，自动走 `:generateContent` 端点并解析 candidates 中的 base64 `inlineData`），从而在 Imagen 429 报错时瞬间熔断降级至 Nano Banana Pro 成功绘图并写入数据库！
+- **结果**: PASS。利用该熔断降级机制，成功批量生成并修补了 37 篇封面为空的历史文章。
+- **相关文件**: `crawler/src/ai/image-generator.ts`, `website/src/patch-covers.ts`
+
+---
+
 ## BUG-121: OpenSpec 教程 Frontmatter 嵌套双引号导致解析失败
 - **发现时间**: 2026-05-12 14:10
 - **自愈轮次**: 1 / 5
