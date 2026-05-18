@@ -1,0 +1,43 @@
+{
+    "manifest_version": 3,
+    "name": "brbott",
+    "version": "1.0",
+    "description": "Chrome 浏览器插件 brbott",
+    "action": {
+        "default_title": "打开 brbott"
+    },
+    "permissions": [
+        "storage",
+        "activeTab",
+        "tabs",
+        "scripting",
+        "sidePanel"
+    ],
+    "side_panel": {
+        "default_path": "sidepanel.html"
+    },
+    "background": {
+        "service_worker": "background.js"
+    },
+    "content_scripts": [
+        {
+            "matches": [
+                "<all_urls>"
+            ],
+            "js": [
+                "content.js"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [
+                "<all_urls>"
+            ],
+            "js": [
+                "inject.js"
+            ],
+            "run_at": "document_start",
+            "world": "MAIN"
+        }
+    ]
+}

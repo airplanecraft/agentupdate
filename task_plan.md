@@ -139,7 +139,6 @@ Plan: `docs/plans/2026-05-16-tech-blog-phase1.md`
 - [x] Run full Astro build validation to verify zero compile errors.
 - [x] Integrate **Nano Banana Pro (`gemini-3-pro-image-preview`)** as the 3rd priority backup model with intelligent endpoint and protocol auto-routing.
 - [x] Execute `patch-covers.ts` to successfully batch generate and upload 37 missing article covers to R2.
-- [/] Session Archive
-
-
-
+- [x] Fix homepage cover image rendering bug: support bilingual English covers on the English homepage.
+- [x] Fix homepage product icon fallback: replace duplicate robot emoji 🤖 fallback with dynamic capitalized product initials and premium color palettes.
+- [x] Session Archive

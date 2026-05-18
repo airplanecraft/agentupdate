@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>brbott 控制台</title>
+    <link rel="stylesheet" href="sidepanel.css">
+</head>
+
+<body>
+    <div id="app">
+        <h1>brbott 拦截器</h1>
+        <p>页面 JSON 响应数据日志：</p>
+        <div class="actions">
+            <button id="getDataBtn">获取主页数据(原功能)</button>
+            <button id="clearBtn" class="secondary">清空日志</button>
+        </div>
+
+        <!-- Tabs Header -->
+        <div class="tab-container">
+            <button class="tab-btn active" data-tab="tab-search">Search Biz 配置</button>
+            <button class="tab-btn" data-tab="tab-content">内容获取</button>
+            <button class="tab-btn" data-tab="tab-repost">转载获取</button>
+        </div>
+
+        <!-- Tab Content: Search Biz -->
+        <div id="tab-search" class="tab-content active">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <p style="margin: 0; font-weight: bold; font-size: 13px; color: #333;">🔍 批量 Search Biz</p>
+                <span id="bizStatusText"
+                    style="font-size: 11px; font-weight: bold; color: #7f8c8d; padding: 2px 6px; border-radius: 10px; background-color: #ecf0f1;">闲置中</span>
+            </div>
+            <div style="margin-bottom: 8px;">
+                <label for="queryInput" style="font-size: 12px; width: 60px; display: inline-block;">关键词:</label>
+                <input type="text" id="queryInput" value="openclaw"
+                    style="width: 150px; padding: 4px; font-size: 12px; border: 1px solid #ccc; border-radius: 3px;">
+            </div>
+            <div style="margin-bottom: 8px;">
+                <label for="pageInput" style="font-size: 12px; width: 60px; display: inline-block;">拉取页数:</label>
+                <input type="number" id="pageInput" value="1" min="1"
+                    style="width: 80px; padding: 4px; font-size: 12px; border: 1px solid #ccc; border-radius: 3px;">
+            </div>
+            <div style="margin-bottom: 10px;">
+                <label for="delayInput" style="font-size: 12px; width: 60px; display: inline-block;">延迟(ms):</label>
+                <input type="number" id="delayInput" value="3000" step="500" min="0"
+                    style="width: 80px; padding: 4px; font-size: 12px; border: 1px solid #ccc; border-radius: 3px;">
+            </div>
+
+            <div style="display: flex; gap: 5px; justify-content: space-between;">
+                <button id="startBizBtn" style="background-color: #27ae60; flex: 1; padding: 6px;">▶️ 启动</button>
+                <button id="pauseBizBtn" style="background-color: #f39c12; flex: 1; padding: 6px;" disabled>⏸️
+                    暂停</button>
+                <button id="stopBizBtn" style="background-color: #c0392b; flex: 1; padding: 6px;" disabled>⏹️
+                    停止</button>
+            </div>
+        </div>
+
+        <!-- Tab Content: 内容获取 -->
+        <div id="tab-content" class="tab-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <p style="margin: 0; font-weight: bold; font-size: 13px; color: #333;">📄 批量提取文章</p>
+                <span id="contentStatusText"
+                    style="font-size: 11px; font-weight: bold; color: #7f8c8d; padding: 2px 6px; border-radius: 10px; background-color: #ecf0f1;">闲置中</span>
+            </div>
+
+            <div style="margin-bottom: 8px; font-size: 12px;">
+                <label style="display: inline-block; width: 60px;">来源CSV:</label>
+                <input type="file" id="csvFileInput" accept=".csv" style="width: 150px; font-size: 11px;">
+                <div id="csvLoadStatus" style="color: #2980b9; margin-top: 4px; font-size: 11px;">(请选择上一步生成的公众号数据)</div>
+            </div>
+
+            <div style="margin-bottom: 8px;">
+                <label for="contentPageInput" style="font-size: 12px; width: 60px; display: inline-block;">拉取页数:</label>
+                <input type="number" id="contentPageInput" value="5" min="1"
+                    style="width: 80px; padding: 4px; font-size: 12px; border: 1px solid #ccc; border-radius: 3px;"
+                    title="每个公众号最多往回拉几页历史文章 (一页5篇)">
+            </div>
+            <div style="margin-bottom: 10px;">
+                <label for="contentDelayInput"
+                    style="font-size: 12px; width: 60px; display: inline-block;">翻页延迟:</label>
+                <input type="number" id="contentDelayInput" value="3000" step="500" min="0"
+                    style="width: 80px; padding: 4px; font-size: 12px; border: 1px solid #ccc; border-radius: 3px;">
+            </div>
+
+            <div style="display: flex; gap: 5px; justify-content: space-between;">
+                <button id="startContentBtn" style="background-color: #27ae60; flex: 1; padding: 6px;">▶️ 提取</button>
+                <button id="pauseContentBtn" style="background-color: #f39c12; flex: 1; padding: 6px;" disabled>⏸️
+                    暂停</button>
+                <button id="stopContentBtn" style="background-color: #c0392b; flex: 1; padding: 6px;" disabled>⏹️
+                    停止</button>
+            </div>
+        </div>
+
+        <!-- Tab Content: 转载获取 -->
+        <div id="tab-repost" class="tab-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <p style="margin: 0; font-weight: bold; font-size: 13px; color: #333;">🔄 批量转载查询</p>
+                <span id="repostStatusText"
+                    style="font-size: 11px; font-weight: bold; color: #7f8c8d; padding: 2px 6px; border-radius: 10px; background-color: #ecf0f1;">闲置中</span>
+            </div>
+            <div style="margin-bottom: 8px;">
+                <label for="repostQueryInput"
+                    style="font-size: 12px; display: block; margin-bottom: 4px;">查询关键词/URL(多行输入):</label>
+                <textarea id="repostQueryInput" rows="3"
+                    style="width: 100%; box-sizing: border-box; padding: 4px; font-size: 12px; border: 1px solid #ccc; border-radius: 3px;"
+                    placeholder="例如: openclaw 或 https://..."></textarea>
+            </div>
+            <div style="margin-bottom: 8px;">
+                <label for="repostPageInput" style="font-size: 12px; width: 60px; display: inline-block;">拉取页数:</label>
+                <input type="number" id="repostPageInput" value="1" min="0" title="填0则自动根据第一次请求返回总量提取所有文章"
+                    style="width: 80px; padding: 4px; font-size: 12px; border: 1px solid #ccc; border-radius: 3px;">
+            </div>
+            <div style="margin-bottom: 10px;">
+                <label for="repostDelayInput"
+                    style="font-size: 12px; width: 60px; display: inline-block;">延迟(ms):</label>
+                <input type="number" id="repostDelayInput" value="3000" step="500" min="0"
+                    style="width: 80px; padding: 4px; font-size: 12px; border: 1px solid #ccc; border-radius: 3px;">
+            </div>
+
+            <div style="display: flex; gap: 5px; justify-content: space-between;">
+                <button id="startRepostBtn" style="background-color: #27ae60; flex: 1; padding: 6px;">▶️ 开始</button>
+                <button id="pauseRepostBtn" style="background-color: #f39c12; flex: 1; padding: 6px;" disabled>⏸️
+                    暂停</button>
+                <button id="stopRepostBtn" style="background-color: #c0392b; flex: 1; padding: 6px;" disabled>⏹️
+                    停止</button>
+            </div>
+        </div>
+        <div id="logs"></div>
+    </div>
+    <script src="node_modules/@fingerprintjs/fingerprintjs/dist/fp.umd.min.js"></script>
+    <script src="sidepanel.js"></script>
+</body>
+
+</html>

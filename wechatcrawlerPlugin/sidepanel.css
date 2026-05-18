@@ -1,0 +1,142 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    padding: 10px;
+    background-color: #f4f7f6;
+    margin: 0;
+    height: 100vh;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+}
+
+#app {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+h1 {
+    color: #2c3e50;
+    font-size: 18px;
+    margin-top: 0;
+    margin-bottom: 5px;
+}
+
+p {
+    color: #555;
+    font-size: 12px;
+    margin-bottom: 10px;
+}
+
+.actions {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+button {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    text-align: center;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    flex: 1;
+}
+
+button:hover {
+    background-color: #2980b9;
+}
+
+button.secondary {
+    background-color: #e74c3c;
+}
+
+button.secondary:hover {
+    background-color: #c0392b;
+}
+
+#logs {
+    flex-grow: 1;
+    background: #1e1e1e;
+    color: #00ff00;
+    overflow-y: auto;
+    border-radius: 4px;
+    padding: 10px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 12px;
+    text-align: left;
+}
+
+.log-entry {
+    border-bottom: 1px solid #333;
+    padding-bottom: 8px;
+    margin-bottom: 8px;
+    word-break: break-all;
+}
+
+.log-method {
+    font-weight: bold;
+    color: #f39c12;
+}
+
+.log-url {
+    color: #3498db;
+    margin-bottom: 5px;
+    display: block;
+}
+
+/* Tab Navigation Styles */
+.tab-container {
+    display: flex;
+    border-bottom: 1px solid #ccc;
+    margin-top: 10px;
+}
+
+.tab-btn {
+    flex: 1;
+    background-color: #f1f1f1;
+    color: #333;
+    border: 1px solid #ccc;
+    border-bottom: none;
+    padding: 8px 5px;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: bold;
+    border-radius: 4px 4px 0 0;
+    transition: background-color 0.3s;
+    margin-right: 2px;
+}
+
+.tab-btn:last-child {
+    margin-right: 0;
+}
+
+.tab-btn:hover {
+    background-color: #ddd;
+}
+
+.tab-btn.active {
+    background-color: #fff;
+    border-bottom: 1px solid #fff;
+    /* overlap bottom border */
+    margin-bottom: -1px;
+    color: #2980b9;
+    z-index: 1;
+}
+
+.tab-content {
+    display: none;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-top: none;
+    background-color: #fff;
+    border-radius: 0 0 4px 4px;
+    margin-bottom: 10px;
+}
+
+.tab-content.active {
+    display: block;
+}

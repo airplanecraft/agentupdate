@@ -10,6 +10,28 @@
 
 # 缺陷记录 (Bugs)
 
+## BUG-124: 英文版首页资讯卡片错误渲染中文封面图
+- **发现时间**: 2026-05-18 18:16
+- **自愈轮次**: 1 / 5
+- **症状**: 用户反馈在英文版首页 (`https://www.agentupdate.ai/`) 最新资讯区域中，有些已经拥有英文翻译封面（数据库存有 `coverImageEn` 且文章详情页展示正常）的文章，卡片仍然顽固显示中文封面。
+- **根因**: 在 `website/src/pages/index.astro` 的最新资讯卡片渲染模块中，图片组件的 `src` 属性硬编码直接引用了 `a.coverImage` (默认中文图)，完全忽视了双语化机制中为英文页面专门设计的 `a.coverImageEn` 字段。
+- **修复方案**: 在 `index.astro` 的对应位置，将 `src={a.coverImage}` 修改为支持回退的双语读取机制 `src={a.coverImageEn || a.coverImage}`，使得英文封面图可以正常在英文版首页呈现。
+- **结果**: PASS。
+- **相关文件**: `website/src/pages/index.astro`
+
+## BUG-125: 首页产品卡片无 Logo 时全部堆叠相同的机器人 Emoji 占位图
+- **发现时间**: 2026-05-18 18:51
+- **自愈轮次**: 1 / 5
+- **症状**: 用户发现在本地 `http://localhost:4321/` 首页，"Agent Product" 区域的多个产品（如 `whatsapp-mcp`、`ai-factory`、`agent-skills`）的图标完全长得一模一样（全都是苹果 3D 机器人头像 Emoji 🤖），但点进详情页后展现出的图标占位符却完全不同。
+- **根因**:
+  1. 通过 Prisma 查询本地 Postgres 数据库，确认上述产品在 Variant 库中的 `logo` 字段值均为 `null` (无配置)。
+  2. 首页 `index.astro` / `zh/index.astro` 之前设计的占位逻辑过于生硬，当 `logo` 缺失时直接硬编码了 Emoji `'🤖'`，导致无 Logo 产品产生高度同质化视觉。而详情页与产品列表页则是提取产品名称的首字母，在彩色圆框中呈现。
+- **修复方案**:
+  1. 移除首页模板中写死的 `'🤖'` 回退，统一重构为动态截取产品英文/中文名称的首位字母 `(p.nameEn || p.name || '').charAt(0)`。
+  2. 在 `global.css` 中重构 `.product-icon` 全局样式，提升字重 (`font-weight: 800`)、设置大写转换 (`text-transform: uppercase`)、并完善了全门类的圆框背景与前景文字颜色配对（包含开源绿色、创业紫色、大厂青色、托管蓝色、硬件橙色），从而实现全站风格彻底拉通。
+- **结果**: PASS。
+- **相关文件**: `website/src/pages/index.astro`, `website/src/pages/zh/index.astro`, `website/src/styles/global.css`
+
 ## BUG-122: 英文产品列表与详情空字段空合并漏洞
 - **发现时间**: 2026-05-18 10:15
 - **自愈轮次**: 1 / 5
