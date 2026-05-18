@@ -36,6 +36,23 @@
 
 # Progress Log
 
+## 2026-05-18 10:15 — [Product i18n & Symmetry Alignment]
+
+### 完成事项
+- **中英文详情功能完全对齐**：为中文产品详情页（`website/src/pages/zh/product/[slug].astro`）新增了“产品 Tags 标签”和“相关产品 (Related Products)”推荐卡片版块，自动匹配中文详情与标签路由，并完美同步全部 Dashed Border Tag 与卡片微调 Hover 样式，实现 100% 视觉与功能对齐。
+- **清除多余新闻动态**：根据用户反馈，从中文详情页彻底删除了“相关 AI 行业动态”这一与产品并不强相关的卡片版块，并清理了相关的 `RelatedNews` 组件引入，英文页也保持无新闻块，保持整体排版的极简与聚焦。
+- **修复英文空字段 Coalescing Bug**：将英文产品详情页和列表页中的 nullish coalescing `??` 替换为 falsy coalescing `||`。解决了当数据库中 `nameEn` 或 `companyEn` 字段存为空字符串 `""` 时页面渲染空白的问题。
+- **全量构建验证**：在 `/website` 下触发 `npm run build` 全量静态编译，100% 成功且无任何警告，确保功能正确性。
+
+### 关键决策
+- **功能对齐**：中英文详情页作为极度高频访问页面，任何功能不对称都会造成用户的体验不适，因此将其代码与 CSS 架构完全复制、翻译和同步。
+- **聚焦产品**：产品页面属于转化层页面，剥离与之不太相关的资讯板块（AI 行业动态）有利于引导用户点击“官网链接”或“技能/插件市场”，提升核心转化率。
+
+### 下一步
+- 补充 `llms.txt` 中遗留的新教程条目（如 `caveman-tutorial` 等）。
+
+---
+
 ## 2026-05-15 07:45 — GStack Superpowers Tutorial & AI Discoverability
 
 ### 完成事项
@@ -290,6 +307,8 @@
 4. **配置化**: 轮询频率/LLM 模型/哈希算法全部通过 .env 控制
 5. **文档更新**
 6. **Stabilization & Fixes**:
+   - [2026-05-16] Completed Tech Blog Module Phase 1: Admin Backend. Implemented BlogPost model, CRUD API, GLM-5.1 AI Chat integration, and full Editor UI.
+   - [2026-05-15] Transitioned robots.txt to open mode for all user agents except sensitive paths.
    - Initial problem reported in Admin Dashboard (`/admin/news?stage=pending`) where the "Batch Publish/Approve/Retry" buttons became ineffective after a single click and just flashed their loading state.
    - Diagnosed root cause: Direct event listeners attached to DOM elements were getting dropped/lost; additionally, when all items were batch-processed, the batch menu incorrectly remained visible leading to confusing empty states.
    - Refactored `news.astro` to use a unified event delegation pattern on `#batch-bar`, resolving the listener race conditions, reducing code repetition, and correctly unmounting the table + showing a success state when the queue is emptied.

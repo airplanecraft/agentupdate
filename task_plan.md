@@ -116,3 +116,28 @@
 - [ ] Deploy updated robots.txt to production
 - [ ] Update llms.txt with missing tutorials (caveman, claude-memory, claude-remote-control, etc.)
 - [x] Session Archive
+
+## [Tech Blog Module — Phase 1: Admin Backend — 2026-05-16]
+
+Design: `docs/plans/2026-05-16-tech-blog-design.md`
+Plan: `docs/plans/2026-05-16-tech-blog-phase1.md`
+
+- [x] Task 1: DB Migration — Add BlogPost model to schema.prisma
+- [x] Task 2: Blog CRUD API (`/api/blog`) with approval workflow
+- [x] Task 3: GLM-5.1 AI Chat API (`/api/blog/ai-chat`) with SSE streaming
+- [x] Task 4: Admin sidebar + topbar stats integration
+- [x] Task 5: Blog list management page (`/admin/blog`)
+- [x] Task 6: Blog editor page with AI chat panel (`/admin/blog/[id]`)
+- [x] Task 7: Integration testing & smoke test
+- [x] Session Archive
+
+## [Product i18n & Symmetry Alignment — 2026-05-18]
+
+- [x] Fix i18n nullish coalescing fallback bug (`??` -> `||`) on English list & details pages to handle empty string metadata.
+- [x] Align Chinese product detail page: implement tags and related products grid.
+- [x] Remove Related AI News (`RelatedNews`) section completely from all product pages to keep clean layout.
+- [x] Run full Astro build validation to verify zero compile errors.
+- [x] Session Archive
+
+
+
