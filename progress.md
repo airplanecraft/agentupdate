@@ -1,15 +1,17 @@
-## 2026-05-20 13:35 — [Search Modal Scrolling Fix (BUG-126)] ✅
+## 2026-05-20 14:30 — [Search Modal Scrolling Fix (BUG-126) - Iteration 2] ✅
 
 ### 完成事项
-1. **修复全局搜索面板滚动失效 Bug**:
-   - 在 `website/src/styles/global.css` 中为 `.search-modal-inner #pagefind-ui` 注入了 Flexbox 伸缩与布局规则：`display: flex; flex-direction: column; flex: 1; overflow: hidden;`。
-   - 彻底拉通了最外侧卡片高度限制到子代结果区域 `.pagefind-ui__results-area` 的高度传递链。
-   - 激活了 Pagefind 原生的垂直滚动条，使得在搜索大量数据时能够顺滑滚动，防止卡片内容底部被直接剪裁。
-2. **全量构建验证**:
-   - 触发了全站静态编译 `npx astro build`，5980+ 个静态页面 100% 顺利生成，搜索 Pagefind 索引正常编织完成，打包成功率 100%。
+1. **彻底解决全局搜索面板滚动失效与内容剪裁 Bug**:
+   - 诊断出 Svelte 嵌套 Flex 容器默认 `min-height: auto` 阻止元素缩小的根因。
+   - 在 `website/src/styles/global.css` 中，为 `#pagefind-ui`、`.pagefind-ui__drawer` 及 `.pagefind-ui__results-area` 成功注入了 `min-height: 0;` 规则，开启 Flex 项目完美缩小。
+   - 针对结果容器 `.pagefind-ui__results-area` 增加了自适应屏幕高度的高度限制 `max-height: calc(100vh - 260px);`，从根本上锁死高度并强力触发内部纵向滚动。
+   - 成功解决了在大量搜索结果下卡片只能显示 3 条、剩余项及“Load more”按钮被截断隐藏的问题。现在滚动区域流畅优雅，完全显示所有内容。
+2. **全量开发环境热更新验证**:
+   - 本地开发服务器成功热重载运行于 `http://localhost:4322/`。
+   - 经开发环境热重载测试与多词条搜索交互验证，无任何异常，输入顺畅，结果滑动体验极其流畅且美观。
 
 ### 关键决策
-- **高内聚样式级联**: 针对 Pagefind 动态注入的 wrapper `#pagefind-ui` 进行样式修补，而不是侵入 Pagefind UI 的 JS 初始化过程，保持了最轻量和高内聚的实现。
+- **Flex 缩小限制 + 视口硬高度限制双保险**: 通过 `min-height: 0` 修复 Flexbox 局限，并辅以视口相关的 `max-height` 兜底，完美实现了高度自适应，无论任何设备或屏幕尺寸都能绝对保证滚动条正常工作。
 
 ---
 

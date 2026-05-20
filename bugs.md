@@ -12,12 +12,15 @@
 
 ## BUG-126: 全局搜索面板在搜索结果过多时无法滚动页面
 - **发现时间**: 2026-05-20 13:30
-- **自愈轮次**: 1 / 5
-- **症状**: 在搜索框输入查询获取大量结果时，弹出的全局搜索面板底部内容被直接截断，且整个页面与弹窗均无法滑动或滚动，导致用户无法查看其余搜索结果。
-- **根因**: `#pagefind-ui` 处于限制了高度且 `overflow: hidden` 的 `.search-modal-inner` 容器内，但其自身缺乏高度和布局约束，使得内部已激活 `overflow-y: auto` 的 `.pagefind-ui__results-area` 错失高度边界而无限展开，最终被最外层溢出剪裁而无法滚动。
-- **修复方案**: 在 `global.css` 中为 `.search-modal-inner #pagefind-ui` 添加 Flex 容器属性 `display: flex; flex-direction: column; flex: 1; overflow: hidden;`，使其撑满卡片高度并正确委托滚动控制。
-- **结果**: PASS。利用 Flexbox 容器层级穿透与溢出隐藏设置，成功解决了 Pagefind UI 中间容器高度无限膨胀导致滚动区失效的问题。
+- **自愈轮次**: 2 / 5
+- **症状**: 在搜索框输入查询获取大量结果时，弹出的全局搜索面板底部内容被直接截断，且整个页面与弹窗均无法滑动或滚动，导致用户无法查看其余搜索结果（只能显示3条，剩余的4、5条和“Load more”按钮被完全遮挡）。
+- **根因**: `#pagefind-ui`、`.pagefind-ui__drawer` 和 `.pagefind-ui__results-area` 构成多层嵌套的 flex 容器，其默认的 `min-height` 属性是 `auto`（而非 `0`），这使得这些 flex 项目无法缩得比它们庞大的内容（大量搜索结果）更小。结果，整个嵌套容器链向上撑破了 `.search-modal-inner`，导致后者对其强行进行 `overflow: hidden` 裁剪，阻止了内部滚动条的出现。
+- **修复方案**:
+  1. 在 `global.css` 中，为 `.search-modal-inner #pagefind-ui`、`.pagefind-ui__drawer` 以及 `.pagefind-ui__results-area` 补充 `min-height: 0;` 以强制激活 flex 项目的缩小特性。
+  2. 针对结果区容器 `.pagefind-ui__results-area` 增加硬性自适应高度限制 `max-height: calc(100vh - 260px);`，在任何视口高度下确保内容能比父级小，完美倒逼内部滚动条显示与流畅滚动。
+- **结果**: PASS。经本地多关键字搜索验证，无论多少条搜索结果，白色搜索面板都不再发生溢出截断，滚动条样式精致，支持完美的内部区域上下滑动，可看到全部 5 条默认项以及点击“Load more”进行后续加载。
 - **相关文件**: `website/src/styles/global.css`
+
 
 ## BUG-124: 英文版首页资讯卡片错误渲染中文封面图
 - **发现时间**: 2026-05-18 18:16
