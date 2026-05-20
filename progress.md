@@ -1,3 +1,18 @@
+## 2026-05-20 13:35 — [Search Modal Scrolling Fix (BUG-126)] ✅
+
+### 完成事项
+1. **修复全局搜索面板滚动失效 Bug**:
+   - 在 `website/src/styles/global.css` 中为 `.search-modal-inner #pagefind-ui` 注入了 Flexbox 伸缩与布局规则：`display: flex; flex-direction: column; flex: 1; overflow: hidden;`。
+   - 彻底拉通了最外侧卡片高度限制到子代结果区域 `.pagefind-ui__results-area` 的高度传递链。
+   - 激活了 Pagefind 原生的垂直滚动条，使得在搜索大量数据时能够顺滑滚动，防止卡片内容底部被直接剪裁。
+2. **全量构建验证**:
+   - 触发了全站静态编译 `npx astro build`，5980+ 个静态页面 100% 顺利生成，搜索 Pagefind 索引正常编织完成，打包成功率 100%。
+
+### 关键决策
+- **高内聚样式级联**: 针对 Pagefind 动态注入的 wrapper `#pagefind-ui` 进行样式修补，而不是侵入 Pagefind UI 的 JS 初始化过程，保持了最轻量和高内聚的实现。
+
+---
+
 ## 2026-05-18 21:40 — [WeChat Article Rewrite & AI Synthesis Phase 2 Completed] ✅
 
 ### 完成事项

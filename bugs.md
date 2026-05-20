@@ -10,6 +10,15 @@
 
 # 缺陷记录 (Bugs)
 
+## BUG-126: 全局搜索面板在搜索结果过多时无法滚动页面
+- **发现时间**: 2026-05-20 13:30
+- **自愈轮次**: 1 / 5
+- **症状**: 在搜索框输入查询获取大量结果时，弹出的全局搜索面板底部内容被直接截断，且整个页面与弹窗均无法滑动或滚动，导致用户无法查看其余搜索结果。
+- **根因**: `#pagefind-ui` 处于限制了高度且 `overflow: hidden` 的 `.search-modal-inner` 容器内，但其自身缺乏高度和布局约束，使得内部已激活 `overflow-y: auto` 的 `.pagefind-ui__results-area` 错失高度边界而无限展开，最终被最外层溢出剪裁而无法滚动。
+- **修复方案**: 在 `global.css` 中为 `.search-modal-inner #pagefind-ui` 添加 Flex 容器属性 `display: flex; flex-direction: column; flex: 1; overflow: hidden;`，使其撑满卡片高度并正确委托滚动控制。
+- **结果**: PASS。利用 Flexbox 容器层级穿透与溢出隐藏设置，成功解决了 Pagefind UI 中间容器高度无限膨胀导致滚动区失效的问题。
+- **相关文件**: `website/src/styles/global.css`
+
 ## BUG-124: 英文版首页资讯卡片错误渲染中文封面图
 - **发现时间**: 2026-05-18 18:16
 - **自愈轮次**: 1 / 5
