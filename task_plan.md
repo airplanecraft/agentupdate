@@ -155,3 +155,15 @@ Design: `/Users/eric/.gemini/antigravity/brain/9e66e54f-2b4b-4cbd-8598-e79985882
 - [x] Session Archive
 
 
+## [博客细节调整与封面同步 — 2026-05-19]
+
+Design: `docs/plans/2026-05-19-blog-fixes-design.md`
+Plan: `docs/plans/2026-05-19-blog-fixes-implementation.md`
+
+- [x] 任务 1: 头部菜单排序调整
+- [x] 任务 2: 每日统计升级 `daily-stats.ts`
+- [x] 任务 3: 数据统计栏 SectionTodayBar 展示
+- [x] 任务 4: 封面资源同步设定
+
+
+
