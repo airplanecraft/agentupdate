@@ -1,3 +1,29 @@
+## 2026-05-21 13:05 — [Blog Aesthetics Premium Redesign, Mermaid Fix & Google Analytics Audit] ✅
+
+### 完成事项
+1. **全站宽度与布局美化对齐**：
+   - 统一调整了 `news`、`blog`、`tutorial`、`product`、`release` 的排版宽度。将博客/教程列表与详情宽度限制在黄金视觉尺度，提供开阔的左右留白与极佳的文字易读性。
+   - 修复了此前博客边框/绿线位置错乱的样式 Bug，使页面元素层级呼吸感更加精致 premium。
+2. **博客内容与技术渲染升级**：
+   - **SEO 内链织网**：为每篇博客文章自动挂载前两篇相邻博客的关联内链，大幅提升内链链接密度与爬虫发现率。
+   - **代码块高亮渲染**：确保所有代码段以规范的 Markdown 渲染，防止直接暴露纯文本。
+   - **Mermaid 渲染修复**：修正了 `google-antigravity-2-0-explained` 博文（中/英文内容）中由于缩进和嵌套导致的 Mermaid 语法错误，恢复了流程图/时序图的正常绘制。
+3. **Google Analytics 全量审计**：
+   - 深度扫描了整个 `src/pages/` 目录下的所有静态 Astro 模板，确认无一例外均通过核心模板 `BaseLayout.astro` 进行了包裹渲染。
+   - 证实 Google Analytics 追踪代码（ID: `G-BZG252PSQD`）已 100% 毫无遗漏地覆盖了全站所有模块（`news`、`blog`、`tutorial`、`product`、`release` 等），未丢失任何统计指标。
+4. **Antigravity 2.0 自定义命令生效向导**：
+   - 详细分析了由于旧版 Harness 弃用导致的 `/session-archive` 等命令消失。
+   - 为用户提供了“口头指定执行”、“终端脚本直接运行”及“全局自定义 Skill 注册”三种全新的高兼容生效方案。
+
+### 关键决策
+- **BaseLayout 全包裹约束**：坚持全局使用单入口基础布局注入 GA tag，简化统计流程，保证了 100% 覆盖率，彻底断绝未来新增页面发生统计丢失的可能性。
+- **内容宽度收敛**：放弃宽屏通栏，根据内容性质差异化限制在 `720px` - `1000px` 黄金排版宽度，辅以居中对齐，打造最具品质感的学术与极客阅读体验。
+
+### 下一步
+- 观察 GA 收集的数据统计，确保近期改动反馈至 Google Analytics 后台。
+
+---
+
 ## 2026-05-20 14:30 — [Search Modal Scrolling Fix (BUG-126) - Iteration 2] ✅
 
 ### 完成事项
