@@ -1,3 +1,23 @@
+## 2026-05-23 14:54 — [Blog Editor Clipboard Paste & File Upload integration] ✅
+
+### 完成事项
+1. **新增图片上传 API**：
+   - 编写了高内聚的后台上传接口 `/api/blog/upload`，支持以 `multipart/form-data` 解析上传的图片文件。
+   - 文件自动按时间戳重命名并持久化保存于 `admin/public/images/blog/`，与前后台的图片分发管线完美契合。
+2. **EasyMDE 双语编辑器深度打通**：
+   - 配置了中文 (`editorZh`) 和英文 (`editorEn`) 两处 EasyMDE 编辑器，开启 `uploadImage: true` 和指向上传接口的 `imageUploadEndpoint`。
+   - 实现了剪贴板图片直接粘贴（`Ctrl + V` / `Cmd + V`）、拖拽上传（Drag & Drop）以及工具栏图标点击上传，且秒级返回 Markdown 标准语法插入编辑框，实现实时渲染。
+3. **全量构建验证**：
+   - 在 `admin` 下执行了 `npm run build` 全量静态编译，100% 成功无任何报错，并运行了系统一键归档。
+
+### 关键决策
+- **原生 API 简化依赖**：利用 Astro 基于标准的 Request API（如 `request.formData()`）直接解析多媒体表单，避免引入沉重的外部第三方库（如 Multer/Formidable），保持整体代码库的最简、最高内聚性与最高性能。
+
+### 下一步
+- 观察用户日常创作贴图的稳定反馈。
+
+---
+
 ## 2026-05-22 10:52 — [Session Archive & Submodule Sync] ✅
 
 ### 完成事项

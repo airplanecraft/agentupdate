@@ -175,5 +175,13 @@ Plan: `docs/plans/2026-05-19-blog-fixes-implementation.md`
 - [x] 全面排查静态页面生成后的 Google Analytics 埋点完整性，确认 100% 覆盖所有模块，无统计丢失
 - [x] 答复用户关于升级 Antigravity 2.0 后自定义会话命令消失的疑问，并指导如何使用/重新生效
 
+## [Tech Blog Module — Editor Clipboard & Image Upload support — 2026-05-23]
+
+- [x] Create backend API `/api/blog/upload` for robust image upload parsing
+- [x] Configure EasyMDE client editor in `[id].astro` for Chinese and English tabs
+- [x] Enable seamless clipboard paste (pasteboard) and drag-and-drop support
+- [x] Verify complete Astro build success with zero errors
+- [x] Session Archive
+
 
 
