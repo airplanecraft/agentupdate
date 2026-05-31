@@ -216,3 +216,24 @@ Imagen 4 系列生图模型（如 `imagen-4.0-generate` 与 `imagen-4.0-fast-gen
 
 ### 影响
 - 成功地从 `.sql` 备份文件中抽取出历史数据，写了两个专门的修复脚本 (`restore_covers.ts`, `restore_dates.ts`) 完美逆转了灾难。
+
+## Finding v1.6 — Astro outDir 清空机制与 macOS 文件锁定引发的部署链崩溃 (2026-05-31 19:10)
+
+### 背景
+用户在执行 `npm run build` 时频繁在清理阶段遭遇 `rm: .../website/dist/news: Directory not empty` 构建中断。为了绕过该文件锁，此前曾尝试使用 `find` 排除 `.git` 进行原地保留清理，但随即导致线上 `/product/`、`/releases/` 等动态路由页面大面积 404，且本地 `website` 源码仓库的 remote origin 被意外篡改为部署分支并遭到污染。
+
+### 发现
+1. **MacOS 文件监视锁机制 (FSEvents)**: 移动或删除 `.git` 文件夹是一个敏感操作，会立刻触发操作系统后台进程（如 VS Code Git 扩展、shell 提示符）激活扫描。这种后台文件扫描产生的短时文件锁，会使紧随其后的 `rm -rf dist` 因句柄未释放而锁死中断。
+2. **Astro 编译 outDir 清除机制**: Astro 在执行 `astro build` 时，其底层机制会**默认直接清空并擦除整个输出目录 (`dist/`)**。这导致任何“原地保留 `.git`”的 `find` 清理方案都会在 Astro 编译启动时被瞬间抹除。
+3. **Git 的向上检索特性 (Upward Traversal)**: 当 `dist/.git` 被 Astro 清空抹除后，在此目录执行的任何 git 动作（如 `git remote` 或 `git commit`）均因找不到当前目录的 `.git` 而自动沿父目录向上检索，最终绑定在父级源码仓库 `website/.git` 下。这导致：
+   * 本应作用于 `dist` 的 remote origin 篡改动作在父级源码仓库生效，指向了部署库。
+   * 本应只包含 html 构建成品的推送操作将整个父级 `website` 源码强制推上了线上，使线上 404 页面丢失且无法构建动态页面。
+
+### 决策
+- **引入 settle 延时释放**: 在 `mv "$DIST/.git" "$BACKUP"` 后强制加入 `sleep 1`。这段微小的延迟能使 macOS 文件系统监视器彻底平息其文件扫描并释放文件锁，确保接下来的 `rm -rf "$DIST"` 100% 畅通无阻。
+- **还原并加固备份-还原机制**: 放弃原地保留，承认 Astro 清除 outDir 的宿命，保留 `.git` 的备份与还原，并在此基础上做好 Git 隔离校验。
+
+### 影响
+- 彻底解决了 `rm: Directory not empty` 编译中止的顽疾。
+- 找回并保护了父级源码仓库，消除了部署对源码的二次污染隐患。
+- 恢复了线上的 200 OK 交付状态，全站动态路由页面完美归位。

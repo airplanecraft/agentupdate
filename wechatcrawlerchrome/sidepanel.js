@@ -374,6 +374,18 @@ document.addEventListener('DOMContentLoaded', function () {
             log('STATUS', `微信页面状态报文: [${message.status}] ${message.message}`);
             sendCrawlStatus(message.status, message.message);
         }
+        
+        // 4. Fallback: Intercept session token actively reported by content.js
+        else if (message.action === 'captured_token_fallback') {
+            if (message.token) {
+                latestWxToken = message.token;
+                capturedTokenDiv.textContent = message.token;
+                capturedTokenDiv.style.color = '#38bdf8';
+                setIndicator(sessionDot, sessionStatusLabel, 'green', '就绪 (已获取会话)');
+                sendClientState();
+                log('SUCCESS', `🌟 成功捕获微信会话 Token: ${message.token}`);
+            }
+        }
     });
 
     // Bind browser active page change hooks to sync auth token in real-time

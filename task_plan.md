@@ -183,5 +183,13 @@ Plan: `docs/plans/2026-05-19-blog-fixes-implementation.md`
 - [x] Verify complete Astro build success with zero errors
 - [x] Session Archive
 
+## [Build Script Optimization & Live 404 Resolution — 2026-05-31]
+
+- [x] Fix build-deploy.sh to prevent macOS file locking race conditions by introducing settle delay (sleep 1)
+- [x] Fix Astro build outDir clearing bug deleting dist/.git and corrupting parent git repository remote config
+- [x] Restore corrupted parent website git remote and soft-reset build commits while keeping local improvements
+- [x] Completely rebuild and redeploy static build output, restoring live status of product/release/skills pages
+- [x] Session Archive
+
 
 

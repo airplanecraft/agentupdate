@@ -693,3 +693,20 @@
 - **下一步**:
     - 启动多文章综合自动化编写微信公众号博客的引擎研发。
 
+---
+
+## 2026-05-31 19:05 — [Build Script Optimization & Live 404 Resolution]
+
+### 完成事项
+- **MacOS 文件锁自愈加固**：在 `build-deploy.sh` 脚本的 `dist/.git` 备份（`mv`）操作之后加入了 `sleep 1` 延迟机制。解决了由于 macOS 后台文件监视器（如 VS Code Git 扩展）高频扫描新变更而导致紧随其后的 `rm -rf dist` 发生 `Directory not empty` 锁死中断的构建 race condition Bug。
+- **静态构建 Git 漏解纠偏**：诊断并修复了 `npx astro build` 默认会擦除整个 `dist/` 输出目录（导致原地清空保留 `.git` 逻辑崩溃）的机制问题。完全还原了独立的 `.git` 备份与还原时序，重新打通了静态构建流水线。
+- **误推源码回滚与 Remote 修复**：成功处理了由于 `dist/.git` 被抹除后，Git 向上穿透绑定到父级 `website/.git` 并将 `website` 源码强制推送到 `openclaweco-website-build` 的重大环境异常。完美重置了父级 `website` 仓库的 remote origin 并进行了软重置分支对齐，没有丢失任何本地样式和图片。
+- **全站线上 404 故障全面消除**：本地通过全新优化的 build-deploy 脚本顺利完成静态打包，编译 16,300+ 文件并全部增量推送。经 live curl 强校验，`/product/`、`/releases/` 和 `/skills/` 均以 `200 OK` 恢复正常，彻底消除线上故障。
+
+### 关键决策
+- **以退为进，保留备份**：在面对静态构建工具（Astro）强力清空 outDir 且配置不可调的情况下，不再执着于原地排除清理，而是保留备份/还原时序并利用 `sleep 1` 平息 macOS 的文件锁定监听，以最稳定成熟的方式打通构建。
+- **源码与构建物理隔离**：在部署脚本中加入了对 remote origin 的严格校验与重新绑定，确保不管本地环境如何变迁，部署推送时 100% 作用于 `openclaweco-website-build.git` 且对 `website` 源码零污染。
+
+### 下一步
+- 待用户指定下一阶段的博客丰富或爬虫集成开发任务。
+

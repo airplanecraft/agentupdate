@@ -589,3 +589,25 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         setTimeout(checkAndClickLink, 2000);
     }
 })();
+
+// On page load, also proactively try to extract token from the current URL and send to sidepanel
+(function extractAndSendToken() {
+    try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get('token');
+        if (token) {
+            console.log("✅ [brbott] 从当前 URL 提取到 token并主动上报: " + token);
+            chrome.runtime.sendMessage({
+                action: 'captured_token_fallback',
+                token: token
+            }, () => {
+                if (chrome.runtime.lastError) {
+                    // Ignore error when sidepanel is not open
+                }
+            });
+        }
+    } catch (e) {
+        console.error("❌ [brbott] 提取 URL token 失败:", e);
+    }
+})();
+

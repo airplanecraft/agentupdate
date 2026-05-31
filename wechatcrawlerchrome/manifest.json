@@ -13,6 +13,9 @@
         "scripting",
         "sidePanel"
     ],
+    "host_permissions": [
+        "*://mp.weixin.qq.com/*"
+    ],
     "side_panel": {
         "default_path": "sidepanel.html"
     },

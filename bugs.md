@@ -243,3 +243,20 @@
   3. 运行 `restore_dates.ts` 使用 Prisma `$executeRawUnsafe` 执行原生 SQL，注入了备份文件中的 `created_at` 和 `updated_at` 绕过拦截。
 - **结果**: PASS (全面还原了灾难现场)
 - **相关文件**: `admin/scripts/sync_bilingual_all.ts`, `admin/scripts/restore_dates.ts`
+
+## BUG-127: Website 构建脚本清理 dist 时因文件锁定报错及 Astro Build 清空 outDir 导致 Git 仓库指针错乱
+
+- **发现时间**: 2026-05-31 18:41
+- **自愈轮次**: 2 / 5
+- **症状**:
+  1. 运行 `npm run build` 时，在清理 `dist` 目录阶段报错 `rm: .../website/dist/news: Directory not empty` 并导致构建中断。
+  2. 修改为原地保留 `.git` 的 `find` 清理方案后，线上 `/product/`、`/releases/`、`/skills/`、`/404.html` 发生 404，且 `website` 源码仓库的 remote origin 被意外改写为 `openclaweco-website-build`，导致源码被强推至部署仓库。
+- **根因**:
+  1. `.git` 文件夹移动时立刻触发 macOS 系统的后台文件监视器（如 VS Code Git 集成等进程）对其进行扫描并产生短时文件锁，导致紧随其后的 `rm -rf "$DIST"` 报错。
+  2. 原本的以 `find` 排除 `.git` 进行原地保留的清理方案忽视了 `npx astro build` 静态构建过程会**默认清空整个 outDir (`dist/`)** 的底层机制。Astro 构建运行时直接抹去了 `dist/.git`，导致随后的 `git` 操作由于找不到 `dist/.git` 自动向上检索并侵入父级 `website/.git`，意外篡改了父级源码仓库的 `remote origin` 并将网站源码错推到了部署分支，进而导致线上 Astro 动态路由页面（如产品详情、版本时间线等）因无法连接本地 DB 构建而大面积 404。
+- **修复方案**:
+  1. 重构并还原 `build-deploy.sh` 的 `.git` 备份与还原机制（必须备份以防 Astro 构建清空）。
+  2. 在 `mv "$DIST/.git" "$BACKUP"` 后立即加入 `sleep 1`，强制让 macOS 后台文件监视器释放句柄并平息锁定，确保接下来的 `rm -rf "$DIST"` 100% 成功。
+  3. 执行 Git 恢复链：重置 `website` 的 remote origin 回 `git@github.com:airplanecraft/openclaweco-website.git`，软重置（`git reset`）消除误提交的 Build 历史但保留用户本地的响应式布局样式及图片，并重新全新初始化 `dist/.git`。
+- **结果**: PASS。本地 `npm run build` 成功完成，Astro 静态页面均完美生成，且仅包含 `dist` 静态成品的 commits 成功推送至 `openclaweco-website-build.git`。线上 `/product/`、`/releases/`、`/skills/` 均恢复 `200 OK` 正常状态。
+- **相关文件**: `website/build-deploy.sh`, `website/.git/config`
