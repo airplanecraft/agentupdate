@@ -203,3 +203,33 @@ Plan: `docs/plans/2026-05-19-blog-fixes-implementation.md`
 - [x] Implement self-healing `fixLooseMermaidBlocks` parser inside `ai-translate.ts` to prevent future code block formatting errors
 - [x] Rebuild and redeploy website, confirming clean HTML generation and live 301 redirections
 - [x] Session Archive
+
+## [AI Release Hub classification, Keyphrase Highlighting & Rate-Limit Safekeeping — 2026-06-02]
+
+- [x] Phase 1: Database Schema Expansion
+    - [x] Add `isMajor` and `highlights` columns in `database/prisma/schema.prisma`
+    - [x] Synchronize `schema.prisma` to `admin` and `crawler` modules
+    - [x] Execute `db push` to apply migration to PostgreSQL database
+    - [x] Regenerate Prisma clients for `database`, `admin`, and `crawler` folders
+- [x] Phase 2: Ingestion & Crawler Logic
+    - [x] Add exponential backoff retry handler `callGeminiWithRetry` in `html-llm.ts` to guard Gemini API against `429` quota exhaustion
+    - [x] Implement local semantic keyword heuristic parser to classify releases and extract key highlights
+- [x] Phase 3: Admin Review Dashboard
+    - [x] Support `isMajor` and `highlights` updates in the review API action
+    - [x] Fix critical bug in the update API to support selective-field updates, avoiding accidental data erasure
+    - [x] Implement interactive Major/Minor list toggle and dynamic editable tag input in admin Releases UI
+- [x] Phase 4: Frontend Website Rendering
+    - [x] Implement regex-safe timeline keyphrase highlighting capsule engine
+    - [x] Update product detail timeline templates (EN/ZH) to render glowing Major cards and compact Minor versions using raw HTML unescaping (`set:html`)
+    - [x] Standardize releases list dashboard (EN/ZH) to display breathing pulses, gradient glows, and rocket status micro-indicators for Major versions
+- [x] Phase 5: Retroactive Data Migration
+    - [x] Author and execute a retroactive migration script to process all 468 existing releases in the database, automatically mapping historical major milestones and key phrase tags
+- [x] Phase 6: Image Generator Prompts English Standardization & Gibberish Suppression
+    - [x] Convert Chinese cover prompts (`promptZh`) to use the English summary (`summaryEn`) as base text
+    - [x] Inject strict negative indicators (`no text, no words, no spelling`) and replace typography keywords with layout composition styling
+- [x] Phase 7: Environment LLM Model Architecture Standardization
+    - [x] Update `LLM_REWRITER_MODEL` to establish Gemini 3.5 Flash as primary and Gemini 3.1 Pro as backup in `.env`
+    - [x] Standardize `RELEASE_LLM_MODEL` to use Gemini 3.5 Flash for high-speed HTML scraping in `.env`
+    - [x] Confirm and lock Imagen 4.0 models for cover image generation as approved
+- [x] Session Archive
+

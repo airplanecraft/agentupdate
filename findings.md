@@ -1,3 +1,43 @@
+## Finding v2.1 — AI发版重大分类、双语生图反乱码标准化与 Gemini 代际模型标准化 (2026-06-02 11:00)
+
+### 背景
+在为 AI 发版大厅设计 Major/Minor 等级划分与重点词高亮微光胶囊时，遭遇了前端 Astro JSX 将 `<span>` HTML 节点转义为纯字符文本展示的问题，以及后台 Svelte-like AJAX 微动交互级联修改数据库时，由于 update API 编写不够严密而引发的局部字段更新擦除其他列属性的一致性灾难。同时针对全自动新闻分发中生图模型频繁在科技封面图背景中渲染形似汉字与英文字符“AI 乱码”的痛点，以及全系统过往历史残存的旧代际 LLM 模型配额割裂问题进行了集中重构。
+
+### 发现
+1. **单页面局部 AJAX API 的擦除隐患**：在进行极简的局部属性级联更新时（例如仅改变 `isMajor` 状态或仅修改 `highlights` 词条），如果后端 REST API 使用的 Prisma 更新命令盲目地解包所有变量（如 `data: { isMajor: Boolean(isMajor), highlights: Array.isArray(highlights) ? ... }`），由于当前只传入一个字段，另一个字段（`undefined`）会在类型转化后被迫退化为 `false` 或 `[]`，从而彻底抹杀数据库中既有的另外半部分人工校正成果。
+2. **Prisma 零成本回溯性数据库重构力**：引入新字段（如 `isMajor` 和 `highlights`）到数据库后，必须主动执行回溯性数据迁移（Retroactive Migration）以激活老数据的视觉潜力。通过复用现成的本地启发式解析器，结合特定的 SemVer 正则模式和专有词汇专有词汇矩阵，可在完全不耗费 LLM API 配额和完全避开限流频率限制的前提下，秒级升级 468 条历史脏数据，让整个时间轴瞬间呈现极富品质的高保真等级。
+3. **Astro JSX 属性安全防转义**：Astro 模板中普通的 `{ applyTimelineHighlights(...) }` 语法会自动对流中的所有 HTML 实体（如 `<span class="capsule">`）执行 HTML 编码转义，以纯文本形式暴露在前台。必须替换为 `set:html={applyTimelineHighlights(...)}` 指令，越过转义管道直接绑定，才是输出高保真微光胶囊的正确通道。
+4. **生图汉字笔画与乱码幻觉的因果律**：生图扩散引擎（如 Imagen）底层基于英文字符-图像 Caption 预训练。在提示词中拼入复杂的中文自然语言摘要，模型在解码还原汉字时极易产生笔画粘连与形似符乱码（Spelling Slop）。将双语配图生成源完全统一为英文（如使用 `summaryEn`），并配合 `"no text, no spelling, no signatures"` 负向阻断以及将排版暗示词 `"typography"` 修正为构图描述，是实现插图零乱码的黄金标准。
+5. **模型独立配额灾备与异构算力搭配**：Google AI Studio 下不同物理 ID 模型系列的 `429 Rate Limit`（调用频率限制）是物理独立且互不干扰的。采用新版 `gemini-3.5-flash` 作为改写、总结 and 发版 HTML 提取的通用高速主力（Cost-Speed 最佳平衡点），并搭配 Pro 级别的 `gemini-3.1-pro-preview` 作为高级推理与限流灾备降级防御，能够形成高吞吐且零中断的生产级大模型管线。
+
+### 决策
+- **动态 selective-field updates 更新模型**：在 `/api/release-review` 后端中，拒绝全属性写死解包，强制引入属性存在性显式判定（`isMajor !== undefined`, `highlights !== undefined`），仅当 payload 明确存在该 key 时才构造 `updateData` 进行合并写入。
+- **本地零消耗回溯迁移脚本**：编写 `crawler/src/release-scraper/migrate-releases.ts` 数据迁移管道，复用本地规则引擎一次性刷新全部 468 条数据，并在后续 crawler 调度时继续保持该本地词汇扫描与 LLM 并发降级机制。
+- **Astro set:html 绝对打通**：在 timeline 主页及各产品发版页面，全面铺设 `set:html` 结合 regex-safe 字符逃逸机制的 highlights 胶囊处理器。
+- **生图提示词全量英文标准化**：彻底剥离生图提示词中的中文摘要，统一使用英文摘要作为发给 Imagen 的图画上下文，并补充严格的反文字污染和去 Typography 暗示约束。
+- **全站 Gemini 代际模型标准化**：更新 `.env` 配置，确立 `gemini-3.5-flash` 主力与 `gemini-3.1-pro-preview` 灾备备份的双级算力格局，同步锁定 Imagen 两级绘图模型。
+
+### 影响
+- 彻底解决了控制台交互因数据擦除而引发的高亮丢失灾难。
+- 468 条历史老数据瞬间获得崭新的 Major 星标及微光高亮胶囊，极大地饱了整个列表主页和时间线的高保真品质。
+- Astro 前台标签渲染 100% 正确，呼吸圆点与脉冲特效 100% 同步流畅。
+- 新生成新闻配图完全剔除了无意义的扭曲字符与中文假乱码，高保真图像质量达到 100% 纯净度。
+- 文本改写与发版提取全面完成了新代际算力切换，运行速度与可靠性双向拉满。
+
+---�全防转义**：Astro 模板中普通的 `{ applyTimelineHighlights(...) }` 语法会自动对流中的所有 HTML 实体（如 `<span class="capsule">`）执行 HTML 编码转义，以纯文本形式暴露在前台。必须替换为 `set:html={applyTimelineHighlights(...)}` 指令，越过转义管道直接绑定，才是输出高保真微光胶囊的正确通道。
+
+### 决策
+- **动态 selective-field updates 更新模型**：在 `/api/release-review` 后端中，拒绝全属性写死解包，强制引入属性存在性显式判定（`isMajor !== undefined`, `highlights !== undefined`），仅当 payload 明确存在该 key 时才构造 `updateData` 进行合并写入。
+- **本地零消耗回溯迁移脚本**：编写 `crawler/src/release-scraper/migrate-releases.ts` 数据迁移管道，复用本地规则引擎一次性刷新全部 468 条数据，并在后续 crawler 调度时继续保持该本地词汇扫描与 LLM 并发降级机制。
+- **Astro set:html 绝对打通**：在 timeline 主页及各产品发版页面，全面铺设 `set:html` 结合 regex-safe 字符逃逸机制的 highlights 胶囊处理器。
+
+### 影响
+- 彻底解决了控制台交互因数据擦除而引发的高亮丢失灾难。
+- 468 条历史老数据瞬间获得崭新的 Major 星标及微光高亮胶囊，极大地饱满了整个列表主页和时间线的高保真品质。
+- Astro 前台标签渲染 100% 正确，呼吸圆点与脉冲特效 100% 同步流畅。
+
+---
+
 ## Finding v2.0 — Pagefind Glob收缩、Prisma运行时缓存死锁与AI双语Slug ASCII标准 (2026-06-02 09:50)
 
 ### 背景

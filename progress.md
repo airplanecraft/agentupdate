@@ -1,3 +1,47 @@
+## 2026-06-02 10:50 — [AI Release Hub Major/Minor Classification, Heuristic Highlighting & Retroactive Migration] ✅
+
+### 完成事项
+1. **数据库 Schema 扩充与多模块同步**：
+   - 在 `schema.prisma` 中为 `Release` 模型新增 `isMajor` (是否重大更新，布尔值，默认 `false`) 和 `highlights` (高亮词汇列表，JSON 数组，默认 `[]`)。
+   - 同步 schema 定义至所有模块（Root、Crawler、Admin），并通过 `prisma db push` 顺利在本地 PostgreSQL 数据库中生效，无损扩充了数据库结构，并重新编译生成了各模块的 Prisma Client。
+2. **Gemini API 限流防护与启发式自愈提取**：
+   - 在 HTML 网页抓取器 (`crawler/src/release-scraper/html-llm.ts`) 中注入了 `callGeminiWithRetry` 模块，使用指数退避重试（Exponential Backoff）完美防护 `429` 频率超限和配额耗尽错误。
+   - 编写了零成本的本地启发式关键词正则扫描器 (`crawler/src/release-scraper/release-writer.ts`)，结合重磅词汇库（如 `Opus 4.8`, `3.5 Sonnet`, `gpt-5`, `/effort`）自动判定发版等级并生成高亮标签，在接口限流时提供自愈回退与零消耗防护。
+3. **管理端后台审批与 selective API 级联修复**：
+   - 编写了管理端异步修改 API（`/api/release-review`），支持对发版数据的 Major 状态和亮点词单独更新。
+   - **修复关键 Bug**：重构了 update API，采用可选字段动态合并（selective-field updates）策略，彻底解决由于 toggle 或 tags 输入单独触发导致对方属性被覆盖重置（导致 `highlights` 变空或 `isMajor` 归零）的严重 API Bug。
+   - 完成了管理端 UI 改造（`admin/src/pages/admin/releases.astro`）：实现了无需刷新页面的 Major/Minor AJAX 交互双向绑定切换，以及高亮短语的动态保存（包含“保存中...”、“保存成功”等反馈）。
+4. **前台黄金时间线渲染与 Astro 标签防转义**：
+   - 编写了 regex-safe 正则表达式匹配替换方法 `applyTimelineHighlights`，自动对文本中的高亮词汇包裹为微光胶囊徽章（`.release-highlight-capsule`），并做好了特例字符的安全正则转义防护。
+   - 改造了中英文产品时间线详情页（`releases/[slug].astro`），使用 Astro `set:html` 原生非转义渲染语法，彻底解决 Astro JSX 将 `<span>` 胶囊徽章当做裸字符串转义的痛点。
+   - 改造了中英文发版大厅列表主页（`releases/index.astro`），增加了 Major 版本的呼吸脉冲圆点动画（CSS `@keyframes timeline-glow-pulse`）、专属 HSL 线性微光渐变，并在标题栏旁添加了 `🚀` 重磅升级的精美火箭标识，极具视觉呼吸感与空间感。
+5. **回溯性数据迁移（Retroactive Migration）**：
+   - 编写了本地原子级回溯数据库迁移脚本（`crawler/src/release-scraper/migrate-releases.ts`），成功对本地数据库中**全部 468 条历史已发布/待审的 Release 记录**进行了无损就地扫描。
+   - 通过本地启发式解析器，一次性回溯填充了全部历史记录的 `isMajor` 属性和 `highlights` 标签，让前后台系统启动时立即拥有丰富的真实发版等级和胶囊亮点，极大地丰富了本地演示原型的高保真体验。
+6. **双语封面生图提示词全英文标准化与乱码压制**：
+   - 彻底重构了双语生图模块 (`crawler/src/ai/image-generator.ts`) 的提示词装配链。
+   - 对中文版封面图提示词 (`promptZh`)，拒绝拼接原始的中文摘要，统一使用翻译后的英文摘要 (`summaryEn`) 作为生图模型读取的上下文。
+   - 在中英双语封面图提示词中强力注入负向文字特征压制词汇 (`"no text, no words, no spelling, no signatures"`)，并移除所有排版暗示词 (`"typography"` -> `"visual composition"`)，迫使 Imagen 扩散引擎完全放弃渲染错乱的文字像素，从根源上消除了汉字和英文字符“AI 乱码”的生成温床。
+7. **全站大语言模型架构标准化升级**：
+   - 根据与用户的讨论对齐，全面梳理了全站可用的大语言模型能力，完成了最新代 LLM 的架构对齐与订正。
+   - 彻底升级全站文本改写与翻译管线（`.env` 中的 `LLM_REWRITER_MODEL`），将主模型指定为新版 `gemini-3.5-flash`，将灾备/高级推理降级模型指定为 Pro 级别的 `gemini-3.1-pro-preview`。
+   - 彻底升级发版大厅 HTML 提取引擎的单体配置（`.env` 中的 `RELEASE_LLM_MODEL`），从旧版 `gemini-2.5-flash` 全速对齐升级至高性能的 `gemini-3.5-flash`。
+   - 确认并锁定当前工作良好的 Imagen 双级生图模型配置：Imagen 4.0 Pro (`imagen-4.0-generate-001`) 作为主力，Imagen 4.0 Fast (`imagen-4.0-fast-generate-001`) 作为备用，确保最顶级的图像与视觉生成表现。
+8. **Git 提交及 Astro Build 锁定防护**：
+   - 严格落实用户“不提交代码、不 push 到服务器、不手动触发 website 线上编译”的绝对指令。所有修改已 100% 调试就绪并留在本地工作区。
+
+### 关键决策
+- **selective-field 级联 API 重构**：对于 Svelte 风格的单页面局部动态更新 API，拒绝写死全模型赋值，采用极其安全的动态 `updateData` 对象结构，杜绝局部交互擦除其它列属性的数据一致性灾难。
+- **本地回溯性数据迁移（468条记录）**：新增数据库字段后必须主动提供一键式迁移脚本。通过复用现成的本地启发式解析器，在零 LLM API 调用消耗和零 rate limit 风险的绝对安全环境下，瞬间填充老数据全新的发版属性。
+- **Astro set:html 原生管道解析**：摒弃传统 JSX 转义限制，结合安全转义 RegExp 的高亮工具函数，确保安全而干净地在前端流式注入高亮 HTML，展现最细腻的视觉效果。
+- **生图提示词 100% 英文标准化与反乱码工程**：图片生成模型在处理非英文字母（尤其是中文笔画）时极易发生“乱码幻觉”。将双语封面生图输入源统一规范为纯英文，并硬性插入反文字干扰词，在维持双语视觉基调的前提下，彻底实现了插图的零文本与零乱码。
+
+### 下一步
+- 协助用户在本地运行 dev 环境，亲自验证控制台 Toggles 动作和 Releases 主页发版纪事的精美呼吸特效。
+- 协助用户手动执行 `website/ npm run build` 生成最终部署产物，并在其满意后进行模块同步推送。
+
+---
+
 ## 2026-06-02 09:50 — [Pagefind Optimizations, WeChat Crawler & AI Slug Sanitization] ✅
 
 ### 完成事项

@@ -10,6 +10,17 @@
 
 # 缺陷记录 (Bugs)
 
+## BUG-132: Admin Release Hub 局部更新 API 因解包类型劫持导致数据擦除 (Fixed 2026-06-02)
+- **发现时间**: 2026-06-02 10:35
+- **自愈轮次**: 1 / 5
+- **症状**: 在发版审批后台（`http://localhost:4322/admin/releases`）使用列表快速切换 `isMajor` 状态时，该条发版之前由爬虫或 LLM 抓取的 `highlights`（高亮词）会被瞬间清空重置为 `[]`；同样，在抽屉中修改并保存 `highlights` 关键词时，该发版的 `isMajor` 状态会被瞬间重置为 `false`，导致数据频繁发生交互擦除。
+- **根因**: 后台审批控制器 `/api/release-review` 中的 `update` action 采用了非受控全属性盲目赋值。每次执行 update 时，由于 request body 只会携带被修改的那一个字段，另一个未携带字段（`isMajor` 或 `highlights`）即为 `undefined`。Prisma 的参数结构直接将未定义的 `highlights` 解包为 `Array.isArray(undefined) ? ... : []` -> `[]`，并将未定义的 `isMajor` 解析为 `Boolean(undefined)` -> `false`，强行重写了数据库记录，导致属性被交互擦除。
+- **修复方案**: 
+  1. 重构 `/admin/src/pages/api/release-review.ts` 中的 `action === 'update'` 分支逻辑。
+  2. 声明一个空对象 `updateData: any = {}`，通过 `isMajor !== undefined` 和 `highlights !== undefined` 显式校验字段存在性，按需装载字段后，再统一送入 `prisma.release.update` 执行，从而彻底消除类型强转对非修改字段的副作用。
+- **结果**: PASS。控制台内不管是连点 Major 状态还是连续修改标签并保存，其它列属性均完美锁定，修改操作达到完美隔离。
+- **相关文件**: `admin/src/pages/api/release-review.ts`
+
 ## BUG-131: 英文版翻译中 Mermaid 代码块反引号丢失导致渲染崩溃 (Fixed 2026-06-01)
 - **发现时间**: 2026-06-01 10:45
 - **自愈轮次**: 1 / 5
