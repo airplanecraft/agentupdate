@@ -10,6 +10,54 @@
 
 # 缺陷记录 (Bugs)
 
+## BUG-131: 英文版翻译中 Mermaid 代码块反引号丢失导致渲染崩溃 (Fixed 2026-06-01)
+- **发现时间**: 2026-06-01 10:45
+- **自愈轮次**: 1 / 5
+- **症状**: 英文翻译后的 BlogPost ID 27 在展示 Architecture Overview 章节时，Mermaid 流程图直接呈现为一坨无格式的 raw 文本段落，完全无法被 Mermaid 引擎识别并渲染为 SVG 关系图。
+- **根因**: 在调用 LLM 进行 Markdown 文档英译的过程中，LLM 偶尔会出现格式飘移（Format Slip），直接丢弃或截断了包裹 Mermaid 语法的 ` ```mermaid ` 三反引号，导致语法结构被当成普通 Markdown 段落输出，直接污染了数据库。
+- **修复方案**: 
+  1. 编写并运行 `fix-composio-mermaid.ts` 临时修复脚本，精准锁定 BlogPost ID 27 中的损坏文本，补充闭合三反引号以恢复其在数据库中的正常渲染。
+  2. 在 `admin/src/pages/api/blog/ai-translate.ts` 的接口处理流中引入 `fixLooseMermaidBlocks` 强力正则捕获函数，一旦检测到有散落的以 `mermaid` 起头且未闭合的语法块，自动采用反引号进行安全物理包裹，实现格式自愈。
+- **结果**: PASS。英文版详情页的 Mermaid 架构图均渲染出非常 premium 的渐变关系拓扑，再无漏字或裸文本溢出现象。
+- **相关文件**: `admin/src/pages/api/blog/ai-translate.ts`
+
+## BUG-130: 博客文章 AI 改写生成中文 URL Slug 导致百分比编码 404 (Fixed 2026-06-01)
+- **发现时间**: 2026-06-01 09:30
+- **自愈轮次**: 1 / 5
+- **症状**: 线上中文版博客在点击某些新发布的 AI 生成文章时报错 404。地址栏呈现一长串高度 percent-encoded 且极其臃肿的 URL（例如 `%E6%9E%84%E5%BB%BA%E7%8E%B0%E4%BB%A3...`），且极易在移动端微信内置浏览器中引发 NFC 与 NFD 规范导致的永久 404 挂起，且会被 Google 搜索引擎认定为链接死链进行权重降级。
+- **根因**: 之前的 `ai-rewrite.ts` 接口对 LLM 返回 of JSON 格式直接信任，未对 `slug` 字段进行全字符集 ASCII 强校验与过滤，导致中文字符以原生态形式直接作为 Slug 写入了 PostgreSQL 数据库并被 Astro 编译为了文件系统路径。
+- **修复方案**:
+  1. 在 `admin/src/pages/api/blog/ai-rewrite.ts` 中精心设计并部署 `slugify` 过滤器，通过 unicode 降噪、强力剥离非 ASCII 与标点符号，确保 Slug 只能由英文字母、数字和横杠 `-` 组成。
+  2. 融入高鲁棒的回退逻辑：若过滤后 Slug 为空（如纯中文输入），则自动提取 `titleEn` 英文标题进行 slugify；若再次为空则利用时间戳与随机 Hash 补位，实现 100% 字符级安全。
+  3. 执行数据库迁移，将已存在的 BlogPost ID 26 中文 Slug 订正为 `modern-web-architecture-seo-edge-redirects-and-ai-friendly-design-guide`，同时在 `website/public/_redirects` 部署 301 静态跳转规则以挽回 SEO 流量。
+- **结果**: PASS。后续所有 AI 生成文章 Slug 均为绝对清洁、平滑的 ASCII 短路径，且线上旧中文 URL 优雅 301 重定向至新地址。
+- **相关文件**: `admin/src/pages/api/blog/ai-rewrite.ts`, `website/public/_redirects`
+
+## BUG-129: 微信爬虫控制台因 Prisma Schema 变更内存缓存未刷新导致运行时 ValidationError (Fixed 2026-06-01)
+- **发现时间**: 2026-06-01 08:15
+- **自愈轮次**: 2 / 5
+- **症状**: 访问 `http://localhost:4322/admin/wechat-crawler` 时页面报错 `500 Internal Server Error`，终端日志爆出 `PrismaClientValidationError: Unknown argument crawlStatus...` 等致命类型校验错误，导致微信数据源控制台直接瘫痪。
+- **根因**:
+  1. 数据库升级了 `WechatRepost` 结构，追加了抓取状态与净化后文本的相关字段。
+  2. 虽然重新生成了 `Prisma Client`，但由于 Node.js 内存加载了之前的旧 Prisma Client 模块缓存，且 `vite` / `astro` 处于热更新状态下并未硬重启 Node 虚拟机，从而使得运行态下的 JS 执行路径仍在使用失效的数据对象映射，导致了强制校验拦截。
+- **修复方案**:
+  1. 重新在 `admin/` 下运行 `pnpm exec prisma generate` 强制刷新客户端元数据。
+  2. 杀死并彻底释放占用 `4322`（主管理端）与 `6688`（WebSocket 调度网）的僵尸 Node.js 进程，随后重启全新的 `npm run dev` 纯净实例，清除内存全局缓存。
+- **结果**: PASS。重新访问控制台，所有微信数据源抓取网格均顺畅加载，状态同步完美运作。
+- **相关文件**: `admin/src/generated/db/` 库
+
+## BUG-128: 静态构建产物超出 Cloudflare Pages 限制 20k 文件大关导致部署断崖式失败 (Fixed 2026-06-01)
+- **发现时间**: 2026-06-01 00:40
+- **自愈轮次**: 1 / 5
+- **症状**: 触发 Cloudflare 部署构建时报错中断，指明整个静态 build 输出的目录文件数量达到了 20,857 个，直接超出了 CF Pages 极度苛刻的 `20,000` 文件硬性上线配额，导致发布被迫完全阻断。
+- **根因**: 全站采用了 Pagefind 作为高响应轻量搜索引擎，其在 build 扫描时默认以贪婪模式扫描了所有的分块、插图、零碎文章以及草稿，产生了海量的以 `*.pf` 结尾的深度哈希搜索碎片索引文件，直接撑爆了文件数量上限。
+- **修复方案**: 在 `astro.config.mjs` 的 Pagefind 集成配置中，强制补充 `--glob` 检索过滤器（配置 `glob: "zh/blog/**/*.html|blog/**/*.html|zh/tutorials/**/*.html|tutorials/**/*.html"`），直接将 Pagefind 的检索范围精确收敛于最核心、最高价值的博客与教程页面，完全排除对大量一次性临时静态资源、单体产品、零碎图片详情页的无效索引。
+- **结果**: PASS。执行 `npm run build` 后，生成的文件数量成功大跌至 **11,875** 个（精简了 43%），安全回落至 20k 阈值以下，线上部署全绿通过。
+- **相关文件**: `website/astro.config.mjs`
+
+
+# 缺陷记录 (Bugs)
+
 ## BUG-126: 全局搜索面板在搜索结果过多时无法滚动页面
 - **发现时间**: 2026-05-20 13:30
 - **自愈轮次**: 2 / 5

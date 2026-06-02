@@ -191,5 +191,15 @@ Plan: `docs/plans/2026-05-19-blog-fixes-implementation.md`
 - [x] Completely rebuild and redeploy static build output, restoring live status of product/release/skills pages
 - [x] Session Archive
 
+## [Cloudflare Pages 20k File Limit, WeChat Crawler Fixes & AI Content Sanitization — 2026-06-01]
 
-
+- [x] Fix Cloudflare Pages 20k file limit error by configuring Pagefind glob content filter in `astro.config.mjs`
+- [x] Compile and push slimmed-down build folder (11,875 files, ~43% reduction) to deploy repository
+- [x] Verify live 404 page client-side redirectsMap integration and confirm Karpathy news 301 redirection works perfectly
+- [x] Fix WeChat Crawler `PrismaClientValidationError` by regenerating Prisma Client in `admin` and restarting dev/websocket servers
+- [x] Fix AI Chinese slug generation bug by adding `slugify` helper in `ai-rewrite.ts` to enforce clean ASCII slugs
+- [x] Migrate BlogPost ID 26 slug in database to clean ASCII format and append 301 edge redirects to `_redirects`
+- [x] Fix English blog post ID 27 rendering error by repairing broken Mermaid backticks in database record
+- [x] Implement self-healing `fixLooseMermaidBlocks` parser inside `ai-translate.ts` to prevent future code block formatting errors
+- [x] Rebuild and redeploy website, confirming clean HTML generation and live 301 redirections
+- [x] Session Archive

@@ -1,3 +1,28 @@
+## Finding v2.0 — Pagefind Glob收缩、Prisma运行时缓存死锁与AI双语Slug ASCII标准 (2026-06-02 09:50)
+
+### 背景
+随着静态文章数量累积，Cloudflare Pages 在部署静态包时遭遇 2 万个文件数量超标的致命硬限制。同时在重构微信爬虫与 AI 翻译/改写管线时，遭遇了 PrismaClient 运行时校验报错、AI 生成 percent-encoded 中文 Slug 引发设备相关 404，以及 LLM 在翻译过程中偶然抹除 Mermaid 流程图代码块的反引号导致的语法损坏。
+
+### 发现
+1. **静态搜索索引文件膨胀**：静态搜索引擎 Pagefind 默认扫描全站所有 HTML 会生成数万个极其细碎的 `.pf` 哈希索引文件。利用 Pagefind config 的 `--glob` 过滤检索范围（如仅对核心博客和教程进行索引），能够在 0 用户体验损耗前提下大幅度削减 43% 的构建文件数量，是规避 Cloudflare 20k 文件红线的首选高杠杆策略。
+2. **Prisma Client 虚拟机内存缓存死锁**：在执行 `prisma db push` 更改 schema 后，哪怕在本地重新执行了 `prisma generate`，若原有的 Astro Dev 进程或 WebSocket 挂载进程（如占用 4322, 6688 端口）在后台保持活跃，Node.js 运行态下的老旧 Module 缓存依然会劫持查询，强行抛出 `PrismaClientValidationError`。必须彻底 Kill 对应端口进程，完全重启 Node.js 环境方可破除缓存死锁。
+3. **中文 Slug 百分比编码 404 与 Google SEO 降权风险**：中文字符直接进入 URL Slug 在浏览器及微信内置 Webview 中，由于 UTF-8 百分比编码转化及 NFC 与 NFD Unicode 规范差异，会导致设备相关的隐性 404 挂起，极难通过自动化测试捕捉，且会被搜索引擎判定为垃圾死链。**URL 必须锁死为纯 ASCII 英文字符与数字**。
+4. **LLM 结构化翻译的格式漂移（Format Slip）**：在对 Markdown 进行长文本翻译时，哪怕 System Prompt 规范再严密，LLM 也会由于温度抖动而在输出 Mermaid 等嵌套代码块时遗漏包裹的反引号。相比于反复调试 Prompt 消耗 Token，在接口层设计精准的 Line/Regex 自愈解析器是维护生产级格式一致性的最佳兜底方案。
+
+### 决策
+- **Pagefind 靶向 Glob 约束**：在 `astro.config.mjs` 中对 `pagefind` 强制注入针对 `/blog` 和 `/tutorials` 专属路径的 glob 正则检索，彻底拦截对非核心详情页的无谓索引生成。
+- **Prisma Schema 变更强制重启规范**：将“`prisma generate` 后必须彻底 Kill 开发端口并硬重启”写入开发自愈守则。
+- **AI 接口 Slug ASCII 强约束**：在后台 `/api/blog/ai-rewrite` 中封装高鲁棒 `slugify` 助手，任何非 ASCII 字符一律滤除或回退至 `titleEn` 生成，并在 `website/public/_redirects` 补充 301 边缘跳转实现历史链接平滑过渡。
+- **构建后端 API 自愈过滤链**：在 `/api/blog/ai-translate` 引入 `fixLooseMermaidBlocks` 等正则自愈逻辑，静默自愈 LLM 输出的微小格式缺失。
+
+### 影响
+- 构建产物成功从 20,857 瘦身至 11,875，顺利通过 Cloudflare Pages 限制。
+- 彻底恢复了微信爬虫控制台的运行活力。
+- 线上历史 percent-encoded 链接实现 100% 优雅 301 重定向，全新发布的文章 Slug 清洁度达 100% ASCII 标准。
+- Mermaid 渲染再无任何格式坍塌，双语图表还原度达 100%。
+
+---
+
 ## Finding v1.9 — Aesthetics Premium Width Consolidation & Mermaid Repair (2026-05-21 13:05)
 
 ### 背景

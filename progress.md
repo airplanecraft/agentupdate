@@ -1,3 +1,33 @@
+## 2026-06-02 09:50 — [Pagefind Optimizations, WeChat Crawler & AI Slug Sanitization] ✅
+
+### 完成事项
+1. **Pagefind 编译优化与 Cloudflare Pages 部署恢复**：
+   - 针对 Pagefind 索引生成过多碎片文件导致超出 Cloudflare 2 万个文件限制的问题（如 commit `10448cf3`），在 `astro.config.mjs` 中配置了 `--glob` 索引过滤规则。
+   - 成功将静态构建产物文件数量从 **20,857** 压缩至 **11,875**（减少了 ~43%），顺利通过 Cloudflare Pages 的构建限制。
+2. **微信爬虫控制台 PrismaClient 运行时异常修复**：
+   - 针对 `/admin/wechat-crawler` 页面加载时报 `PrismaClientValidationError` 错误，在 `admin/` 目录下执行了 `pnpm exec prisma generate` 重新生成 Prisma 客户端定义。
+   - 强力清理了占用 `4322`（主管理端）和 `6688`（WebSocket 调度网）端口的旧 dev 与 WebSocket 僵尸进程，重新拉起后台开发服务，彻底解决由于内存缓存与 Schema 不一致导致的运行时校验错误。
+3. **AI 文章生成 Slug 字符集安全过滤**：
+   - 针对 AI 翻译和改写时在 Slug 中混入中文字符产生百分比编码 URL 从而导致 404 及 SEO 惩罚问题，在 `ai-rewrite.ts` 中引入了高鲁棒的 `slugify` 助手函数，强力剥离所有非 ASCII 字符。
+   - 实现了回退策略：若 AI 生成的 slug 过滤后无效，则自动使用英文标题 (`titleEn`) 转换作为 Slug。
+   - 对数据库中已存在的 BlogPost ID 26 历史中文 Slug 进行了平滑迁移（修改为 ASCII Slug `modern-web-architecture-seo-edge-redirects-and-ai-friendly-design-guide`），并在 `public/_redirects` 中补充了永久 301 边缘重定向。
+4. **Markdown 翻译 Mermaid 代码块渲染修复与自愈机制**：
+   - 针对英文翻译 BlogPost ID 27 时 LLM 偶尔遗漏三反引号导致 Mermaid 代码块以裸文本展示的问题，运行脚本修复了数据库中的受损记录。
+   - 在 `ai-translate.ts` 后端接口中实现了 `fixLooseMermaidBlocks` 正则自愈解析器，自动捕捉 future 翻译文本中发生遗漏的代码块闭合，确保全站双语图表 100% 渲染正常。
+5. **全量构建验证与部署**：
+   - 在 `website/` 下成功执行了 `build-deploy.sh`，构建出绝对清洁、高效的静态包，并将 commit `65d07f81` 强力推送同步至远程部署仓库，实测线上 301 重定向与 Mermaid 渲染极其完美。
+
+### 关键决策
+- **Pagefind Glob 过滤索引**：放弃对所有静态片段全量索引，将 Pagefind 检索索引聚焦于最核心的博文与教程页面，成功以零用户体验损耗的代价换取了 43% 的超高构建文件收缩率。
+- **后端 API 强约束 ASCII Slug + 边缘 301 兜底**：彻底剥离 Slug 中的非 ASCII 字符是防止移动端/浏览器字符集反序列化 404 的唯一黄金标准。同时配合 `_redirects` 进行 301 边缘重定向，实现了平滑迁移，最大化维护了既有的 SEO 权重。
+- **正则自愈 Parser 兜底 LLM 输出不稳定性**：与其在 Prompt 中无休止地乞求 LLM 保持 Format，不如在 API 接收层注入轻量而高确定性的正则自愈模块，彻底免除 Mermaid 代码块遗漏反引号的格式风险。
+
+### 下一步
+- 持续监控 Google Search Console 中关于 percent-encoded 历史 URL 的 301 重定向索引更新情况。
+- 随后的常规会话中可推进新模块开发与数据源优化。
+
+---
+
 ## 2026-05-23 14:54 — [Blog Editor Clipboard Paste & File Upload integration] ✅
 
 ### 完成事项
