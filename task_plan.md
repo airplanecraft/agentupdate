@@ -1,4 +1,17 @@
-# Session Task Plan — 2026-05-05
+# Session Task Plan — 2026-06-03
+
+## [E-E-A-T Trust Pages & Trailing Slash Redirection]
+
+- [x] Create bilingual E-E-A-T trust pages (`/about`, `/contact`, `/privacy`, `/terms` and Chinese counterparts `/zh/...`)
+- [x] Integrate trust page links in website footer Layout and style responsive design in `global.css`
+- [x] Enforce `trailingSlash: 'never'` in Astro configuration
+- [x] Run systematic codebase trailing slash cleanup script to strip tailing slashes from 37 internal files
+- [x] Add `build.format: 'file'` in Astro configuration to compile pages to flat HTML files, breaking Cloudflare Pages directory redirect loop
+- [x] Clean up redirect targets in `public/_redirects` to remove all trailing slashes (119 redirect rules normalized)
+- [x] Build and compile site locally, verifying flat file structures and Pagefind search indexing compatibility
+- [x] Push compiled build outputs to static deploy repository on GitHub, triggering automatic deployment on Cloudflare Pages and verifying live fixes
+- [x] Session Archive
+
 
 ## [Tutorial Migration & Bilingual Standardization]
 

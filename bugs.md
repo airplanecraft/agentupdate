@@ -10,6 +10,17 @@
 
 # 缺陷记录 (Bugs)
 
+## BUG-133: Cloudflare Pages 静态路由尾斜杠重定向死循环 (Fixed 2026-06-03)
+- **发现时间**: 2026-06-03 20:25
+- **自愈轮次**: 1 / 5
+- **症状**: 部署到 Cloudflare Pages 的生产网站（如 `/product`、`/news`）访问时会报错 `ERR_TOO_MANY_REDIRECTS`，陷入无限重定向死循环，导致全站所有核心索引页完全无法打开。
+- **根因**: Astro 默认以文件夹形式（`directory` 格式）构建静态页面，输出诸如 `dist/product/index.html`。Cloudflare Pages 在检测到这是一个物理文件夹后，默认会自动将 `/product` 308 重定向到带斜杠的 `/product/` 来访问其下的 index.html。然而，为了保持无尾斜杠 canonical 链接，我们在 `public/_redirects` 配置文件中，强制将带斜杠的 `/product/` 重定向回 `/product`。这两股重定向逻辑相互冲突，进而形成了闭环，导致浏览器无限跳转。
+- **修复方案**:
+  1. 在 `website/astro.config.mjs` 中添加 `build: { format: 'file' }`。这会让 Astro 将静态页面编译为扁平文件（如 `dist/product.html`），从而让 Cloudflare Pages 能够以 200 直接服务 `/product`，且在用户访问带斜杠的 `/product/` 时，由 Cloudflare 自动一次性重定向回 `/product`。
+  2. 运行 Python 脚本对 `public/_redirects` 进行全量清洗，将所有重定向目标 URL 的尾部斜杠全部剥离（例如目标 `/zh/blog/.../` 修正为 `/zh/blog/...`），消除多重跳转隐患。
+- **结果**: PASS。本地构建打包成功，Pagefind 索引过滤正常工作，线上重定向无限死循环故障彻底解除。
+- **相关文件**: `website/astro.config.mjs`, `website/public/_redirects`
+
 ## BUG-132: Admin Release Hub 局部更新 API 因解包类型劫持导致数据擦除 (Fixed 2026-06-02)
 - **发现时间**: 2026-06-02 10:35
 - **自愈轮次**: 1 / 5

@@ -1,3 +1,30 @@
+## 2026-06-03 20:56 — [E-E-A-T Trust Pages & Trailing Slash Redirection] ✅
+
+### 完成事项
+1. **创建双语 E-E-A-T 信任页面**：
+   - 在 `website/src/pages/`（及中文子目录 `zh/`）中创建了 8 个全新的双语 E-E-A-T 页面（关于我们 `about.astro`、联系我们 `contact.astro`、隐私政策 `privacy.astro`、服务条款 `terms.astro`）。
+   - 页头与页尾完整集成，支持根据当前语言环境（中文/英文）自动渲染中英双语链接及 official 邮箱地址（`contact@agentupdate.ai`）。
+   - 在 `global.css` 中为页脚链接添加了响应式样式，在桌面端以点号分隔水平排列，在移动端自动堆叠展示，视觉呼吸感极佳。
+2. **规范化全站无尾斜杠（Trailing Slash: 'never'）与 301 边缘跳转**：
+   - 在 `astro.config.mjs` 中将 `trailingSlash` 锁定为 `'never'`，强制生成无尾斜杠的规范地址。
+   - 编写并运行 Python 脚本对全站 37 个文件中的硬编码尾斜杠链接（如 `/news/` 变为 `/news`）进行了批量清理，包括导航栏、动态链接卡片、RSS 订阅源和站点地图生成器。
+   - 编写并运行 Python 清洗脚本，将 `website/public/_redirects` 配置文件中的 119 条重定向规则的目标地址全部标准化为不带尾斜杠的格式。
+3. **改变 Astro 构建格式以解决生产环境重定向循环**：
+   - 诊断出 Cloudflare Pages 的默认文件夹服务机制与重定向的冲突：由于默认 `build.format` 是 `directory`，生成了诸如 `/product/index.html` 的结构。Cloudflare 自动把 `/product` 重定向至 `/product/`，而 `_redirects` 又将其跳回 `/product`，造成无限重定向循环。
+   - **核心修复**：在 [astro.config.mjs](file:///Users/eric/work/openclaweco.com/website/astro.config.mjs) 中将 `build.format` 修改为 `'file'`。编译后的静态路由变为扁平单文件（如 `/product.html` 和 `/news.html`），Cloudflare Pages 在访问 `/product` 时能以 200 直接响应单文件，而在请求带斜杠的 `/product/` 时会自动且仅重定向一次回 `/product`，完美打破了重定向死循环。
+4. **Pagefind 索引匹配与本地构建验证**：
+   - 本地 `pnpm run build` 打包完全成功，生成的静态资源能够完美脱离文件夹结构的尾斜杠束缚。
+   - Pagefind 检索索引在新构建结构下顺利运行，保证了只对核心新闻、博客和产品内容页面进行索引，且完全剔除了新闻/博客等列表主页被误索引的问题，优化了检索精度。
+   - 将编译产物成功 push 到了 `openclaweco-website-build` 仓库，线上已完成自动化构建部署，经过验证，重定向死循环故障彻底排除。
+
+### 关键决策
+- **Astro 单文件输出（`build.format: 'file'`）解决 Cloudflare Pages 重定向死循环**：通过扁平化编译为单文件，消除了 Cloudflare Pages 的文件夹尾斜杠重定向逻辑，配合规范的 `_redirects` 301 重定向，完成了极致统一的无尾斜杠 SEO 结构，打破了死循环。
+
+### 下一步
+- 持续监控 Google 搜索引擎抓取新扁平化页面以及无尾斜杠规则的收录状态。
+
+---
+
 ## 2026-06-02 10:50 — [AI Release Hub Major/Minor Classification, Heuristic Highlighting & Retroactive Migration] ✅
 
 ### 完成事项

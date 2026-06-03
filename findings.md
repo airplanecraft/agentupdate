@@ -1,3 +1,23 @@
+## Finding v2.2 — Cloudflare Pages 文件夹服务机制与 Astro build.format: 'file' 对齐 (2026-06-03 20:56)
+
+### 背景
+在规范化全站无尾斜杠 URL 体系（设置 `trailingSlash: 'never'`）并为 Cloudflare Pages 配置 `_redirects` 时，导致了生产环境（如 `/product`、`/news`）陷入无限的 HTTP 301/308 重定向死循环，返回 `ERR_TOO_MANY_REDIRECTS`。
+
+### 发现
+1. **Astro 默认构建格式**：Astro 默认的 `build.format` 是 `directory`，这会导致每个路由生成一个文件夹加 `index.html`（例如 `/product/index.html`）。
+2. **Cloudflare Pages 服务行为**：当 Cloudflare Pages 收到对 `/product` 的请求，且检测到它对应一个物理文件夹时，Cloudflare 引擎会在底层自动执行 308 重定向，将请求修正为带斜杠的 `/product/`，以便正常读取内部的 `index.html`。
+3. **重定向冲突**：我们在 `_redirects` 中配置了尾斜杠规范化，将 `/product/` 301 重定向到 `/product`。这和 Cloudflare 引擎自带的 `/product` -> `/product/` 刚好相反，进而产生了死循环。
+
+### 决策
+在 [astro.config.mjs](file:///Users/eric/work/openclaweco.com/website/astro.config.mjs) 中将 `build.format` 配置为 `'file'`。编译后的静态路由变为扁平单文件（如 `dist/product.html`），Cloudflare Pages 在访问 `/product` 时能以 200 直接响应单文件，而在请求带斜杠的 `/product/` 时，由 Cloudflare 自动一次性重定向回 `/product`。配合清洗后的 `_redirects` 规则，彻底解决了重定向循环。
+
+### 影响
+- 打破了生产环境的所有重定向死循环。
+- 构建产生扁平的单个 HTML 文件，文件目录更加清晰。
+- 确保了搜索引擎爬行时不产生冗余的二次跳转，极大优化了 SEO。
+
+---
+
 ## Finding v2.1 — AI发版重大分类、双语生图反乱码标准化与 Gemini 代际模型标准化 (2026-06-02 11:00)
 
 ### 背景
@@ -24,7 +44,7 @@
 - 新生成新闻配图完全剔除了无意义的扭曲字符与中文假乱码，高保真图像质量达到 100% 纯净度。
 - 文本改写与发版提取全面完成了新代际算力切换，运行速度与可靠性双向拉满。
 
----�全防转义**：Astro 模板中普通的 `{ applyTimelineHighlights(...) }` 语法会自动对流中的所有 HTML 实体（如 `<span class="capsule">`）执行 HTML 编码转义，以纯文本形式暴露在前台。必须替换为 `set:html={applyTimelineHighlights(...)}` 指令，越过转义管道直接绑定，才是输出高保真微光胶囊的正确通道。
+---�全防转义**：Astro 模板中普通的 `{ applyTimelineHighlights(...) }` 语法会自动对流中的所有 HTML 实体（如 `<span class="capsule">`）执行 HTML 编码转义，以纯文本形式暴露在前台。必须替换为 `set:html={applyTimelineHighlights(...)}` 指令，越过转义管道直接绑定，才是输出高保真微光胶囊的正确通道。
 
 ### 决策
 - **动态 selective-field updates 更新模型**：在 `/api/release-review` 后端中，拒绝全属性写死解包，强制引入属性存在性显式判定（`isMajor !== undefined`, `highlights !== undefined`），仅当 payload 明确存在该 key 时才构造 `updateData` 进行合并写入。
