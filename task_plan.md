@@ -246,3 +246,21 @@ Plan: `docs/plans/2026-05-19-blog-fixes-implementation.md`
     - [x] Confirm and lock Imagen 4.0 models for cover image generation as approved
 - [x] Session Archive
 
+## [LLM-Driven News Keyword Highlighting & Styling Beautification — 2026-06-04]
+
+- [x] Beautify news detail pages (Chinese & English) using serif typography, optimal reading widths, and custom-styled callout blocks
+- [x] Integrate brand-matching keyword highlighting styles (`.article-content :global(mark)`) in Astro templates
+- [x] Update LLM rewriter prompt in `llm-rewriter.ts` to instruct Gemini to identify and wrap key terms/metrics in `<mark>` tags
+- [x] Verify LLM outputs and `<mark>` tagging format using a dry-run test harness script
+- [x] Reprocess existing test article (`tsmc-cc-wei-agentic-ai-token-growth`) to verify local rendering on dev server
+- [x] Session Archive
+
+## [Crawler Locking Logic for Reviewed Products — 2026-06-05]
+
+- [x] Implement product crawler skip logic for approved/rejected variants in `product-writer.ts` to prevent data overwriting and timestamp reset
+- [x] Author and run dry-run script `test-crawler-skip.ts` verifying that reviewed products are correctly bypassed without changing db fields or `updatedAt`
+- [x] Verify local compile safety by running `npx astro build` directly
+- [x] Session Archive
+
+
+

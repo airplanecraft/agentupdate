@@ -1,3 +1,46 @@
+## 2026-06-05 09:30 — [Crawler Skip Logic for Reviewed Products] ✅
+
+### 完成事项
+1. **实现已审核产品锁保护，阻止爬虫自动覆盖**：
+   - 重构了 `crawler/src/product-scraper/product-writer.ts` 写入与合并逻辑：增加审批状态检查机制。
+   - 当爬虫同步已存在的数据时，如果该产品的审批状态（`approvalStatus`）已经是已通过（`approved`）或已拒绝（`rejected`），爬虫将直接跳过该项目（Skip）而不调用 `prisma.variant.update` 更新其星标（stars）、点赞（upvotes）等任何动态参数。
+   - 解决了由于爬虫定时拉取 Trending 列表同步星标导致的已审批通过产品数据库更新时间（`updatedAt`）在 UI 上被频繁重置为最新时间的严重体验 Bug。
+2. **编写并运行测试脚本确证逻辑行为**：
+   - 编写并执行了验证脚本 `crawler/scratch/test-crawler-skip.ts`，选择并模拟了已审核产品 `Anthropic-Cybersecurity-Skills`，成功阻断了爬虫写入，并确证数据库中该产品的 `updatedAt` 时间戳以及 `stars` 星标数均未发生任何改动。
+3. **本地静态编译测试防污染校验**：
+   - 运行 `rm -rf .astro dist && npx astro build` 进行全站 Astro 静态编译校验，完全通过且未触发任何 Git 自动推送，实现了本地零污染的安全编译审计。
+
+### 关键决策
+- **数据安全状态锁（State-based Lock）**：以审批状态 `approvalStatus` 为准建立拦截防线，将“编辑中（Pending）”与“已归档（Approved/Rejected）”的控制权划分清晰，确保管理员的审核结果和发布时间不再受到底层定时数据同步机制的二次污染。
+
+### 下一步
+- 经用户指示后，再将本地分支代码同步与部署。
+
+---
+
+## 2026-06-04 11:58 — [LLM-Driven News Keyword Highlighting & Styling Beautification] ✅
+
+### 完成事项
+1. **新闻详情页视觉美化与排版优化**：
+   - 依据 `huashu-design` 规范，对中英双语新闻详情页（`website/src/pages/zh/news/[slug].astro` 和 `website/src/pages/news/[slug].astro`）进行了深度视觉升级。
+   - 引入衬线体（Serif Typography - Playfair Display）标题、680px 黄金阅读宽度限制、1.85 舒适行高以及段落呼吸感排版。
+   - 为中文的 `【AgentUpdate 深度解析】` 和英文的 `[AgentUpdate Depth Analysis]` 段落设计了精美的卡片样式（Callout Cards），利用左侧强调线、细微渐变背景以及微缩图标提升专家点评的专业感和可读性。
+2. **大模型源头打标与 `<mark>` 渐变高亮样式集成**：
+   - 将新闻的关键字高亮由前端运行时解析转向**数据源头打标**。更新了 `crawler/src/ai/llm-rewriter.ts` 的 `SYSTEM_PROMPT`，指导 Gemini 大模型在对原始新闻进行双语改写时，自动提取关键实体（如技术术语、指标数字、框架库及核心人物/公司），并使用 HTML 标准 `<mark>` 标签在正文（`content` 和 `content_en`）中进行包裹。
+   - 在中英双语新闻模板的 `<style>` 区块中，利用 Astro `:global(mark)` 规则对动态注入的正文 `<mark>` 元素进行了渐变高亮样式声明。亮色模式下使用品牌绿微量渐变底色配墨绿文字，暗色模式下自适应切换为高亮青色，视觉过渡自然，兼具高级感与无障碍阅读对比度。
+3. **本地开发测试与数据库重跑验证**：
+   - 编写并运行了测试脚本 `crawler/scratch/test-highlighting.ts`，进行大模型干跑测试，确证 Gemini 生成的 JSON 格式及 `<mark>` 包裹规则完全符合设计指标。
+   - 编写并运行了特定文章重跑脚本 `crawler/scratch/reprocess-article.ts`，对现有审核通过的新闻文章 `tsmc-cc-wei-agentic-ai-token-growth` 进行了就地重新生成和入库，确证其本地 HTML 渲染输出中包含了对应的高亮标签，并在本地 `http://localhost:4321` 渲染完美。
+
+### 关键决策
+- **大模型端数据打标（Data-driven Ingestion Highlight）**：避免了前端在服务器端（SSR）或客户端运行时通过复杂的正则表达式匹配和替换 HTML 正文字符串，直接在数据录入阶段由大模型完成语义级别高亮，既保持了极致的加载性能，又彻底杜绝了动态匹配破坏 HTML 标签嵌套结构的隐患。
+
+### 下一步
+- 随着新文章的抓取和入库，新发布的新闻将全自动生成优雅的关键字高亮。
+- 准备待用户允许后，再向线上生产环境部署代码和更新的数据库。
+
+---
+
 ## 2026-06-03 20:56 — [E-E-A-T Trust Pages & Trailing Slash Redirection] ✅
 
 ### 完成事项

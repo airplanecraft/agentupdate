@@ -1,3 +1,17 @@
+## BUG-134: Product Crawler Sync Resets updatedAt for Approved Products in UI (Fixed 2026-06-05)
+
+- **发现时间**: 2026-06-05 09:22
+- **自愈轮次**: 1 / 5
+- **症状**: 管理员审核通过的产品，在系统运行过程中（特别是定时爬虫执行时），其在已审核产品列表（`admin/src/pages/admin/product.astro`）中的“更新时间”会被自动重置为最新的当天日期。即使管理员根本没有对这些产品的内容做出任何实质性的修改。
+- **根因**: 在定时拉取 Trending 列表同步最新的 `stars`（星标）和 `upvotes`（点赞）时，爬虫会调用 `prisma.variant.update` 对产品数据进行写入。由于 Prisma 的 `@updatedAt` 特性，任何 update 写入都会强行将 `updatedAt` 时间戳更新为当前系统时间，从而误导前端 UI 的“更新时间”字段。
+- **修复方案**:
+  - 重构 `crawler/src/product-scraper/product-writer.ts` 写入模块。
+  - 在写入前，增加针对 `approvalStatus` 的校验。如果产品已经经过审批（状态为 `approved` 或 `rejected`），则直接跳过该记录（SKIP），不调用任何 `prisma.variant.update` 以防止其 `updatedAt` 被改写，锁定了已审核产品的内容和更新时间。
+- **结果**: PASS。编写并执行了测试脚本 `test-crawler-skip.ts`，验证被锁定产品的 `updatedAt` 与星标数均未被修改。全站编译正常通过。
+- **相关文件**: `crawler/src/product-scraper/product-writer.ts`
+
+---
+
 ## BUG-012: Admin Tutorial Importer UI Regression (Fixed 2026-05-13)
 
 - **发现时间**: 2026-05-13 10:00

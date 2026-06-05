@@ -1,3 +1,23 @@
+## Finding v2.3 — Product Crawler Approval Locking & Vite Pre-rendering Cache Invalidation (2026-06-05 09:30)
+
+### 背景
+在为 AI 科技新闻进行改写提示词更新和卡片美化之后，我们发现管理员已审核通过的产品（Variants）在没有被人工编辑的情况下，其在已审核产品列表中显示的更新时间（`updatedAt`）会被频繁重置为当天，破坏了内容发布历史的一致性。同时，在进行 Astro 全站构建（npx astro build）验证时，Vite 的预渲染元数据缓存偶发性错位，抛出 `Error [ERR_MODULE_NOT_FOUND]`。
+
+### 发现
+1. **数据同步与 updatedAt 耦合机制**：后台定时爬虫（如 GitHub Trending Scraper）在抓取产品信息时，会无条件执行 `prisma.variant.update` 以同步最新的 `stars` 和 `upvotes`。即使其他字段没有改动，Prisma @updatedAt 指令在底层依然会生成更新 `updated_at` 为当前时间的 SQL，导致审批数据发布时间被覆盖。
+2. **已审核数据的锁定诉求**：审核通过（`approved`）或审核拒绝（`rejected`）的产品代表了管理员对内容进行了明确归档。在此状态下，爬虫不应再对其做自动覆盖，锁定状态属性可以避免数据被后台静默更新。
+3. **Astro / Vite 的增量缓存设计隐患**：Astro 编译时，Vite 对预渲染页面模块使用 `.astro` 缓存。在某些情况下（如进行了大范围 AST 或样式变更后），Vite 无法精准判断依赖变动，继续以旧缓存的 chunks 进行预渲染，最终由于缓存文件缺失导致 `ERR_MODULE_NOT_FOUND` 构建崩溃。必须硬性清理编译目录（`rm -rf .astro dist`）重置物理状态。
+
+### 决策
+- **审批拦截阀门（Approval Status Gate）**：重构 `product-writer.ts` 逻辑。在爬虫执行 update 之前引入 `approvalStatus` 的类型前置校验，对已被人工终审的记录实施强制 SKIP。
+- **清除 Vite 状态的强制规范**：在遇到 prerender 模块缺失构建报错时，一律执行清理命令 `rm -rf .astro dist && npx astro build` 进行完全重置打包。
+
+### 影响
+- 成功锁定了已发布产品的时间戳和内容，消除了定时同步的污染。
+- 确立了本地纯净 Astro 静态构建流程，规避了全站打包崩溃的隐患。
+
+---
+
 ## Finding v2.2 — Cloudflare Pages 文件夹服务机制与 Astro build.format: 'file' 对齐 (2026-06-03 20:56)
 
 ### 背景
