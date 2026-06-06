@@ -280,7 +280,7 @@ Plan: `docs/plans/2026-05-19-blog-fixes-implementation.md`
 - [x] Convert tags in News detail pages to clickable links (`news/[slug].astro` and `zh/news/[slug].astro`)
 - [x] Refactor Tutorial index pages (`tutorial/index.astro` and `zh/tutorial/index.astro`) to support clickable tags by converting outer cards from `<a>` to `<div>` elements
 - [x] Run local build & link auditor verifying zero broken internal links
-- [ ] Session Archive
+- [x] Session Archive
 
 
 
