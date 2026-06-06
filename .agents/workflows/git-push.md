@@ -50,13 +50,13 @@ cd /Users/eric/work/openclaweco.com/website && git status --short
 cd /Users/eric/work/openclaweco.com/website && git add -A && git commit -m "feat: <简要描述>" && git push origin main
 ```
 
-### 5. 构建并推送 website 产物（可选）
+### 5. 构建并推送 website 产物（必须手动）
 
-仅在需要部署时执行：
+**重要**：仅在需要部署且本地使用 `npm run local-build` 验证通过后，由用户或在明确指示下手动执行正式构建与推送：
 ```bash
-cd /Users/eric/work/openclaweco.com/website && bash build-deploy.sh
+cd /Users/eric/work/openclaweco.com/website && npm run build
 ```
-> `build-deploy.sh` 会自动执行 `npm run build`，拷贝 README，并 push 到 build 仓库。
+> `npm run build` 会自动执行 `build-deploy.sh` 进行正式打包，并 commit & push 到 build 仓库。
 
 ## 验证
 

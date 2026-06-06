@@ -263,4 +263,17 @@ Plan: `docs/plans/2026-05-19-blog-fixes-implementation.md`
 - [x] Session Archive
 
 
+## [404 Link Resolution & Local Verification — 2026-06-06]
+
+- [x] Fix Markdown syntax for Mermaid images in `lesson-7.md` and `lesson-7.en.md`
+- [x] Sync bilingual database with `sync_bilingual_all.ts`
+- [x] Modify `tags.ts` to include all approved variant products
+- [x] Update `BaseLayout.astro` to redirect language switcher links on 404 pages to homepage
+- [x] Update `check-links.mjs` to decode HTML entities like `&amp;`
+- [x] Integrate Link Audit check to run after every local build (`build-deploy.sh --local`)
+- [x] Run local build and verify zero 404 links with integrated audit script
+- [x] Session Archive
+
+
+
 

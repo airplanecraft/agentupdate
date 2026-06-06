@@ -86,3 +86,11 @@ for attempt in range(1, MAX_RETRIES + 1):
 - 需求理解歧义导致无法判断正确行为
 - 安全风险（发现密钥泄露、SQL 注入风险）
 - 破坏性操作（DROP TABLE、删除生产数据）
+
+---
+
+## 6. 构建与部署安全规则 (Build & Deploy Safety Rules)
+
+- **Bug 修复后验证**: 每次进行 Bug 修复或自愈循环中，**必须**运行本地打包指令 `npm run local-build` 进行验证。
+- **禁止自动构建推送**: 严禁在自动任务、自愈脚本中直接触发带推送的部署构建命令 `npm run build`。
+- **手动触发构建**: 自动构建发布 (`npm run build`) 必须由用户手动执行，或仅在本地验证 `local-build` 成功通过后再在必要时手动执行。

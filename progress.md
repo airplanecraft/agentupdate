@@ -854,3 +854,29 @@
 ### 下一步
 - 待用户指定下一阶段的博客丰富或爬虫集成开发任务。
 
+---
+
+## 2026-06-06 20:45 — [404 Link Resolution & Local Build Auditor Integration] ✅
+
+### 完成事项
+1. **Gemma 教程图表 Markdown 化**：
+   - 修复了 [lesson-7.md](file:///Users/eric/work/openclaweco.com/admin/content/gemma-tutorial/lessons/lesson-7.md) 和 [lesson-7.en.md](file:///Users/eric/work/openclaweco.com/admin/content/gemma-tutorial/lessons/lesson-7.en.md) 中因 raw HTML `<img>` 标签没有闭合符号而被 Markdown 插件误包裹 `<a>` 的 Bug。将其转换为标准 Markdown 图片引用语法。
+2. **数据双语同步**：
+   - 在 `admin` 下运行 `npx tsx scripts/sync_bilingual_all.ts`，将所有更新的文章内容和翻译全量同步写入 PostgreSQL 数据库，保持数据与文件系统高度一致。
+3. **已批准产品 Tag 编译修复**：
+   - 修改 [tags.ts](file:///Users/eric/work/openclaweco.com/website/src/lib/tags.ts)，去除 getCachedVariants 里的 `status: 'active'` 过滤条件，改为仅按 `approvalStatus: 'approved'` 查询，从而将 beta 产品的标签信息纳入 Tag 页面静态编译。
+4. **404 页面多语言切换容错**：
+   - 修改 [BaseLayout.astro](file:///Users/eric/work/openclaweco.com/website/src/layouts/BaseLayout.astro)，在 404 页面中将语言切换链接和 hreflang 的重定向目标强制路由至中/英首页（`/zh/` 和 `/`），彻底解决 `/zh/404` 链接引发的 404 错误。
+5. **链接审计脚本 HTML 实体处理**：
+   - 修改 [check-links.mjs](file:///Users/eric/work/openclaweco.com/scratch/check-links.mjs)，在 trim 时增加对 HTML 特殊实体字符（如 `&amp;` -> `&`）的还原解码，解决带有特殊字符的标签链接引起的误报 404 问题。
+6. **本地构建与审计自动化整合**：
+   - 修改 [build-deploy.sh](file:///Users/eric/work/openclaweco.com/website/build-deploy.sh)，当 `LOCAL_BUILD` 为 true 时，在本地构建完成后自动触发 `node scratch/check-links.mjs`。
+   - 本地构建与审计运行通过：全站 9959 个静态页面顺利编译，链接审计扫描 **9971 个 HTML 文件，确认 0 个内部 broken link**。
+
+### 关键决策
+- **404 路由降级降噪**：404.html 页面在 Astro 中只编译为根目录下单个文件，因此在 404 模板中显式重置语言切换回首页是处理 i18n 404 的最佳降噪手段。
+- **本地构建自动化闭环**：通过在 `build-deploy.sh` 脚本尾部注入 `check-links.mjs` 审计，使每一次本地构建自动进行 404 链接健康检查，避免在发布时才暴露低级错误。
+
+### 下一步
+- 待用户进行手动全量打包发布并监控后续生产环境的访问日志。
+

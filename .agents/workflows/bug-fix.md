@@ -30,6 +30,8 @@ description: Bug 修复完整流程 — 诊断、修复、验证、记录
 
 10. 使用 `verification-before-completion` Skill 确认
 
+10.5 在 `website` 目录下运行 `npm run local-build` 进行本地打包验证，确保打包完全成功，且绝对**不得**自动执行 `npm run build` 进行带部署推送的构建。
+
 ## 4. 记录与提交
 
 11. 在 `bugs.md` 更新修复信息：

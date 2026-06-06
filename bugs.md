@@ -344,3 +344,42 @@
   3. 执行 Git 恢复链：重置 `website` 的 remote origin 回 `git@github.com:airplanecraft/openclaweco-website.git`，软重置（`git reset`）消除误提交的 Build 历史但保留用户本地的响应式布局样式及图片，并重新全新初始化 `dist/.git`。
 - **结果**: PASS。本地 `npm run build` 成功完成，Astro 静态页面均完美生成，且仅包含 `dist` 静态成品的 commits 成功推送至 `openclaweco-website-build.git`。线上 `/product/`、`/releases/`、`/skills/` 均恢复 `200 OK` 正常状态。
 - **相关文件**: `website/build-deploy.sh`, `website/.git/config`
+
+---
+
+## BUG-135: 中文首页 /zh 语言切换按钮 EN 链接退化为 /.html 与 Astro 编译模块丢失 (Fixed 2026-06-05)
+
+- **发现时间**: 2026-06-05 12:00
+- **自愈轮次**: 2 / 5
+- **症状**: 
+  1. 在 `https://www.agentupdate.ai/zh` 页面上，点击中英文语言切换按钮中的 "EN"，无法正确跳转到英文首页，而是跳转到了损坏的路径 `https://www.agentupdate.ai/.html`。
+  2. 在使用 `build.format: 'file'` 执行全量构建时，Vite 打包过程会报出致命错误 `ERR_MODULE_NOT_FOUND` 指明找不到特定哈希的 `index_[hash].mjs` 模块，导致构建彻底瘫痪。
+  3. 构建在大批量渲染页面阶段容易被系统因 OOM 强行杀死（Killed: 9，退出码 137）。
+- **根因**:
+  1. `website/src/layouts/BaseLayout.astro` 里的 `cleanPathname` 逻辑中，对于 `.html` 的清理顺序发生了偏差：它先通过 `replace(/\.html$/, '')` 剥离后缀，再利用 `replace(/\/$/, '')` 移除尾部斜杠。在 Cloudflare Pages 下，服务生成的物理路径为 `/zh.html/`，这导致第一步剥离由于尾部斜杠存在而失败。在后续剥离斜杠后，剩余路径为 `/zh.html`。在 `lang === 'zh'` 模式下替换 `/zh` 成了 `".html"`，从而在页面渲染出 `<a href=".html">`，经浏览器相对路径转换为了 `/.html`。
+  2. Astro 在多语言（i18n）且启用 `build.format: 'file'` 模式下，不同子语言目录下的 `index.astro` 动态分包会被 Vite 编译为同名或哈希冲突的 `index.mjs` 临时模块并发生物理覆盖，造成渲染阶段部分临时模块缺失，引发 `ERR_MODULE_NOT_FOUND`。
+  3. 全站包含接近 7000 个静态页面，默认的 Node.js 内存上限（约 1.5GB）在处理大批量 prerenderPrerender 编译时容易耗尽导致 OOM 被操作系统强杀。
+- **修复方案**:
+  1. 重构 `BaseLayout.astro` 中的 `cleanPathname` 逻辑，采用高鲁棒的斜杠优先剔除顺序，确保物理路径不管是 `/zh.html/` 还是 `/zh/` 都能被完美清洗成 `/zh`。
+  2. 将 `astro.config.mjs` 中的构建输出格式 `build.format` 回退到默认推荐的 `'directory'` 以彻底解决哈希碰撞和模块缺失问题，并清除了 `public/_redirects` 中所有可能导致死循环的 trailing slash 重定向规则，安全对接 Cloudflare Pages 默认路由。
+  3. 在 `build-deploy.sh` 脚本编译命令行前加上 `NODE_OPTIONS="--max-old-space-size=8192"` 为 Node.js 拓展至 8GB 堆内存，彻底根除 OOM。
+- **结果**: PASS。本地 6999 个静态页面编译完全无错通过，`sitemap.xml` 及 `rss.xml` 中完美生成了包含动态博客的配置。`dist/zh/index.html` 里的 EN 链接正确指向 `/`，`zh/blog/index.html` 正确指向 `/blog`，所有相对或物理页面均正常。
+- **相关文件**: `website/src/layouts/BaseLayout.astro`, `website/astro.config.mjs`, `website/build-deploy.sh`, `website/public/_redirects`
+
+## BUG-136: Gemma Tutorial Diagram <a> Wrapping & Beta Tag Pages 404 & 404 Page Switch Target
+- **发现时间**: 2026-06-06 20:32
+- **自愈轮次**: 1 / 5
+- **症状**:
+  1. Gemma 教程 Lesson 7 中 Mermaid 图表渲染异常，由于 Raw HTML `<img>` 标签缺少闭合导致 Markdown 插件将其 URL 误识别并包裹为外层 `<a>` 锚点链接，引发 404。
+  2. 产品 Tag 页面（如 `/tags/mobile-ai-agent`）构建时 404。
+  3. 全站 404 页面上的语言切换按钮（EN/ZH）指向了不存在的 `/zh/404` 或 `/404`，从而导致 404 死循环。
+- **根因**:
+  1. Markdown 渲染引擎在解析带有未闭合属性的 `<img src="..." />` 时发生标签混淆，误以为其后面的 raw 文本也是链接的一部分，导致生成了嵌套 `<a>` 包装。
+  2. `tags.ts` 中 `getCachedVariants` 查询缓存只拉取了 `status: 'active'` 的产品，但 beta 产品（如 PhoneClaw, MimiClaw 等）的 `status` 是 `'beta'`，它们在 variants 列表中是可见的，但 tag page 构建器由于过滤而没有生成对应的静态 Tag 页面，致使点击 Tag 跳转时发生 404。
+  3. Astro 在多语言环境下只编译单个根级别的 `404.html`。BaseLayout 在处理 404 路径时未能拦截，而是将 canonical 路径直接带入 `/zh${cleanPathname}`，导致拼装出不存在的 `/zh/404` 链接。
+- **修复方案**:
+  1. 重写 `lesson-7.md` 和 `lesson-7.en.md`，将 Raw HTML `<img src="...">` 替换为标准 Markdown `![Mermaid Diagram](url)` 图片引用。
+  2. 修改 `tags.ts`，去除 `getCachedVariants` 里的 `status: 'active'` 过滤限制，使其与 `variants.ts` 保持一致，查询所有 `approvalStatus: 'approved'` 的变体产品。
+  3. 在 `BaseLayout.astro` 语言切换及 alternate 路径生成逻辑中注入 `is404` 判断，一旦发现 canonical 路径为 `404`，强制将重定向目标及 hreflang 指向对应的主页（`/` 与 `/zh/`）。
+- **结果**: PASS。本地 local build 顺利生成 `9959` 个静态页面，用 audit 脚本对 **9971 个 HTML 文件扫描，确认内部 broken links 数量降为 0**。
+- **相关文件**: `admin/content/gemma-tutorial/lessons/lesson-7.md`, `admin/content/gemma-tutorial/lessons/lesson-7.en.md`, `website/src/lib/tags.ts`, `website/src/layouts/BaseLayout.astro`
