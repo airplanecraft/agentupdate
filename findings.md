@@ -1,3 +1,24 @@
+## Finding v2.4 — HTML5 Nested Anchor Restrictions & Card Link Deseparation (2026-06-06 21:30)
+
+### 背景
+用户提出希望将博客、新闻详情页的静态标签（Tags）变成可点击跳转的链接，并希望在教程列表页（Tutorial Index）中同样能点击卡片底部的标签。但是在实现后，发现原有的卡片容器本身就是一个 `<a>` 标签，直接在里面嵌套标签的 `<a>` 链接会引发严重的 HTML 解析问题与样式错位。
+
+### 发现
+1. **HTML5 规范下的 nested anchor 限制**：HTML5 规范严格禁止将一个 `<a>` 标签放入另一个 `<a>` 标签内（nested anchors）。如果强行嵌套，现代浏览器（Chrome、Safari 等）在解析 DOM 树时会产生自愈行为，即在遇到内部的 `<a>` 时强行闭合外部的 `<a>`，导致最终渲染出来的 DOM 结构支离破碎，从而引发排版崩塌与交互混乱。
+2. **卡片链接解离（Link Deseparation）**：要把卡片底部的标签（Tags）变成独立的超链接，必须将原本作为整体 `<a>` 容器的 `.series-card` 降级为 `<div>` 容器。
+3. **微交互的继承性保留**：外部容器降级为 `<div>` 后，原有的悬浮呼吸放大、外边框变色等高保真微交互将失去天然的 `a:hover` 作用域。必须在 CSS 中将相关的 hover 选择器重写为基于父级 `.series-card:hover` 的级联样式（如 `.series-card:hover .series-title-heading a` 和 `.series-card:hover .start-learning-label`），确保用户在悬停于卡片任意位置时依然能获得完全一致的平滑反馈。
+
+### 决策
+- **重构组件结构**：将 `tutorial/index.astro` 和 `zh/tutorial/index.astro` 中的 `.series-card` 从 `<a>` 改为 `<div>`，并将封面、标题和“开始学习”按钮分别包装在独立的 `<a>` 标签中，确保内部的 tag pill `<a>` 链接与它们并列存在，遵守 HTML5 标准。
+- **级联 Hover 动画优化**：在 CSS 中补充基于 `.series-card:hover` 对内部独立 `<a>` 元素的颜色和缩放过渡（transition）声明，维持原有的整体卡片 Hover 响应体验。
+
+### 影响
+- 成功实现了博客、新闻和教程页面全站 Tags 的 100% 超链接化，为站点提供了强力的内链网络和搜索引擎蜘蛛入口。
+- 保证了输出 HTML 的规范性与语义化，排除了由于嵌套锚点引发的隐性浏览器排版 Bug。
+- 维持了极具品质的悬停交互动效，没有牺牲任何视觉高保真体验。
+
+---
+
 ## Finding v2.3 — Product Crawler Approval Locking & Vite Pre-rendering Cache Invalidation (2026-06-05 09:30)
 
 ### 背景

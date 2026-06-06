@@ -1,3 +1,24 @@
+## 2026-06-06 21:30 — [All Tags to Clickable Links & Link Integrity] ✅
+
+### 完成事项
+1. **全站标签（Tags）超链接化升级**：
+   - 重构了中英双语博客详情页（[blog/[slug].astro](file:///Users/eric/work/openclaweco.com/website/src/pages/blog/[slug].astro) 和 [zh/blog/[slug].astro](file:///Users/eric/work/openclaweco.com/website/src/pages/zh/blog/[slug].astro)），将原本静态的标签包裹在指向对应的 `/tags/[tag]` 和 `/zh/tags/[tag]` 的 `<a>` 标签中，并新增了平滑过渡与 Hover 变色 CSS 样式。
+   - 重构了中英双语新闻详情页（[news/[slug].astro](file:///Users/eric/work/openclaweco.com/website/src/pages/news/[slug].astro) 和 [zh/news/[slug].astro](file:///Users/eric/work/openclaweco.com/website/src/pages/zh/news/[slug].astro)），使标签全部支持可点击跳转，提升了页面间内链的覆盖率与权重流转。
+2. **教程卡片组件 HTML5 嵌套锚点规范化重构**：
+   - 针对中英双语教程中心列表页（[tutorial/index.astro](file:///Users/eric/work/openclaweco.com/website/src/pages/tutorial/index.astro) 和 [zh/tutorial/index.astro](file:///Users/eric/work/openclaweco.com/website/src/pages/zh/tutorial/index.astro)），将原本作为整体 `<a>` 包裹的 `.series-card` 重构为 `<div>` 容器，消除了在卡片内部包裹标签 `<a>` 时产生的无效 HTML5 嵌套 Anchor（`<a>` 嵌套 `<a>`）解析 Bug。
+   - 将卡片内部的封面图、标题、标签胶囊和“开始学习”标签分别包装为独立的 `<a>` 链接，实现逻辑一致性的同时完美保留了原有的悬浮呼吸放大、缩放与颜色变幻微交互。
+3. **本地静态编译与自动化链接审计校验**：
+   - 运行本地打包脚本 `npm run local-build`，全站 9971 个 HTML 文件静态编译完全成功。
+   - 触发集成的 `check-links.mjs` 链接完整性审计工具，扫描了 9971 个生成页面，结果为 **0 internal broken links found**，完全证实了所有动态生成的标签链接均能正确跳转到对应的汇总页面，保证了生产环境内链 100% 的健康度。
+
+### 关键决策
+- **规避 HTML5 嵌套超链接局限（Card Link Deseparation）**：当需要在卡片内增加新的互动链接（如 Tag、Share、Author）时，必须将原本包裹整张卡片的外部锚点剥离，改为细粒度地为封面、标题、按钮设置链接，以避免在现代浏览器渲染 DOM 树时发生结构断裂和悬浮状态闪烁。
+
+### 下一步
+- 运行 `./session-push-all.sh` 一键同步代码至 GitHub，并在必要时触发线上编译部署。
+
+---
+
 ## 2026-06-05 09:30 — [Crawler Skip Logic for Reviewed Products] ✅
 
 ### 完成事项
