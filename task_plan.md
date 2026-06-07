@@ -282,6 +282,11 @@ Plan: `docs/plans/2026-05-19-blog-fixes-implementation.md`
 - [x] Run local build & link auditor verifying zero broken internal links
 - [x] Session Archive
 
+## [Tutorial Lesson Titles Fix & Database Cleanup — 2026-06-07]
 
-
+- [x] Inject YAML frontmatter with proper titles and metadata into 168 lesson markdown files across 4 tutorial series
+- [x] Clean up 9 duplicate unpadded lesson records for `langgraph-tutorial` in the database
+- [x] Synchronize bilingual tutorial database with sync script
+- [x] Run local build & link auditor verifying zero broken internal links
+- [x] Session Archive
 

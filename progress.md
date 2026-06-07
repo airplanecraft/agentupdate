@@ -1,3 +1,26 @@
+## 2026-06-07 08:48 — [Tutorial Lesson Titles Fix & Database Cleanup] ✅
+
+### 完成事项
+1. **全站 4 套教程课时 YAML Frontmatter 注入与标题修复**：
+   - 针对中英双语的 `claude-memory-tutorial`（12 课时/24 文件）、`firecrawl-tutorial`（12 课时/24 文件）、`langchain-tutorial`（30 课时/60 文件）、`langgraph-tutorial`（30 课时/60 文件），批量注入了规范 of YAML Frontmatter 元数据块。
+   - 自定义编写了 `add-frontmatter.ts` 正则匹配与提取脚本，安全地从 168 个 markdown 正文的第一行 H1 标题中智能提取并规范化了中英文课时标题。
+   - 为这 168 个课时文件附加了 `summary: ""`、`sortOrder`（自动补全 2 位零对齐的十进制排序优先级，如 `10`, `20` ... `300`）以及 `status: "published_all"` 元数据属性。
+2. **LangGraph 教程数据库冗余副本无损清理**：
+   - 诊断并排除了 `langgraph-tutorial` 在 seeding 时由于 slug 与 disk 文件名填充规则不同导致的 9 个单数/双数混合冗余 lesson 记录（`lesson-1` 至 `lesson-9`，以及 `lesson-01` 至 `lesson-09` 副本）。
+   - 编写并执行了 `cleanup-stale-lessons.ts` 清理逻辑，安全剔除了这 9 个已废弃的 unpadded 数据库副本，还原了数据库课时的单一数据源和 ID 对应完整度。
+3. **全局双语课时数据同步与本地静态编译校验**：
+   - 运行官方 bilingual 数据库同步脚本 `sync_bilingual_all.ts`，重新解析并同步了 4 套教程的 frontmatter 定义。课时标题在管理后台与前端顺利由原生的 slug值（如 `lesson-01`）恢复为真实的精致双语标题。
+   - 在 `website` 子目录下触发 `npm run local-build` 进行 Astro 全量静态编译与 HTML 标签安全内链完整度审计，扫描了 9971 个 HTML 生成页面，内部 broken links 完美归零，编译流程无任何异常。
+
+### 关键决策
+- **规范化 YAML Metadata 前置声明（Standard Frontmatter Declaration）**：智能提取 markdown 正文第一行作为 title，彻底杜绝回退为 slug。从根源规范了静态文件的 frontmatter 元数据格式。
+- **Padded 数据库 Slugs 强制映射与 Stale 清理**：与 disk 文件名 `lesson-01` 保持完全一致，不改变现有课时 URL 路由。对 seeding 的 slug 冗余进行单边硬删除，保证了系统一致性。
+
+### 下一步
+- 运行一键式多子模块推送同步脚本 `./session-push-all.sh` 将更新发布和推送至 GitHub 生产构建节点。
+
+---
+
 ## 2026-06-06 21:30 — [All Tags to Clickable Links & Link Integrity] ✅
 
 ### 完成事项
