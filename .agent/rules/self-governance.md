@@ -94,3 +94,5 @@ for attempt in range(1, MAX_RETRIES + 1):
 - **Bug 修复后验证**: 每次进行 Bug 修复或自愈循环中，**必须**运行本地打包指令 `npm run local-build` 进行验证。
 - **禁止自动构建推送**: 严禁在自动任务、自愈脚本中直接触发带推送的部署构建命令 `npm run build`。
 - **手动触发构建**: 自动构建发布 (`npm run build`) 必须由用户手动执行，或仅在本地验证 `local-build` 成功通过后再在必要时手动执行。
+- **Cloudflare 构建文件限制**: 必须确保生成的打包文件（如 `dist/` 目录）的总文件数量严格控制在 20,000 个以下，以避免触发 Cloudflare Pages 的单次部署文件数量限制错误。
+
