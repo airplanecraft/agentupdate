@@ -1,3 +1,19 @@
+## BUG-137: Tutorial Sync Cover Image Overwrite & Illustration Loss (Fixed 2026-06-07)
+
+- **发现时间**: 2026-06-07 08:32
+- **自愈轮次**: 1 / 5
+- **症状**: 运行 `sync_bilingual_all.ts` 双语同步脚本后，管理员先前在后台通过 AI 生成或手动配对好的所有教程系列（TutorialSeries）与教程课时（TutorialLesson）的封面图（`coverImage`）全部在数据库中被重置为了 `null`，导致前台与后台的教程列表、教程详情配图大面积丢失，回退为灰色占位框。
+- **根因**: 同步脚本 `admin/scripts/sync_bilingual_all.ts` 在读取本地 Markdown 文件的 Frontmatter 时，会对教程系列构造更新数据 `data`。对于没有硬编码在本地 index.md 或 series.json 中的封面字段，它采取了强行置空的回退规则：`coverImage: meta.cover || meta.coverImage || null`。当对已存在的记录执行 `prisma.tutorialSeries.upsert` 时，`update` 条件将无条件以 `null` 覆盖数据库中既有的人工/AI 生图成果。
+- **修复方案**: 
+  1. 编写并运行了恢复脚本 [restore-covers.ts](file:///Users/eric/work/openclaweco.com/scratch/restore-covers.ts)。
+  2. 该脚本拉取前天（2026-06-05）自动归档并提交到 Git 的 `openclaweco_backup.sql` 物理快照，定位并解析了其中 `tutorial_series` 和 `tutorial_lessons` 的 `COPY ... FROM stdin` 数据块，提取出每个系列和课时的历史封面 URL（如 `/covers/tutorial-hermes-agent.jpg`）。
+  3. 通过 Prisma 遍历将提取的封面路径重新回写至 active PostgreSQL 数据库，成功修复了 28 个系列和 25 节课时。
+  4. 重新执行全站 `npm run local-build` 打包编译并触发 `./session-push-all.sh` 同步最新 SQL 灾备。
+- **结果**: PASS。教程列表及课时详情的精美 AI 封面图和配图已完美恢复归位，本地静态打包完全无错通过。
+- **相关文件**: `admin/scripts/sync_bilingual_all.ts`, `scratch/restore-covers.ts`
+
+---
+
 ## BUG-134: Product Crawler Sync Resets updatedAt for Approved Products in UI (Fixed 2026-06-05)
 
 - **发现时间**: 2026-06-05 09:22
