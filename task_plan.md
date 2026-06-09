@@ -287,6 +287,16 @@ Plan: `docs/plans/2026-05-19-blog-fixes-implementation.md`
 - [x] Inject YAML frontmatter with proper titles and metadata into 168 lesson markdown files across 4 tutorial series
 - [x] Clean up 9 duplicate unpadded lesson records for `langgraph-tutorial` in the database
 - [x] Synchronize bilingual tutorial database with sync script
-- [x] Run local build & link auditor verifying zero broken internal links
+- [x] Verify local build & link auditor verifying zero broken internal links
 - [x] Session Archive
+
+## [GitHub Search Variant Import Fix & Deduplication — 2026-06-09]
+
+- [x] Diagnose PrismaClientKnownRequestError in `prisma.variant.upsert()` for GitHub search import
+- [x] Implement backend `sourceId` parsing and auto-deduplication logic in `admin/src/pages/api/variants.ts` to delete conflicting pending duplicates
+- [x] Update frontend `admin/src/pages/admin/product.astro` import payload to pass `sourceId`
+- [x] Run test script to verify successful deduplication and upsert
+- [x] Verify local compile safety by running `npm run build` in `admin/` and `npm run local-build` in `website/`
+- [x] Session Archive
+
 

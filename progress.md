@@ -1,3 +1,24 @@
+## 2026-06-09 11:58 — [GitHub Search Variant Import Fix & Deduplication] ✅
+
+### 完成事项
+1. **修复 GitHub 搜索导入 Prisma 唯一约束报错**：
+   - 诊断并修复了在管理后台（`/admin/product`）进行 GitHub 仓库搜索并导入产品库时，PrismaClient 抛出的 `Unique constraint failed on the fields: (source_type, source_id)` 唯一性约束错误。
+   - 重构了 `/admin/src/pages/api/variants.ts` 中的 POST 接口：补齐了 Prisma `upsert` 的 `update` 和 `create` 语句中对关键字段 `sourceId` 的处理逻辑，并支持从 `githubUrl` 中自动提取 `owner/repo` 以智能解析 `sourceId`。
+2. **实现 Variant 导入时的自动防冲突物理去重**：
+   - 在 upsert 之前，自动在数据库中检索是否存在由于爬虫抓取而生成且处于 `pending` 状态的同源/同 URL 副本（即 `sourceType` 与 `sourceId` 一致或 `githubUrl` 一致，但 `slug` 不一致的产品记录）。
+   - 如果检测到此类 pending 冲突记录，自动执行 `delete` 安全将其物理删除，彻底打通了从 GitHub 搜索到双语 AI 描述填充的一体化导入流程。
+3. **前端传递与全站编译安全校验**：
+   - 在前端管理页面 `admin/src/pages/admin/product.astro` 的 payload 封装逻辑中追加 `sourceId: repo.fullName` 字段，使数据流更为严密和自解释。
+   - 成功通过了 `admin/` 端 `npm run build` 和 `website/` 端 `npm run local-build` 的 Astro 构建编译与 Pagefind 索引全量打包验证，确保全站内链健康完整，零 broken links。
+
+### 关键决策
+- **Pending 冲突物理自愈去重（Pending Conflict Self-Healing Purge）**：当管理员手动点击导入并批准某款产品时，其代表该产品的最新完整版应覆盖系统中的所有临时版本。对于数据库中因趋势爬虫自动捕获的 pending 占位符记录，在导入主产品时直接进行物理级删除，能以最低的逻辑开销彻底排除 Prisma 级级联唯一约束失效的异常，并完美保证了同一产品在系统中的数据源唯一性。
+
+### 下一步
+- 执行一键同步脚本 `./session-push-all.sh`，将修改提交并推送到 GitHub。
+
+---
+
 ## 2026-06-07 08:48 — [Tutorial Lesson Titles Fix & Database Cleanup] ✅
 
 ### 完成事项

@@ -1,3 +1,23 @@
+## BUG-138: GitHub Search Import Variant Fails with Unique Constraint Error on `(source_type, source_id)` (Fixed 2026-06-09)
+
+- **发现时间**: 2026-06-09 11:53
+- **自愈轮次**: 1 / 5
+- **症状**: 在管理后台（`http://localhost:4322/admin/product`）通过 GitHub 搜索框搜索产品（如 "scrapling"）并点击“导入产品库”按钮时，系统会弹出报错框：“导入失败: PrismaClientKnownRequestError: Unique constraint failed on the fields: (`source_type`,`source_id`)”，导致产品无法成功导入或更新。
+- **根因**: 
+  1. 数据库中已经存在一个因为爬虫抓取而生成的 pending 状态的 variant 记录（例如 slug 为 `scrapling-github-trending`，`sourceType` 为 `github_trending`，`sourceId` 为 `D4Vinci/Scrapling`）。
+  2. 当管理员手动通过 GitHub 搜索导入同一个项目时，前端发出的 `slug` 为 `scrapling`，后端尝试使用 `prisma.variant.upsert` 匹配此 `slug`，此时会匹配到既有的已审核/手动创建的 record（slug 为 `scrapling`）。
+  3. 后端在匹配成功后执行 `update` 操作，试图将 `sourceType` 改为 `'github_trending'`，但因为后端原本没有保存/更新 `sourceId` 的逻辑（该字段在 upsert 中被遗漏，所以仍保持原数据库中的 `D4Vinci/Scrapling` 值），这将使 slug 为 `scrapling` 的这条记录在 update 后拥有和 pending 记录完全相同的 `(sourceType, sourceId)`，即 `('github_trending', 'D4Vinci/Scrapling')`，从而触发数据库的唯一性约束错误。
+- **修复方案**: 
+  1. 重构 `/admin/src/pages/api/variants.ts` 中的 POST 接口：
+     - 类型定义及 upsert 的 `update` / `create` 代码块中补齐对 `sourceId` 字段的读写。
+     - 从 `githubUrl` 中自动解析 `sourceId`（例如 `owner/repo`），或直接读取 payload 中的 `sourceId`。
+     - 在执行 `upsert` 前增加主动去重与合并步骤：如果在数据库中检测到存在其它 `slug` 不一致且处于 `pending` 状态的同名 repository（即 `sourceType` 和 `sourceId` 匹配，或 `githubUrl` 匹配），直接将其安全物理删除，防止唯一键冲突。
+  2. 前端 `admin/src/pages/admin/product.astro` 的 payload 构造处，同步加入 `sourceId: repo.fullName` 传递给后端，使前后端字段更加完整。
+- **结果**: PASS。本地编写测试证明待审批的冗余 pending 冲突记录被成功安全清除，主 variant 记录顺利完成 upsert 覆盖。全站本地构建测试 `npm run local-build` 与 admin 端 `npm run build` 全部零错误通过。
+- **相关文件**: `admin/src/pages/api/variants.ts`, `admin/src/pages/admin/product.astro`
+
+---
+
 ## BUG-137: Tutorial Sync Cover Image Overwrite & Illustration Loss (Fixed 2026-06-07)
 
 - **发现时间**: 2026-06-07 08:32
