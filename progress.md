@@ -945,3 +945,30 @@
 ### 下一步
 - 待用户进行手动全量打包发布并监控后续生产环境的访问日志。
 
+---
+
+## 2026-06-10 13:00 — [SEO & Analytics & Billing] 404 URL Resolution & AI Studio Billing Anomaly Audit ✅
+
+### 完成事项
+1. **404 链接解析与映射审计**：
+   - 编写并执行了 [scratch/match_404s.mjs](file:///Users/eric/work/openclaweco.com/scratch/match_404s.mjs)，提取了 Google Analytics 导出的 98 个独立 404 路径，分析并映射至对应正确的双语内容页面。
+2. **边缘 301 重定向规则部署**：
+   - 针对已知重构造成的零填充教程课时路径（例如 `/zh/tutorial/hermes-agent-tutorial/lesson-01` -> `/zh/tutorial/hermes-agent-tutorial/lesson-1/`），在 [website/public/_redirects](file:///Users/eric/work/openclaweco.com/website/public/_redirects) 中部署了精确的 301 重定向规则，降低回源开销。
+3. **客户端 404 智能自愈跳转**：
+   - 在 [website/src/pages/404.astro](file:///Users/eric/work/openclaweco.com/website/src/pages/404.astro) 页面中注入了轻量级前端重定向脚本，对所有以 `.html` 结尾的未知历史路由（例如 `/path.html`）在浏览器端实时剥离后缀并重定向至 Clean URL（`/path/`），实现客户端优雅兜底。
+4. **Google AI Studio 计费异常排查**：
+   - 对 6月6日至10日 AI Studio 面板显示 $0 账单的情况进行了核查。分析指出在 Paid Tier（Tier 2）下，由于 `gemini-3.5-flash` 费率极低（输入 $1.50/M, 输出 $9.00/M），近几天改写产生的实际日消费低于 $0.01，被面板四舍五入合并显示为 $0.00。同时确认了 $100 每月赠金在 GCP 计费发票层面扣抵。
+5. **本地构建与链接审计验证**：
+   - 在 `website/` 下执行了 `npm run local-build` 本地验证，成功编译 5283 个静态页面并生成 Pagefind 索引，最终通过链接审计脚本验证，报告 **0 个内部损坏链接**。
+6. **自治理规范与防中文 URL 锁定**：
+   - 创建了根目录自治理规章 [agent.md](file:///Users/eric/work/openclaweco.com/agent.md)，严格限定未来所有改写及生成逻辑禁止产出中文/百分比编码 URL，且未经 301 边缘重定向不得随意篡改已有 URL。
+
+### 关键决策
+- **边缘与客户端双层兜底重定向架构**：通过 `_redirects` 处理已知的高频重构教程路由以避免回源，同时在 `404.astro` 页面利用客户端 JS 剥离 `.html` 后缀对零星分散的历史遗留链接进行柔性兜底，实现极致的静态 404 降噪。
+- **自治理约束持久化**：使用 `agent.md` 将本会话的防中文/百分比编码 URL 规范以及禁止自动推送生产构建的红线进行规章化锁定，保障多会话间 AI 操作的安全连贯性。
+
+### 下一步
+- 运行 `./session-push-all.sh` 一键向远程同步 Root 及所有子模块的最新代码。
+- 观察 Google Search Console 中 301 状态码的传导及 404 错误日志的逐步递减。
+
+

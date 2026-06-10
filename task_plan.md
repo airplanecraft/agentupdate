@@ -299,4 +299,15 @@ Plan: `docs/plans/2026-05-19-blog-fixes-implementation.md`
 - [x] Verify local compile safety by running `npm run build` in `admin/` and `npm run local-build` in `website/`
 - [x] Session Archive
 
+## [404 URL Resolution & AI Studio Billing Anomaly Audit — 2026-06-10]
+
+- [x] Diagnose 404 URL anomalies from GA logs and map 98 unique paths
+- [x] Add zero-padding tutorial correction redirect rules to `website/public/_redirects`
+- [x] Implement client-side `.html` suffix stripping and clean URL redirection in `website/src/pages/404.astro`
+- [x] Audit Google AI Studio billing anomaly (verify Tier 2 Gemini 3.5 Flash pricing & voucher deductions)
+- [x] Perform local build (`npm run local-build`) and verify zero internal broken links with link auditor
+- [x] Create `agent.md` to persist bilingual ASCII URL requirements and build limits
+- [x] Session Archive
+
+
 

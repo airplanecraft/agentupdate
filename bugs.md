@@ -419,3 +419,19 @@
   3. 在 `BaseLayout.astro` 语言切换及 alternate 路径生成逻辑中注入 `is404` 判断，一旦发现 canonical 路径为 `404`，强制将重定向目标及 hreflang 指向对应的主页（`/` 与 `/zh/`）。
 - **结果**: PASS。本地 local build 顺利生成 `9959` 个静态页面，用 audit 脚本对 **9971 个 HTML 文件扫描，确认内部 broken links 数量降为 0**。
 - **相关文件**: `admin/content/gemma-tutorial/lessons/lesson-7.md`, `admin/content/gemma-tutorial/lessons/lesson-7.en.md`, `website/src/lib/tags.ts`, `website/src/layouts/BaseLayout.astro`
+
+## BUG-137: 历史遗留 .html 路由与前导零教程课时路径 404 异常
+- **发现时间**: 2026-06-10 13:00
+- **自愈轮次**: N/A
+- **症状**: 
+  1. 访问包含 `.html` 后缀的旧路由（例如 `/path.html`）返回 404。
+  2. 访问包含前导零的旧教程课时路径（例如 `/zh/tutorial/hermes-agent-tutorial/lesson-01`）返回 404。
+- **根因**:
+  1. Astro 在静态生成（Clean URLs）模式下，打包输出对应的物理文件夹和 `index.html`（路由为 `/path`）。当有爬虫或外部链接显式访问旧版后缀 `/path.html` 时，托管平台（Cloudflare Pages）因为没有 `path.html` 实体文件而直接返回 404。
+  2. 全站教程课时 Slug 从前导零格式（如 `lesson-01`）统一重构为了无前导零的格式（如 `lesson-1`），导致历史分享或爬虫缓存的旧链接失效。
+- **修复方案**:
+  1. 在 `website/src/pages/404.astro` 注入前端重定向 JavaScript：若检测到 URL 以 `.html` 结尾，则自动剥离该后缀并重定向到对应的 Clean URL 路径。
+  2. 在 `website/public/_redirects` 中录入 GA 导出的 98 条带有前导零的教程课时路径到无前导零路径的 301 重定向映射规则。
+- **结果**: PASS。本地 local build 及链接审计成功通过，手动模拟 404 访问 `.html` 后缀或零填充路径均能秒级正确自愈跳转。
+- **相关文件**: `website/src/pages/404.astro`, `website/public/_redirects`
+
