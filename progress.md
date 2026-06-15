@@ -1,3 +1,23 @@
+## 2026-06-16 07:43 — [Batch News Approval & AI Rewrite Activation] ✅
+
+### 完成事项
+1. **匹配并批量审批 Claude/Anthropic/Gemini 相关新闻**：
+   - 编写了数据库查询脚本，在 `raw` 状态的新闻中筛选出标题或原始标题包含 "claude"、"anthropic" 或 "gemini" 关键字，且创建日期属于 2026-06-15 和 2026-06-16 的所有文章。
+   - 成功将符合条件的 **79 篇** 文章状态从 `'raw'` 批量更新为 `'approved_for_ai'`，并填充 `reviewedAt` 与 `reviewedBy: 'admin'` 字段。
+2. **清除并同步 Telegram 任务队列**：
+   - 将 `scratch/telegram_tasks.json` 里的对应挂起（pending）任务状态更新为 `completed`，并写入了结构化的执行日志，以便 Telegram 机器人通知用户。
+3. **手动触发 AI Heartbeat 改写流水线**：
+   - 编写并执行了 `crawler/scratch/trigger-heartbeat.ts` 脚本，在后台立即拉起 AI 改写与插图生成流水线（以 10 篇为批次递归处理），避免等待 cron 心跳，目前已进入高速处理中。
+
+### 关键决策
+- **合并处理 06/15 与 06/16 审批任务**：为了保持新闻的时效性以及响应 Telegram 任务积压，决定一次性将 6/15 与 6/16 两日所有匹配的文章进行批量状态提升，确保全量入库。
+- **本地 Heartbeat 异步后台触发**：直接调用 `processRawArticles()` 并通过 shell 将其转入后台运行，可在保障 API 配额（每分钟 10 篇）的前提下，实现零卡顿的静默自动翻译、润色及 Imagen 封面生成。
+
+### 下一步
+- 监控后台 heartbeat 执行日志，确认 79 篇文章改写并正常流入 `pending`（待发布）列表。
+
+---
+
 ## 2026-06-15 20:12 — [Test Suite Comprehensive Repair & Verification] ✅
 
 ### 完成事项

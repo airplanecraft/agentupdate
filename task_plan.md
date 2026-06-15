@@ -322,6 +322,14 @@ Plan: `docs/plans/2026-05-19-blog-fixes-implementation.md`
 - [x] Execute Website local-build and link auditor confirming zero internal broken links
 - [x] Session Archive
 
+## [Batch News Approval & AI Rewrite Activation — 2026-06-16]
+
+- [x] Query database for raw stage articles containing "claude", "anthropic", or "gemini" from 06/15 and 06/16
+- [x] Batch approve matching raw articles (79 articles) to status `approved_for_ai`
+- [x] Clear pending Telegram queue tasks in `telegram_tasks.json`
+- [x] Manually trigger crawler heartbeat process to start AI rewriting and image generation in the background
+
+
 
 
 
