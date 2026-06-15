@@ -1,3 +1,32 @@
+## BUG-139: Crawler 与 Admin 模块全量单元测试及 E2E 测试失败 (Fixed 2026-06-15)
+
+- **发现时间**: 2026-06-15 19:36
+- **自愈轮次**: 1 / 5
+- **症状**:
+  1. `crawler` 模块运行 `pnpm run test` 时报错：`TypeError: prisma.article.count is not a function` 以及 `cron.schedule` 预期调用次数不符。
+  2. `admin` 模块运行 `npm run e2e` 时，遇到 6688 端口已被开发进程占用导致的 `EADDRINUSE` 挂起，且侧边栏 nav-item 数量断言错误，`/admin/variants` 路由不存在导致超时，警告弹窗 confirm text 因空格与 emoji 无法匹配，以及 `github-import` 测试依赖于真实外网和 AI 接口调用容易失败。
+- **根因**:
+  1. `heartbeat.test.ts` 新增调用了 `prisma.article.count` 方法，但在 mock 列表中未对此补齐 mock 声明。
+  2. `scheduler.ts` 后来添加了 `releasePoll` 和 `productPoll` 这两个定时任务，`cron.schedule` 实际调用次数由 2 变更为 4。
+  3. `admin` 启动 WebServer 会默认 spawning 微信 WS 服务（6688端口），在 E2E 模式下会和本地正在运行的正常 dev 服务的 WS 端口冲突。
+  4. 随着开发版本的更新，侧边栏 nav-item 由原先的 6 个增加至 16 个，原测试中断言 `toHaveCount(6)` 挂掉。
+  5. 系统导航路由已由 `/admin/variants` 迁移至 `/admin/product`，原测试仍访问失效路由。
+  6. 页面 confirm 弹窗提示中间包含空格和 emoji，原测试 `toContain` 的无空格纯文字匹配不上。
+  7. `github-import` 原始设计为对 GitHub Search、Gemini AI 以及保存 API 的全链路真实外网调用，导致其不具备测试隔离性与环境健壮性。
+- **修复方案**:
+  1. 在 `heartbeat.test.ts` 中补齐 `count: mockCount` 的 mock 声明，并在 beforeEach 里将其 mockResolvedValue(0)。
+  2. 更新 `scheduler.test.ts` 里的 assertion，以匹配实际 4 次 `cron.schedule` 注册。
+  3. 在 `admin/playwright.config.ts` 启动时注入 `IS_E2E=true`，并在 `admin/astro.config.mjs` 中判断若此 flag 成立，则跳过 spawn 微信 WS 服务。
+  4. 更新 `admin-layout.spec.ts` 侧边栏 `.nav-item` 个数为 16，并采用精细化的 labels 模糊/exact 过滤匹配，将侧边栏点击范围限定在 `.sidebar` 下以防干扰。
+  5. 将 `admin-variants.spec.ts` 中所有的 `/admin/variants` 修改为 `/admin/product`，更新 title 期望为 `/产品/`。为了屏蔽数据库内 pending variant 的干扰，在获取页面元素前，增加了显式点击 `screenTab` 的操作。
+  6. 修正 `test-purge-stale.spec.ts` 中 confirm 弹窗内容匹配条件，并使用通配符路由 `**/api/articles/purge-stale` 捕获拦截。
+  7. 物理删除了两个多余写挂的临时调试脚本 `test-batch.spec.ts` 和 `test-debug.spec.ts`。
+  8. 对 `github-import.spec.ts` 和 `tutorial-import.spec.ts` 里的核心 API 全部部署了高内聚的 Playwright Mock 拦截器，加入了合理过渡延迟（500ms）以供 UI 状态观测，排除了外部网络和环境依赖。
+- **结果**: PASS。本地 `crawler` vitest 71 个用例 100% 通过；`website` Playwright 38 个 E2E 用例 100% 通过；`admin` Playwright 25 个 E2E 用例 100% 通过；运行 `npm run local-build` 本地编译打包完全成功，且 0 内部死链。
+- **相关文件**: `crawler/tests/unit/heartbeat.test.ts`, `crawler/tests/unit/scheduler.test.ts`, `admin/playwright.config.ts`, `admin/astro.config.mjs`, `admin/tests/e2e/admin-layout.spec.ts`, `admin/tests/e2e/admin-variants.spec.ts`, `admin/tests/e2e/test-purge-stale.spec.ts`, `admin/tests/e2e/github-import.spec.ts`, `admin/tests/e2e/tutorial-import.spec.ts`
+
+---
+
 ## BUG-138: GitHub Search Import Variant Fails with Unique Constraint Error on `(source_type, source_id)` (Fixed 2026-06-09)
 
 - **发现时间**: 2026-06-09 11:53
@@ -434,4 +463,19 @@
   2. 在 `website/public/_redirects` 中录入 GA 导出的 98 条带有前导零的教程课时路径到无前导零路径的 301 重定向映射规则。
 - **结果**: PASS。本地 local build 及链接审计成功通过，手动模拟 404 访问 `.html` 后缀或零填充路径均能秒级正确自愈跳转。
 - **相关文件**: `website/src/pages/404.astro`, `website/public/_redirects`
+
+## BUG-138: Prisma 数据库连接异常与嵌套标签自动链接 404 异常
+- **发现时间**: 2026-06-14 07:48
+- **自愈轮次**: 1 / 5
+- **症状**:
+  1. 访问网站或运行测试时抛出 `PrismaClientInitializationError: Can't reach database server at localhost:5432`，指示无法连接数据库服务器。
+  2. 运行 `local-build` 后的静态链接审计（link audit）中，在 `news/` 页面中发现 8 处内部 404 损坏链接（如 `/tags/<a href=` 和 `/tags/html-in-<a  class=`）。
+- **根因**:
+  1. 本地 Homebrew 安装的 PostgreSQL@17 服务在先前退出时未清理干净，留下了 `/opt/homebrew/var/postgresql@17/postmaster.pid` 锁文件，其中记录的 PID 已经被其他不相关的进程（如 `Codex Helper`）占用。导致 PostgreSQL 服务在启动时误判已有实例正在运行而退出。此外，Astro 网站的 Prisma Client (`website/src/generated/db`) 尚未被编译生成。
+  2. `website/src/lib/seo.ts` 中的 `autolinkTags` 逻辑在替换长标签（如 `"html-in-canvas"`）之后，会向 HTML 文本中直接插入 `<a>` 标签。这导致随后匹配的短标签（如 `"canvas"`）会误匹配到已插入的 `<a>` 标签内的属性（如 `href` 或 `class` 中的单词），从而破坏 HTML 结构，生成了诸如 `/tags/html-in-<a  class=` 这样损坏的 nested tag 链接。
+- **修复方案**:
+  1. 停止 `postgresql@17` 运行进程，删除 `/opt/homebrew/var/postgresql@17/postmaster.pid` 锁文件，重新启动 PostgreSQL 并用 `pg_isready` 确认服务运行。在 `database` 目录下运行 `npx prisma generate` 重新生成最新的 Prisma client。
+  2. 重构 `website/src/lib/seo.ts` 中的 `autolinkTags` 匹配替换算法：对于匹配到的标签，生成对应的链接后不直接拼装回文本中，而是暂时存入 `placeholders` 数组，并生成占位符 `__HTML_PLACEHOLDER_N__` 替换原词。如此一来，后续的短标签只能在纯文本的占位符中匹配，不会匹配到先前替换的 `<a>` 标签属性。在所有标签替换完成后，再通过单次全局正则统一还原所有 `placeholders`。
+- **结果**: PASS。本地 local build 及链接审计成功通过，审计确认内部 broken links 降至 0。
+- **相关文件**: `website/src/generated/db/`（重新生成）, `database/prisma/schema.prisma`, `website/src/lib/seo.ts`
 
