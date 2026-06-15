@@ -1,3 +1,30 @@
+## 2026-06-15 20:12 — [Test Suite Comprehensive Repair & Verification] ✅
+
+### 完成事项
+1. **全面修复与通过 Crawler 单元测试**：
+   - 补齐了 `heartbeat.test.ts` 中对 `prisma.article.count` 的 mock 逻辑，避免了 `TypeError: count is not a function` 异常。
+   - 修正了 `scheduler.test.ts` 中对定时任务数目的预期，确保 4 个 cron 定时任务正常注册。
+2. **解决 Admin 模块 E2E 测试中的 WebSocket 冲突与路由错误**：
+   - 通过在启动 WebServer 命令中注入 `IS_E2E=true` 环境变量，使 `admin/astro.config.mjs` 在 E2E 模式下自动跳过微信公众号 WS 进程的 Spawn（避免占用 `6688` 端口），彻底化解了 `EADDRINUSE` 冲突。
+   - 更新了 `admin-layout.spec.ts` 侧边栏项目数期待值（更正为真实的 16 个）并限制侧边栏点击范围在 `.sidebar` 中。
+   - 重建了 `admin-variants.spec.ts` 中的所有路由跳转为最新的 `/admin/product`，更新 title 断言，并在断言前强力点击 `screenTab` 以解除对真实 pending 数据记录个数的依赖。
+   - 精简了 `test-purge-stale.spec.ts` 弹窗确认信息的匹配规则，并修正了 API 拦截路由和 stage 为 failed 时的按钮可见性。
+3. **完成 GitHub 搜索导入与教程导入的外部 API Mock 健壮性重构**：
+   - 使用 Playwright 的 `page.route` 全局拦截外部 GitHub Search 接口和 Gemini AI 翻译/丰富化等 API。
+   - 在 Mock 拦截的响应数据里注入了 500ms 的延时以允许 UI 完成状态转变，改用 `saveApiCalled` 标志位确保断言 100% 稳定可靠。
+4. **验证通过全站 tests 及 website 本地打包与死链扫描**：
+   - 运行并全绿通过 Crawler 单元测试（71/71），Admin E2E 测试（25/25），以及 Website E2E 测试（38/38）。
+   - 在 `website/` 下成功执行了 `npm run local-build`，全量静态编译了 5471 个页面并完成死链审计，站内内部损坏链接（死链）数为 **0**。
+
+### 关键决策
+- **E2E 变量隔离避免端口冲突 (IS_E2E Mode Isolation)**：在 Playwright 启动 Astro 的生命周期中，由于本地 E2E 测试是无状态并行运行的，像 WeChat WebSocket (`6688` 端口) 这样带有强全局网络连接的服务会在测试过程中出现端口占用冲突。通过设置环境变量 `IS_E2E=true` 在配置层跳过该服务实例化，保证了开发模式与测试模式各司起职，互不干扰。
+- **UI Mock 状态流转时延 (Mock Latency Injection)**：E2E 测试在大模型 API 实时测试中必须保持绝对隔离。通过在 mock API 的 promise resolve 前注入 500ms 时延，成功保证了 Playwright 在检测 "保存中" -> "保存成功" 的过渡状态时不会因为网络速度过快导致动画闪烁跳过而断言失败。
+
+### 下一步
+- 使用 `/session-archive` 归档并使用 `./session-push-all.sh` 同步最新测试更改至 GitHub。
+
+---
+
 ## 2026-06-09 11:58 — [GitHub Search Variant Import Fix & Deduplication] ✅
 
 ### 完成事项

@@ -309,5 +309,19 @@ Plan: `docs/plans/2026-05-19-blog-fixes-implementation.md`
 - [x] Create `agent.md` to persist bilingual ASCII URL requirements and build limits
 - [x] Session Archive
 
+## [Test Suite Comprehensive Repair & Verification — 2026-06-15]
+
+- [x] Fix Crawler module tests (mock Prisma article count, scheduler cron assertions)
+- [x] Fix Admin E2E WebSocket port 6688 collisions with E2E flag
+- [x] Fix Admin E2E layout navigation & scope sidebar exact matches
+- [x] Refactor Admin E2E variants view paths to `/admin/product` and add mock delays
+- [x] Fix test-purge-stale assertions and confirm dialog matchers
+- [x] Run Crawler tests verifying 100% pass (71/71)
+- [x] Run Admin E2E tests verifying 100% pass (25/25)
+- [x] Run Website E2E tests verifying 100% pass (38/38)
+- [x] Execute Website local-build and link auditor confirming zero internal broken links
+- [x] Session Archive
+
+
 
 
