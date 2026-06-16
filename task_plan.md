@@ -334,6 +334,7 @@ Plan: `docs/plans/2026-05-19-blog-fixes-implementation.md`
 - [x] Install `JeffLi1993/seo-audit-skill` to all agents
 - [x] Install `aaron-he-zhu/seo-geo-claude-skills` to all agents
 - [x] Verify skills are registered in `skills-lock.json`
+- [x] Optimize homepage titles (EN/ZH) for search CTR and plural keyword forms
 - [x] Session Archive
 
 

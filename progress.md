@@ -1030,6 +1030,10 @@
 3. **版本锁定与状态同步**：
    - 自动生成并更新 `skills-lock.json` 版本锁文件，将两个源共 22 个新增技能信息入库锁定。
    - 验证所有技能目录在项目根目录的 `.agents/skills/` 中均已被安全克隆及配置。
+4. **主页 Title 标题深度调优 (SEO Optimization)**：
+   - 成功将英文首页标题升级为 `AgentUpdate.ai — AI Agents Ecosystem & Developer Hub`，增加了复数核心词覆盖度并包含高频词；
+   - 成功将中文首页标题升级为 `AgentUpdate.ai — AI 智能体生态聚合与开发者中心`，使其更契合商业定位，提升搜索引擎点击展现量。
+
 
 ### 关键决策
 - **使用全局 `skills` CLI 加载**：利用 `npx skills add <repo> --all` 精准导入技能到所有 agents 目录，自动配置 symlinks，确保全平台兼容。
