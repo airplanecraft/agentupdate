@@ -1018,4 +1018,24 @@
 - 运行 `./session-push-all.sh` 一键向远程同步 Root 及所有子模块的最新代码。
 - 观察 Google Search Console 中 301 状态码的传导及 404 错误日志的逐步递减。
 
+---
+
+## 2026-06-16 10:20 — [Feature] Install SEO Audit & GEO Claude Skills ✅
+
+### 完成事项
+1. **安装 JeffLi1993/seo-audit-skill 技能集**：
+   - 成功将该技能集克隆并注册，并在 `.agents/skills` 下生成 `seo-audit` 和 `seo-audit-full` 两个核心技能，使 AI 具备快速单页 SEO 审计及深度 PageSpeed 综合审计能力。
+2. **安装 aaron-he-zhu/seo-geo-claude-skills 技能集**：
+   - 成功将该技能集克隆并注册，在 `.agents/skills` 下生成 20 个涉及 GEO（生成式引擎优化）、竞品分析、内链优化、Schema 标记、关键词研究等的深度 SEO/GEO 优化技能。
+3. **版本锁定与状态同步**：
+   - 自动生成并更新 `skills-lock.json` 版本锁文件，将两个源共 22 个新增技能信息入库锁定。
+   - 验证所有技能目录在项目根目录的 `.agents/skills/` 中均已被安全克隆及配置。
+
+### 关键决策
+- **使用全局 `skills` CLI 加载**：利用 `npx skills add <repo> --all` 精准导入技能到所有 agents 目录，自动配置 symlinks，确保全平台兼容。
+
+### 下一步
+- 运行 `./session-push-all.sh` 一键向远程仓库推送 Root 及子模块的最新代码以完成归档。
+
+
 

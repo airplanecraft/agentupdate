@@ -329,6 +329,14 @@ Plan: `docs/plans/2026-05-19-blog-fixes-implementation.md`
 - [x] Clear pending Telegram queue tasks in `telegram_tasks.json`
 - [x] Manually trigger crawler heartbeat process to start AI rewriting and image generation in the background
 
+## [Install SEO Audit & GEO Claude Skills — 2026-06-16]
+
+- [x] Install `JeffLi1993/seo-audit-skill` to all agents
+- [x] Install `aaron-he-zhu/seo-geo-claude-skills` to all agents
+- [x] Verify skills are registered in `skills-lock.json`
+- [x] Session Archive
+
+
 
 
 
