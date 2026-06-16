@@ -337,8 +337,13 @@ Plan: `docs/plans/2026-05-19-blog-fixes-implementation.md`
 - [x] Optimize homepage titles (EN/ZH) for search CTR and plural keyword forms
 - [x] Session Archive
 
+## [Content E-E-A-T & GEO Optimization — 2026-06-16]
 
-
-
-
-
+- [x] Run full technical SEO audit on the live homepage and output HTML report to `reports/www-agentupdate-ai-full-audit.html`
+- [x] Implement editorial testing guidelines on About pages (EN/ZH)
+- [x] Upgrade BaseLayout Organization sameAs schema mappings and TechArticle JSON-LD injection
+- [x] Add Direct Summary box rendering in lesson templates (EN/ZH)
+- [x] Modify Lesson 1 of Claude Permission Modes tutorial with high fact density, sandbox environment specs, and first-person test narrative
+- [x] Create database script `sync_tutorials.ts` to sync markdown metadata (summary/takeaway) into PostgreSQL database
+- [x] Run local compilation `npm run local-build` to verify successful HTML generation and zero broken links
+- [x] Session Archive

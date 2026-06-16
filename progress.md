@@ -1,3 +1,31 @@
+## 2026-06-16 12:15 — [Content E-E-A-T & GEO Optimization] ✅
+
+### 完成事项
+1. **编辑与测试指南建设 (E-E-A-T)**：
+   - 在双语关于页面（[about.astro](file:///Users/eric/work/openclaweco.com/website/src/pages/about.astro) 与 [zh/about.astro](file:///Users/eric/work/openclaweco.com/website/src/pages/zh/about.astro)）中添加了「编辑方针与物理沙箱测试规范（Editorial Policy）」，增强网站信誉。
+2. **Schema 结构化数据图谱升级**：
+   - 升级了 [BaseLayout.astro](file:///Users/eric/work/openclaweco.com/website/src/layouts/BaseLayout.astro) 中的全局 `Organization` sameAs 映射，添加了 x.com 和 LinkedIn。
+   - 为所有教程内容页面动态部署了 `TechArticle` 结构化数据，声明底层依赖与技术储备，利于 AI 引擎抓取。
+3. **Direct Summary 直接要点区块支持**：
+   - 在课时模板 [lesson.astro](file:///Users/eric/work/openclaweco.com/website/src/pages/tutorial/[series]/[lesson].astro) 和中文版中集成了 `direct-summary-box` 组件，支持渲染 30~50 字的极简 takeaways，符合 GEO 提取引用规范。
+4. **测试文章 GEO 事实密度与第一人称叙事优化**：
+   - 对 `claude-permission-modes-tutorial` 的第 1 课（[lesson-01.en.md](file:///Users/eric/work/openclaweco.com/admin/content/claude-permission-modes-tutorial/lessons/lesson-01.en.md) 和 [lesson-01.md](file:///Users/eric/work/openclaweco.com/admin/content/claude-permission-modes-tutorial/lessons/lesson-01.md)）注入了 `summary` 字段，并在首段写入测试版本（`Claude Code v0.2.9`）、沙盒环境说明和第一人称测试流程叙事。
+5. **写成自动同步脚本并完成数据入库**：
+   - 编写并运行了 [sync_tutorials.ts](file:///Users/eric/work/openclaweco.com/database/sync_tutorials.ts) 脚本，读取 `admin/content/` 文件夹下 28 套教程的双语 markdown 正文和 Frontmatter summary 并 upsert 进 PostgreSQL 数据库。
+6. **运行 Technical SEO 审计与打包验证**：
+   - 重新运行 `seo-audit-full` 审计工具，首页 18 项 SEO/社交元数据指标全部绿灯通过，生成的 `reports/www-agentupdate-ai-full-audit.html` 报告已确认。
+   - 在 `website/` 下成功执行了 `npm run local-build` 进行本地编译与死链检查，打包编译完美通过。
+   - 运行了 `./session-push-all.sh`，将根目录及子模块中所有代码和 SQL snapshot 同步推送到了 GitHub。
+
+### 关键决策
+- **绝对不改变既有 URL 结构**：以 meta description、HTML schema 和 template 内容优化为核心，在零 404 风险、零路由变更的前提下安全提升 E-E-A-T 权重。
+- **构建数据库同步脚本加速 Seeding**：将 markdown 文件的 GEO 更新全自动同步到 PostgreSQL，防止 website pre-render 时丢失新的 frontmatter takeaways。
+
+### 下一步
+- 持续观察 Google Rich Results 是否正常解析新增的 `TechArticle`，并在 ChatGPT Search 及 Perplexity 进行对应技术术语的搜索提问，监测引用率（Citation Share）。
+
+---
+
 ## 2026-06-16 07:43 — [Batch News Approval & AI Rewrite Activation] ✅
 
 ### 完成事项
