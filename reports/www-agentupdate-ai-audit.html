@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>www.agentupdate.ai 基础 SEO 审计报告</title>
+  <style>
+    /* ── Reset & base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      color: #1a1a1a;
+      background: #f5f5f5;
+    }
+
+    /* ── Layout ── */
+    header, main, footer {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ── Header ── */
+    header {
+      background: #fff;
+      border-bottom: 3px solid #0f62fe;
+      padding-top: 32px;
+      padding-bottom: 24px;
+      margin-bottom: 0;
+      max-width: 100%;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+    header .inner {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+    .report-badge {
+      display: inline-block;
+      background: #0f62fe;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: 3px;
+      margin-bottom: 10px;
+    }
+    header h1 {
+      font-size: 24px;
+      font-weight: 700;
+      color: #0a0a0a;
+      margin-bottom: 8px;
+    }
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-top: 10px;
+      font-size: 13px;
+      color: #555;
+    }
+    .meta-row span strong { color: #333; }
+
+    /* ── Main content ── */
+    main {
+      padding-top: 28px;
+      padding-bottom: 48px;
+    }
+
+    /* ── Section ── */
+    section {
+      background: #fff;
+      border-radius: 6px;
+      border: 1px solid #e0e0e0;
+      margin-bottom: 20px;
+      /* 不用 overflow:hidden，否则小屏下表格横向滚动会被裁切 */
+    }
+    section > h2 {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: #0f62fe;
+      padding: 14px 20px;
+      border-bottom: 1px solid #e8e8e8;
+      background: #f9fbff;
+    }
+    section > .section-body {
+      padding: 20px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* ── Executive summary ── */
+    .summary-verdict {
+      font-size: 14px;
+      color: #444;
+      line-height: 1.6;
+      margin-bottom: 16px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .summary-groups {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+    }
+    .summary-group {
+      border-radius: 5px;
+      padding: 12px 14px;
+    }
+    .summary-group.critical { background: #fff0f0; border: 1px solid #fcd0d0; }
+    .summary-group.warnings { background: #fffbea; border: 1px solid #f0e08a; }
+    .summary-group.passing  { background: #f0faf3; border: 1px solid #b8e8c8; }
+    .summary-group-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      margin-bottom: 8px;
+    }
+    .summary-group.critical .summary-group-label { color: #c0392b; }
+    .summary-group.warnings .summary-group-label { color: #856404; }
+    .summary-group.passing  .summary-group-label { color: #1a6b35; }
+    .summary-group ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .summary-group ul li {
+      font-size: 13px;
+      color: #333;
+      padding: 3px 0;
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+      line-height: 1.45;
+    }
+    .summary-group ul li:last-child { border-bottom: none; }
+    .summary-group ul li::before {
+      margin-right: 5px;
+    }
+    .summary-group.critical ul li::before { content: "✕"; color: #c0392b; font-weight: 700; }
+    .summary-group.warnings ul li::before { content: "!"; color: #856404; font-weight: 700; }
+    .summary-group.passing  ul li::before { content: "✓"; color: #1a6b35; font-weight: 700; }
+    .summary-empty {
+      font-size: 12px;
+      color: #aaa;
+      font-style: italic;
+    }
+
+    /* ── Check table ── */
+    .table-scroll {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      margin: 0 0 12px;
+    }
+    .table-scroll:last-child { margin-bottom: 0; }
+    .check-table {
+      width: 100%;
+      min-width: 32rem;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    /* E-E-A-T 等四列表格需要更宽的最小宽度 */
+    .check-table:has(thead tr th:nth-child(4)) {
+      min-width: 42rem;
+    }
+    .check-table th {
+      text-align: left;
+      font-size: 12px;
+      font-weight: 600;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 8px 12px;
+      border-bottom: 1px solid #e8e8e8;
+      background: #fafafa;
+    }
+    .check-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #f0f0f0;
+      vertical-align: top;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+    .check-table th:nth-child(1),
+    .check-table td:nth-child(1) { min-width: 6.5rem; }
+    .check-table th:nth-child(2),
+    .check-table td:nth-child(2) { width: 5.5rem; white-space: nowrap; }
+    .check-table th:nth-child(3),
+    .check-table td:nth-child(3) { min-width: 8rem; }
+    .check-table tr:last-child td { border-bottom: none; }
+    /* Detail cell: issue description + fix suggestion */
+    .detail-issue {
+      font-size: 13px;
+      color: #333;
+      line-height: 1.55;
+    }
+    .detail-fix {
+      margin-top: 5px;
+      font-size: 12px;
+      color: #1a6b35;
+      line-height: 1.5;
+    }
+    .detail-fix::before {
+      content: "Fix: ";
+      font-weight: 700;
+    }
+
+    /* ── Status badges ── */
+    .status {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 3px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .status-pass  { background: #d4edda; color: #155724; }
+    .status-fail  { background: #f8d7da; color: #721c24; }
+    .status-warn  { background: #fff3cd; color: #856404; }
+    .status-info  { background: #d1ecf1; color: #0c5460; }
+    .status-na    { background: #e9ecef; color: #495057; }
+
+    /* ── Finding articles ── */
+    article.finding {
+      border: 1px solid #e0e0e0;
+      border-radius: 5px;
+      margin-bottom: 14px;
+      overflow: hidden;
+    }
+    article.finding:last-child { margin-bottom: 0; }
+    .finding-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      background: #fafafa;
+      border-bottom: 1px solid #e8e8e8;
+    }
+    .finding-header h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: #1a1a1a;
+      flex: 1;
+    }
+    .finding-body {
+      padding: 14px 16px;
+      display: grid;
+      gap: 10px;
+    }
+    .finding-field {
+      display: grid;
+      grid-template-columns: 80px 1fr;
+      gap: 8px;
+      font-size: 14px;
+    }
+    .finding-field .label {
+      font-weight: 600;
+      color: #555;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding-top: 2px;
+    }
+    .finding-field .value { color: #333; }
+
+    /* ── Priority actions ── */
+    ol.priority-list {
+      padding-left: 20px;
+      font-size: 14px;
+      color: #333;
+      line-height: 1.8;
+    }
+    ol.priority-list li { margin-bottom: 6px; }
+
+    /* ── Sub-section label (within Site Checks) ── */
+    .subsection-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: #0f62fe;
+      background: #f0f5ff;
+      border-left: 3px solid #0f62fe;
+      padding: 6px 10px;
+      margin: 20px 0 12px;
+      border-radius: 0 3px 3px 0;
+    }
+    .subsection-label:first-child { margin-top: 0; }
+
+    /* ── Limitations ── */
+
+    /* ── Upgrade prompt ── */
+    .upgrade-box {
+      background: #eef4ff;
+      border: 1px solid #b8d0ff;
+      border-radius: 5px;
+      padding: 16px 20px;
+      font-size: 14px;
+      color: #1a3c7a;
+    }
+    .upgrade-box strong { color: #0f62fe; }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      font-size: 12px;
+      color: #999;
+      padding-top: 16px;
+      padding-bottom: 32px;
+      border-top: 1px solid #e0e0e0;
+      margin-top: 0;
+      max-width: 100%;
+      background: #fff;
+    }
+    footer .inner {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 16px 24px;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 900px) {
+      .summary-groups {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      header, main, footer,
+      header .inner {
+        padding-left: 16px;
+        padding-right: 16px;
+      }
+      header { padding-top: 24px; padding-bottom: 18px; }
+      header h1 { font-size: 20px; line-height: 1.35; }
+      .meta-row { flex-direction: column; gap: 8px; }
+      .meta-row span { word-break: break-all; }
+      main { padding-top: 20px; padding-bottom: 32px; }
+      section > h2 { padding: 12px 16px; }
+      section > .section-body { padding: 14px 16px; }
+      .check-table {
+        min-width: 28rem;
+        font-size: 13px;
+      }
+      .check-table th,
+      .check-table td { padding: 8px 10px; }
+      .finding-header {
+        flex-wrap: wrap;
+        align-items: flex-start;
+      }
+      .finding-header h3 { font-size: 13px; }
+      .finding-field {
+        grid-template-columns: 1fr;
+        gap: 4px;
+      }
+      .finding-field .label { padding-top: 0; }
+      .upgrade-box { padding: 14px 16px; font-size: 13px; }
+    }
+
+    @media (max-width: 480px) {
+      body { font-size: 14px; }
+      .summary-groups { gap: 10px; }
+      .summary-group { padding: 10px 12px; }
+      .check-table { min-width: 26rem; }
+      .check-table:has(thead tr th:nth-child(4)) { min-width: 34rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="inner">
+    <span class="report-badge">SEO Audit Report</span>
+    <h1>www.agentupdate.ai 基础 SEO 审计报告</h1>
+    <div class="meta-row">
+      <span><strong>URL:</strong> https://www.agentupdate.ai</span>
+      <span><strong>Audit Level:</strong> 基础审计 (Basic SEO Audit)</span>
+      <span><strong>Created:</strong> 2026-06-16</span>
+      <span><strong>Powered by:</strong> Jeff</span>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <!-- Audit Summary -->
+  <section>
+    <h2>Audit Summary</h2>
+    <div class="section-body">
+
+      <!-- One-line verdict: e.g. "Found 2 critical issues and 1 warning across 6 checks." -->
+      <p class="summary-verdict">在本次基础 SEO 审计中，共运行了 20 项检查，其中 16 项通过 (Pass)，4 项警告 (Warning)，0 项严重错误 (Critical/Fail)。</p>
+
+      <div class="summary-groups">
+
+        <!-- Critical issues (status: fail) — one <li> per issue, e.g. "Missing H1 tag" -->
+        <div class="summary-group critical">
+          <div class="summary-group-label">Critical</div>
+          <ul>
+            <li class="summary-empty">无</li>
+            <!-- e.g. <li>Title tag missing</li><li>No H1 found</li> -->
+            <!-- If none: <li class="summary-empty">None</li> -->
+          </ul>
+        </div>
+
+        <!-- Warnings (status: warn) — one <li> per warning, e.g. "Title too long (78 chars)" -->
+        <div class="summary-group warnings">
+          <div class="summary-group-label">Warnings</div>
+          <ul>
+            
+            <li>页面标题长度为 44 字符，低于推荐的 50-60 字符范围。</li>
+            <li>Meta 描述尾部包含不正规语气词 ", yo"（"Read the full analysis on AgentUpdate.ai, yo"）。</li>
+            <li>H2 标题数量为 4 个，略显单薄（推荐 5-7 个），且单篇 H2 下包含过多 H3 子节点（如 "SKILL MARKETS" 包含 24 个 H3）。</li>
+            <li>正文内链数量为 42 个，超出了推荐的 2-20 个范围，可能会稀释链接权重。</li>
+            <li>Organization 结构化数据中缺少推荐的 sameAs 社交媒体属性。</li>
+    
+            <!-- e.g. <li>Title is 78 chars (> 60)</li> -->
+            <!-- If none: <li class="summary-empty">None</li> -->
+          </ul>
+        </div>
+
+        <!-- Passing checks (status: pass) — one <li> per check -->
+        <div class="summary-group passing">
+          <div class="summary-group-label">Passing</div>
+          <ul>
+            
+            <li>robots.txt 文件配置正确，无致命阻断规则，成功声明 Sitemap 指令。</li>
+            <li>sitemap.xml 存在且包含 5544 个 URL。</li>
+            <li>404 错误页面状态码返回 404，没有软 404 或首页 301 重定向。</li>
+            <li>URL 规范化正常，HTTP 301 跳转 HTTPS，www 与 non-www 指向一致，Canonical 斜杠匹配。</li>
+            <li>多语言 hreflang 标签配置完整，双向对称引用校验通过，BCP 47 编码正确。</li>
+            <li>H1 标签数量为 1，且包含了核心关键词 "AI Agents"。</li>
+            <li>自引用 Canonical 标签配置正确。</li>
+            <li>页面包含 12 张图片，全部带有 alt 属性（装饰图使用空 alt）。</li>
+            <li>正文字数共 1374 字，内容充实。</li>
+            <li>关键词 "AI Agents" 成功布局在 H1 和正文前 100 字内。</li>
+    
+            <!-- e.g. <li>Single H1 present</li><li>Canonical correct</li> -->
+            <!-- If none: <li class="summary-empty">None</li> -->
+          </ul>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Site-Level Checks -->
+  <section>
+    <h2>Site Checks</h2>
+    <div class="section-body">
+
+      <!-- Crawlability + Canonicalization + i18n + Schema -->
+      
+      <div class="subsection-label">抓取与可访问性 (Crawlability)</div>
+      <table class="check-table">
+        <thead>
+          <tr><th>检查项</th><th>状态</th><th>详细信息</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>robots.txt</td>
+            <td><span class="status status-pass">通过</span></td>
+            <td>未检测到严重阻断规则。Sitemap 声明正确: https://www.agentupdate.ai/sitemap.xml。</td>
+          </tr>
+          <tr>
+            <td>sitemap.xml</td>
+            <td><span class="status status-pass">通过</span></td>
+            <td>位于默认路径下，共包含 5544 个有效 URL。</td>
+          </tr>
+          <tr>
+            <td>404 错误处理</td>
+            <td><span class="status status-pass">通过</span></td>
+            <td>不存在的 URL 能够正确返回标准的 404 状态码，没有产生软 404 或向首页重定向。</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="subsection-label">URL 规范化 (URL Canonicalization)</div>
+      <table class="check-table">
+        <thead>
+          <tr><th>检查项</th><th>状态</th><th>详细信息</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>URL 规范化</td>
+            <td><span class="status status-pass">通过</span></td>
+            <td>HTTP 强制 301 重定向至 HTTPS · www 与 non-www 域名有 301 统一指向 · Canonical 标签与最终 URL 的斜杠完全一致。</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="subsection-label">国际化 / Hreflang (i18n / hreflang)</div>
+      <table class="check-table">
+        <thead>
+          <tr><th>检查项</th><th>状态</th><th>详细信息</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>hreflang 标签</td>
+            <td><span class="status status-pass">通过</span></td>
+            <td>中英文及默认版本 (en, zh-CN, x-default) 标签配置完整，双向对称引用校验通过，BCP 47 编码无误。无冗余的 /en/ 路径前缀。</td>
+          </tr>
+        </tbody>
+      </table>
+    
+      <!--
+        Use <div class="subsection-label">Label</div> to separate check groups.
+        Labels: Crawlability · URL Canonicalization · i18n / hreflang · Schema (JSON-LD)
+        Pass rows: ONE short phrase. No divs.
+        Warn / Fail rows: <div class="detail-issue"> ≤2 points + <div class="detail-fix">.
+
+        <table class="check-table">
+          <thead>
+            <tr><th>Check</th><th>Status</th><th>Detail</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>robots.txt</td>
+              <td><span class="status status-pass">Pass</span></td>
+              <td>User-Agent: * / Allow: / · Sitemap directive present · Googlebot not blocked.</td>
+            </tr>
+            <tr>
+              <td>sitemap.xml</td>
+              <td><span class="status status-pass">Pass</span></td>
+              <td>Valid XML urlset · 104 URLs · referenced in robots.txt.</td>
+            </tr>
+            <tr>
+              <td>robots.txt</td>
+              <td><span class="status status-warn">Warning</span></td>
+              <td>
+                <div class="detail-issue">· No Sitemap: directive — crawlers cannot auto-discover sitemap.</div>
+                <div class="detail-fix">Add: Sitemap: https://example.com/sitemap.xml</div>
+              </td>
+            </tr>
+            <tr>
+              <td>sitemap.xml</td>
+              <td><span class="status status-fail">Fail</span></td>
+              <td>
+                <div class="detail-issue">· HTTP 200 but body is HTML, not valid XML — Google cannot parse it.</div>
+                <div class="detail-fix">Generate a valid XML sitemap and submit via Google Search Console.</div>
+              </td>
+            </tr>
+            <tr>
+              <td>404 Handling</td>
+              <td><span class="status status-pass">Pass</span></td>
+              <td>Non-existent URL returns 404 — correctly signals missing page to crawlers.</td>
+            </tr>
+            <tr>
+              <td>404 Handling</td>
+              <td><span class="status status-fail">Fail</span></td>
+              <td>
+                <div class="detail-issue">· Non-existent URL returns 200 (soft 404) — Google cannot distinguish missing pages from real content.</div>
+                <div class="detail-fix">Return proper HTTP 404 status for missing pages.</div>
+              </td>
+            </tr>
+            <tr>
+              <td>404 Handling</td>
+              <td><span class="status status-warn">Warning</span></td>
+              <td>
+                <div class="detail-issue">· Non-existent URL redirects 301 to homepage — dilutes crawl budget and masks missing pages.</div>
+                <div class="detail-fix">Return 404 directly instead of redirecting to homepage.</div>
+              </td>
+            </tr>
+            <tr>
+              <td>URL Canonicalization</td>
+              <td><span class="status status-pass">Pass</span></td>
+              <td>HTTPS enforced · www consistent · trailing slash consistent · canonical matches URL.</td>
+            </tr>
+            <tr>
+              <td>URL Canonicalization</td>
+              <td><span class="status status-fail">Fail</span></td>
+              <td>
+                <div class="detail-issue">· http://example.com returns 200 instead of 301 → https — duplicate indexable version.</div>
+                <div class="detail-fix">Force 301 redirect from HTTP to HTTPS at server/CDN level.</div>
+              </td>
+            </tr>
+            <tr>
+              <td>URL Canonicalization</td>
+              <td><span class="status status-warn">Warning</span></td>
+              <td>
+                <div class="detail-issue">· www and non-www both return 200 — two indexable versions of the site.</div>
+                <div class="detail-fix">Pick one (preferably non-www unless brand uses www), 301 the other, set canonical accordingly.</div>
+              </td>
+            </tr>
+            <tr>
+              <td>URL Canonicalization</td>
+              <td><span class="status status-warn">Warning</span></td>
+              <td>
+                <div class="detail-issue">· Canonical tag points to https://example.com/page but actual URL served is https://example.com/page/ — trailing slash mismatch.</div>
+                <div class="detail-fix">Align canonical tag with the exact URL being served, or 301 one form to the other.</div>
+              </td>
+            </tr>
+            <tr>
+              <td>i18n / hreflang</td>
+              <td><span class="status status-pass">Pass</span></td>
+              <td>3 hreflang tags (en, zh-TW, ja) · reciprocal links verified · x-default present · html[lang] matches.</td>
+            </tr>
+            <tr>
+              <td>i18n / hreflang</td>
+              <td><span class="status status-warn">Warning</span></td>
+              <td>
+                <div class="detail-issue">· hreflang="zh" used — should be "zh-CN" or "zh-TW" (region required for Chinese). · zh-TW version missing reciprocal link back to en page.</div>
+                <div class="detail-fix">Use BCP 47 codes (zh-CN / zh-TW). Ensure every hreflang URL also references all other language variants.</div>
+              </td>
+            </tr>
+            <tr>
+              <td>i18n / hreflang</td>
+              <td><span class="status status-warn">Warning</span></td>
+              <td>
+                <div class="detail-issue">· Default language (en) served at /en/page — redundant prefix adds crawl depth. Recommended: / (en) + /zh/ + /es/.</div>
+                <div class="detail-fix">Move en content to root path, keep subpaths for other languages. Update hreflang and canonical accordingly.</div>
+              </td>
+            </tr>
+            <tr>
+              <td>i18n / hreflang</td>
+              <td><span class="status status-fail">Fail</span></td>
+              <td>
+                <div class="detail-issue">· hreflang tags present but reciprocal links broken — /zh page does not reference /en, Google will ignore the entire hreflang set.</div>
+                <div class="detail-fix">All language variants must reference each other. Add missing hreflang entries to /zh page.</div>
+              </td>
+            </tr>
+            <tr>
+              <td>i18n / hreflang</td>
+              <td><span class="status status-na">N/A</span></td>
+              <td>Single-language site — hreflang not applicable.</td>
+            </tr>
+          </tbody>
+        </table>
+      -->
+
+      <!-- E-E-A-T Infrastructure: trust pages existence + reachability -->
+      
+      <div class="subsection-label">E-E-A-T Trust Pages</div>
+      <table class="check-table">
+        <thead>
+          <tr><th>E-E-A-T 页面</th><th>是否存在</th><th>是否可达 (页脚/导航栏)</th><th>详细信息</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>关于我们 (About Us)</td>
+            <td><span class="status status-pass">通过</span></td>
+            <td><span class="status status-pass">通过</span></td>
+            <td>/about 可正常访问并返回 200 · 链接已存在于页脚。</td>
+          </tr>
+          <tr>
+            <td>联系我们 (Contact)</td>
+            <td><span class="status status-pass">通过</span></td>
+            <td><span class="status status-pass">通过</span></td>
+            <td>/contact 可正常访问并返回 200 · 链接已存在于页脚。</td>
+          </tr>
+          <tr>
+            <td>隐私政策 (Privacy Policy)</td>
+            <td><span class="status status-pass">通过</span></td>
+            <td><span class="status status-pass">通过</span></td>
+            <td>/privacy 可正常访问并返回 200 · 链接已存在于页脚。</td>
+          </tr>
+          <tr>
+            <td>服务条款 (Terms of Service)</td>
+            <td><span class="status status-pass">通过</span></td>
+            <td><span class="status status-pass">通过</span></td>
+            <td>/terms 可正常访问并返回 200 · 链接已存在于页脚。</td>
+          </tr>
+        </tbody>
+      </table>
+    
+      <!--
+        Start with: <div class="subsection-label">E-E-A-T Trust Pages</div>
+        Two layers per trust page:
+          Layer 1 — Exists     : HTTP 200 = pass, 404/redirect = fail
+          Layer 2 — Reachable  : linked from footer or main nav = pass, not linked = warn
+
+        Required: About Us, Contact, Privacy Policy, Terms of Service
+        Optional bonus: Media/Partners, Pricing (missing = N/A, not penalized)
+
+        Contact row exception — dedicated /contact page is NOT required:
+          Pass if contact is reachable via dedicated page, About page contact details,
+          or footer/nav mailto, email, social links, or contact form.
+          Fail only when no contact pathway exists anywhere.
+
+        <table class="check-table">
+          <thead>
+            <tr><th>E-E-A-T Page</th><th>Exists</th><th>Reachable (footer/nav)</th><th>Detail</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>About Us</td>
+              <td><span class="status status-pass">Pass</span></td>
+              <td><span class="status status-pass">Pass</span></td>
+              <td>/about · linked in footer.</td>
+            </tr>
+            <tr>
+              <td>Contact</td>
+              <td><span class="status status-pass">Pass</span></td>
+              <td><span class="status status-pass">Pass</span></td>
+              <td>/contact returns 404 · contact exposed via mailto:team@example.com in footer and About page.</td>
+            </tr>
+            <tr>
+              <td>Privacy Policy</td>
+              <td><span class="status status-fail">Fail</span></td>
+              <td><span class="status status-fail">Fail</span></td>
+              <td>
+                <div class="detail-issue">· /privacy returns 404.</div>
+                <div class="detail-fix">Create Privacy Policy page and link it in the footer.</div>
+              </td>
+            </tr>
+            <tr>
+              <td>Terms of Service</td>
+              <td><span class="status status-pass">Pass</span></td>
+              <td><span class="status status-pass">Pass</span></td>
+              <td>/terms · linked in footer.</td>
+            </tr>
+          </tbody>
+        </table>
+      -->
+
+    </div>
+  </section>
+
+  <!-- Page-Level Checks -->
+  <section>
+    <h2>Page Checks</h2>
+    <div class="section-body">
+      
+      <table class="check-table">
+        <thead>
+          <tr><th>页面检查项</th><th>状态</th><th>详细信息</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>URL 别名 (URL Slug)</td>
+            <td><span class="status status-pass">通过</span></td>
+            <td>首页检测 — 不适用 URL 别名检查。</td>
+          </tr>
+          <tr>
+            <td>页面标题 (Title Tag)</td>
+            <td><span class="status status-warn">警告</span></td>
+            <td>
+              <div class="detail-issue">· 标题为 44 字符 — 略短于推荐的 50-60 字符（"AgentUpdate.ai — AI Agent Ecosystem Platform"）。 · 主关键词 "AI Agents" 仅部分匹配 (单数形式 "AI Agent")，且未处于最开头。</div>
+              <div class="detail-fix">建议将标题稍微拓宽以提高点击率，例如："AgentUpdate.ai — AI Agents Ecosystem & Developer Hub"。对于首页，品牌名 + 核心关键词的顺序是完全合规的。</div>
+            </td>
+          </tr>
+          <tr>
+            <td>Meta 描述 (Meta Description)</td>
+            <td><span class="status status-warn">警告</span></td>
+            <td>
+              <div class="detail-issue">· 长度为 160 字符，符合范围。但尾部包含玩笑性质的不正规词汇 ", yo" ("...Read the full analysis on AgentUpdate.ai, yo")。</div>
+              <div class="detail-fix">移除尾部不合时宜的 ", yo"，并确保描述句末是完整的句号，避免影响企业或平台的专业形象。</div>
+            </td>
+          </tr>
+          <tr>
+            <td>H1 标签</td>
+            <td><span class="status status-pass">通过</span></td>
+            <td>包含且仅包含 1 个 H1 标签 ("BUILD THE FUTURE WITH AI AGENTS")，且完美包含了核心关键词 "AI Agents"。</td>
+          </tr>
+          <tr>
+            <td>Canonical 标签</td>
+            <td><span class="status status-pass">通过</span></td>
+            <td>存在自引用 Canonical 标签，且完全指向最终 URL (https://www.agentupdate.ai/)。</td>
+          </tr>
+          <tr>
+            <td>图片 Alt 属性</td>
+            <td><span class="status status-pass">通过</span></td>
+            <td>共检测到 12 张图片，全部带有 alt 属性（装饰图/头像使用空 alt，符合规范）。</td>
+          </tr>
+          <tr>
+            <td>正文字数 (Word Count)</td>
+            <td><span class="status status-pass">通过</span></td>
+            <td>正文共 1374 字，信息十分充实（推荐 ≥ 500 字）。</td>
+          </tr>
+          <tr>
+            <td>关键词布局 (Keyword Placement)</td>
+            <td><span class="status status-pass">通过</span></td>
+            <td>主关键词 "AI Agents" 成功布局在首屏 H1 及正文前 100 字内。</td>
+          </tr>
+          <tr>
+            <td>标题层级结构</td>
+            <td><span class="status status-warn">警告</span></td>
+            <td>
+              <div class="detail-issue">· 仅有 4 个 H2 标题 — 略显单薄（推荐 5-7 个）。 · 个别 H2 标题下挂载了过多的 H3 节点（如 "SKILL MARKETS" 包含了 24 个 H3），结构层级不够均衡。</div>
+              <div class="detail-fix">将具有大量子节点的 H2 章节拆分为多个更细的 H2 章节（例如将 "SKILL MARKETS" 按技能类别拆分为多个子章节），或适当用 H4 进行更细的分级。</div>
+            </td>
+          </tr>
+          <tr>
+            <td>内部链接 (Internal Links)</td>
+            <td><span class="status status-warn">警告</span></td>
+            <td>
+              <div class="detail-issue">· 正文内含有 42 个内链 — 超过了推荐的最大值 20。页面链接过多可能会分散页面的链接权重 (Link Juice)。</div>
+              <div class="detail-fix">适当减少正文中的冗余链接，优先突出核心的高价值链接，以实现更好的权重传递。</div>
+            </td>
+          </tr>
+          <tr>
+            <td>结构化数据 (Schema JSON-LD)</td>
+            <td><span class="status status-warn">警告</span></td>
+            <td>
+              <div class="detail-issue">· 包含 WebSite, Organization 和 FAQPage 结构化数据，无实质类型冲突。但 Organization 块中缺失了推荐的 sameAs 属性（社交媒体或维基百科关联链接）。</div>
+              <div class="detail-fix">在 Organization schema 中补全 sameAs 数组，关联上平台已开通的社交账号或 GitHub 仓库地址，进一步强化实体关联度。</div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    
+      <!--
+        Expected format for page_checks_html:
+        - Pass rows: ONE short phrase. No div wrappers needed. Badge already says it passed.
+        - Warn / Fail rows: <div class="detail-issue"> with ≤2 bullet points (lead with "·").
+                            <div class="detail-fix"> with the fix. No SEO 101 explanations.
+        - N/A rows: one short phrase explaining why check was skipped.
+
+        <table class="check-table">
+          <thead>
+            <tr><th>Check</th><th>Status</th><th>Detail</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>URL Slug</td>
+              <td><span class="status status-pass">Pass</span></td>
+              <td>/blog/best-running-shoes · lowercase, hyphenated, keyword present.</td>
+            </tr>
+            <tr>
+              <td>URL Slug</td>
+              <td><span class="status status-warn">Warning</span></td>
+              <td>
+                <div class="detail-issue">· /the-best-and-most-popular-running-shoes-of-2025 — stop words (the, and, of) + overly long.</div>
+                <div class="detail-fix">Simplify: /running-shoes or /blog/running-shoes</div>
+              </td>
+            </tr>
+            <tr>
+              <td>URL Slug</td>
+              <td><span class="status status-na">N/A</span></td>
+              <td>Homepage — slug check not applicable.</td>
+            </tr>
+            <tr>
+              <td>Title Tag</td>
+              <td><span class="status status-pass">Pass</span></td>
+              <td>Homepage · "Acme | AI Workflow Automation" · brand + keyword, 34 chars.</td>
+            </tr>
+            <tr>
+              <td>Title Tag</td>
+              <td><span class="status status-warn">Warning</span></td>
+              <td>
+                <div class="detail-issue">· Inner page · keyword buried at position 42 · 78 chars may truncate.</div>
+                <div class="detail-fix">Lead with keyword: "AI Workflow Automation for Teams — Acme" · shorten to 50–60 chars.</div>
+              </td>
+            </tr>
+            <tr>
+              <td>Meta Description</td>
+              <td><span class="status status-pass">Pass</span></td>
+              <td>153 chars · keyword present · specific and non-generic.</td>
+            </tr>
+            <tr>
+              <td>Meta Description</td>
+              <td><span class="status status-warn">Warning</span></td>
+              <td>
+                <div class="detail-issue">· 95 chars — below 120 minimum.</div>
+                <div class="detail-fix">Expand to 120–160 chars with a concrete value statement.</div>
+              </td>
+            </tr>
+            <tr>
+              <td>H1 Tag</td>
+              <td><span class="status status-pass">Pass</span></td>
+              <td>Single H1 · "Best Running Shoes 2025" · keyword present.</td>
+            </tr>
+            <tr>
+              <td>H1 Tag</td>
+              <td><span class="status status-fail">Fail</span></td>
+              <td>
+                <div class="detail-issue">· 3 H1 tags found: "Home", "Welcome", "Our Products".</div>
+                <div class="detail-fix">Keep one H1 with the primary keyword. Demote others to H2.</div>
+              </td>
+            </tr>
+            <tr>
+              <td>Canonical Tag</td>
+              <td><span class="status status-pass">Pass</span></td>
+              <td>Self-referencing canonical present.</td>
+            </tr>
+            <tr>
+              <td>Image Alt Text</td>
+              <td><span class="status status-pass">Pass</span></td>
+              <td>12 images found · all have alt attributes · no empty alt on content images.</td>
+            </tr>
+            <tr>
+              <td>Image Alt Text</td>
+              <td><span class="status status-warn">Warning</span></td>
+              <td>
+                <div class="detail-issue">· 3 of 12 images missing alt attribute.</div>
+                <div class="detail-fix">Add descriptive alt text to all content images. Decorative images use alt="".</div>
+              </td>
+            </tr>
+            <tr>
+              <td>Image Alt Text</td>
+              <td><span class="status status-info">Unverified</span></td>
+              <td>0 images in static HTML — likely JavaScript-rendered. Cannot verify alt text from static analysis. Check via browser DevTools or GSC URL Inspection.</td>
+            </tr>
+            <tr>
+              <td>Word Count</td>
+              <td><span class="status status-pass">Pass</span></td>
+              <td>1,420 words.</td>
+            </tr>
+            <tr>
+              <td>Word Count</td>
+              <td><span class="status status-warn">Warning</span></td>
+              <td>
+                <div class="detail-issue">· 320 words — thin (recommended ≥ 500).</div>
+                <div class="detail-fix">Expand to 500+ words with substantive content.</div>
+              </td>
+            </tr>
+            <tr>
+              <td>Word Count</td>
+              <td><span class="status status-fail">Fail</span></td>
+              <td>
+                <div class="detail-issue">· 43 words — below 100-word minimum, not meaningful for indexing.</div>
+                <div class="detail-fix">Expand content significantly.</div>
+              </td>
+            </tr>
+            <tr>
+              <td>Keyword Placement</td>
+              <td><span class="status status-pass">Pass</span></td>
+              <td>Keyword appears at word 87 — within first 100 words.</td>
+            </tr>
+            <tr>
+              <td>Keyword Placement</td>
+              <td><span class="status status-warn">Warning</span></td>
+              <td>
+                <div class="detail-issue">· Keyword first appears at word 210 — should be within first 100 words.</div>
+                <div class="detail-fix">Add keyword or natural variant to the opening paragraph.</div>
+              </td>
+            </tr>
+            <tr>
+              <td>Heading Structure</td>
+              <td><span class="status status-pass">Pass</span></td>
+              <td>6 H2s · keyword in 3 H2s · avg 2 H3s/H2.</td>
+            </tr>
+            <tr>
+              <td>Heading Structure</td>
+              <td><span class="status status-warn">Warning</span></td>
+              <td>
+                <div class="detail-issue">· 2 H2s — sparse (recommended 5–7). · Keyword not in any H2.</div>
+                <div class="detail-fix">Expand to 5–7 H2 sections. Include keyword or natural variant in at least 1 H2.</div>
+              </td>
+            </tr>
+            <tr>
+              <td>Internal Links</td>
+              <td><span class="status status-pass">Pass</span></td>
+              <td>8 internal links.</td>
+            </tr>
+            <tr>
+              <td>Internal Links</td>
+              <td><span class="status status-warn">Warning</span></td>
+              <td>
+                <div class="detail-issue">· 1 internal link — too few for link equity distribution.</div>
+                <div class="detail-fix">Add 2+ internal links to related pages.</div>
+              </td>
+            </tr>
+            <tr>
+              <td>Schema (JSON-LD)</td>
+              <td><span class="status status-pass">Pass</span></td>
+              <td>BlogPosting detected · required fields present (headline, datePublished, author) · no conflicts.</td>
+            </tr>
+            <tr>
+              <td>Schema (JSON-LD)</td>
+              <td><span class="status status-warn">Warning</span></td>
+              <td>
+                <div class="detail-issue">· BlogPosting present but missing "author.url" and "dateModified" — reduces rich result eligibility.</div>
+                <div class="detail-fix">Add author.url (person/org profile page) and dateModified to the JSON-LD block.</div>
+              </td>
+            </tr>
+            <tr>
+              <td>Schema (JSON-LD)</td>
+              <td><span class="status status-fail">Fail</span></td>
+              <td>
+                <div class="detail-issue">· Article page — no JSON-LD found.</div>
+                <div class="detail-fix">Add BlogPosting JSON-LD: headline, datePublished, author, image.</div>
+              </td>
+            </tr>
+            <tr>
+              <td>Schema (JSON-LD)</td>
+              <td><span class="status status-na">N/A</span></td>
+              <td>Generic landing page — no widely-supported schema type, skip.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        On-page content check logic (LLM reads page HTML for all 4 checks):
+
+        Word Count — visible body text only (exclude nav/footer/boilerplate):
+          < 100      → Fail · 100–499 → Warn · ≥ 500 → Pass
+
+        Keyword Placement — primary keyword or close variant in first 100 body words:
+          Present → Pass · Absent → Warn
+
+        Heading Structure — three sub-rules, report as separate bullets if any fail:
+          H2 count  : 0 → Warn · 1–4 → Warn · 5–7 → Pass · ≥ 8 → Warn
+          H3/H2     : 0 → OK · 1–3 → Pass · ≥ 4 → Warn (split this H2)
+          Keyword in H2 : ≥ 1 H2 contains keyword/variant → Pass · 0 → Warn
+          Pass summary: "Y H2s · keyword in N H2s · avg Z H3s/H2"
+
+        Internal Links — <a href> pointing to same-origin URLs (exclude nav/footer):
+          < 2 → Warn · 2–20 → Pass · > 20 → Warn
+
+        Schema (JSON-LD) — output AFTER the above 4 checks:
+
+        Schema check logic (LLM must follow this order):
+        1. Detect page type from URL pattern + H1 + page content:
+           - Homepage        → expect: WebSite + Organization
+           - Blog / Article  → expect: Article or BlogPosting
+           - Product page    → expect: Product (with Offer, AggregateRating)
+           - FAQ page        → expect: FAQPage
+           - How-to page     → expect: HowTo
+           - Local business  → expect: LocalBusiness
+           - Generic landing → N/A (skip, do not penalize)
+        2. Check if expected @type is present in page JSON-LD blocks
+        3. Validate required fields per type:
+           - Article/BlogPosting : headline, datePublished, author, image
+           - Product             : name, image, offers (price, priceCurrency)
+           - FAQPage             : mainEntity[].name + acceptedAnswer.text
+           - WebSite             : name, url
+           - Organization        : name, url, logo
+        4. Flag conflicts: multiple @type blocks claiming different primary types
+      -->
+    </div>
+  </section>
+
+  <!-- Priority Actions -->
+  <section>
+    <h2>Priority Actions</h2>
+    <div class="section-body">
+      
+      <ol class="priority-list">
+        <li><strong>修复 Meta 描述中的拼写/文案 typo</strong>：紧急去除 Meta 描述尾部的 ", yo" 语气词，重新统一为规范的商业描述，保持平台品牌调性的专业性。</li>
+        <li><strong>拓宽并优化 Title 标签</strong>：将 44 字符的页面标题稍作拓宽（例如增加至 50-55 字符，如 "AgentUpdate.ai — AI Agents Ecosystem & Developer Hub"），使其更加饱满并提升 CTR。</li>
+        <li><strong>拆分并精简页面标题与内链结构</strong>：针对 H2 结构下包含 24 个 H3 链接节点的密度过大问题，进行多 H2 子目录切分，并控制正文内链在合理范围内（推荐 20 个以下），避免过度权重稀释。</li>
+      </ol>
+    
+      <!--
+        Expected format:
+        <ol class="priority-list">
+          <li>Shorten the title tag to under 60 characters, leading with the primary keyword.</li>
+          <li>Expand the meta description to 120–160 characters with a clear call to action.</li>
+          <li>Add a Sitemap directive to robots.txt pointing to /sitemap.xml.</li>
+        </ol>
+      -->
+    </div>
+  </section>
+
+  <!-- Insights -->
+  <section>
+    <h2>Insight Walkthrough <span style="font-size:11px;font-weight:400;color:#aaa;letter-spacing:0;text-transform:none;margin-left:6px;">optional — detailed evidence &amp; reasoning</span></h2>
+    <div class="section-body">
+      
+      <article class="finding">
+        <div class="finding-header">
+          <span class="status status-warn">警告</span>
+          <h3>Meta 描述尾部包含不正规字符 ", yo"</h3>
+        </div>
+        <div class="finding-body">
+          <div class="finding-field">
+            <span class="label">观察证据</span>
+            <span class="value">当前页面的 description 元标签内容为："Discover, build, and deploy AI agents. Your hub for AI agent news, tools, skills, training, and ecosystem products. Read the full analysis on AgentUpdate.ai, yo"</span>
+          </div>
+          <div class="finding-field">
+            <span class="label">潜在影响</span>
+            <span class="value">该文字会在 Google 等搜索引擎的搜索结果摘要 (Snippet) 中直接展示，尾部的 ", yo" 语气词表现过于随意和非正式，会直接降低平台对开发者及商业用户的专业感和可信度，可能间接导致搜索点击率 (CTR) 的流失。</span>
+          </div>
+          <div class="finding-field">
+            <span class="label">修复建议</span>
+            <span class="value">更新主站 Meta 描述内容，将尾部的 ", yo" 去掉，换成规范的描述句号，或将其替换为更具行动召集力的文案（如 "...Read the latest updates on AgentUpdate.ai."）。</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="finding">
+        <div class="finding-header">
+          <span class="status status-warn">警告</span>
+          <h3>正文内部链接密度过高</h3>
+        </div>
+        <div class="finding-body">
+          <div class="finding-field">
+            <span class="label">观察证据</span>
+            <span class="value">主站首页正文区域（排除顶部导航栏和底部页脚）共包含 42 个指向站内页面的超链接，大部分集中在 Skills 列表中。</span>
+          </div>
+          <div class="finding-field">
+            <span class="label">潜在影响</span>
+            <span class="value">根据 SEO 最佳实践，单个页面的内部链接数若超出 20 个，会使页面本身的权重 (Link Equity) 被过度稀释分配给较弱的子页面。同时，过密的链接也会影响移动端用户的点按体验。</span>
+          </div>
+          <div class="finding-field">
+            <span class="label">修复建议</span>
+            <span class="value">考虑在首页仅保留 10-15 个最核心的技能链接（例如 Featured 热门技能），其余技能通过 "View All" 引导用户进入 `/skills` 专门的二级汇总页，以此实现内链去噪和权重的黄金聚焦。</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="finding">
+        <div class="finding-header">
+          <span class="status status-warn">警告</span>
+          <h3>结构化数据 Organization 缺乏 sameAs 属性</h3>
+        </div>
+        <div class="finding-body">
+          <div class="finding-field">
+            <span class="label">观察证据</span>
+            <span class="value">提取的 JSON-LD 数据中，Organization 类型包含了 name, url, logo 和 contactPoint，但 "sameAs": [] 字段为空数组。</span>
+          </div>
+          <div class="finding-field">
+            <span class="label">潜在影响</span>
+            <span class="value">sameAs 是搜索引擎进行实体消歧和建立知识图谱的重要凭证。安全起见，缺失 sameAs 会导致 Google 无法确切将此网站同平台的 GitHub 组织、官方社交媒体账号（Twitter, LinkedIn 等）建立强关联。</span>
+          </div>
+          <div class="finding-field">
+            <span class="label">修复建议</span>
+            <span class="value">在 JSON-LD 的 Organization 块中，向 sameAs 数组填充平台相关的官方外部链接，例如 GitHub 项目地址或团队推特地址。</span>
+          </div>
+        </div>
+      </article>
+    
+      <!--
+        Expected format for insights_html (repeat <article> per insight):
+
+        <article class="finding">
+          <div class="finding-header">
+            <span class="status status-fail">Critical</span>
+            <h3>Title Tag Too Long</h3>
+          </div>
+          <div class="finding-body">
+            <div class="finding-field">
+              <span class="label">Evidence</span>
+              <span class="value">Current title is 78 characters: "Best Running Shoes 2025 — Free Shipping | AcmeSports Online Store". Google typically truncates titles beyond 60 characters in SERPs.</span>
+            </div>
+            <div class="finding-field">
+              <span class="label">Impact</span>
+              <span class="value">Truncated titles reduce click-through rates and may fail to communicate the page's primary value proposition in search results.</span>
+            </div>
+            <div class="finding-field">
+              <span class="label">Fix</span>
+              <span class="value">Rewrite title to 50–60 characters. Prioritize primary keyword near the front. Example: "Best Running Shoes 2025 | Free Shipping — AcmeSports"</span>
+            </div>
+          </div>
+        </article>
+      -->
+    </div>
+  </section>
+
+  <!-- Upgrade Prompt -->
+  <section>
+    <h2>Want a Deeper Analysis?</h2>
+    <div class="section-body">
+      <div class="upgrade-box">
+        This was a <strong>seo-audit</strong> — Basic tier. It covers robots.txt, sitemap.xml, canonical, TDK, H1, and heading structure.
+        Upgrade to <strong>seo-audit-full</strong> to unlock advanced technical checks, social tags, content quality analysis, GSC crawl status, and competitor benchmarking.
+        <br><br>
+        Say: <code>deep audit: https://www.agentupdate.ai</code>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="inner">
+    Powered by OpenSource Project - <strong><a href="https://github.com/JeffLi1993/seo-audit-skill">seo-audit-skill</a></strong> · Basic SEO Audit Report · 2026-06-16
+  </div>
+</footer>
+
+</body>
+</html>
