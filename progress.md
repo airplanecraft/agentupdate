@@ -1,9 +1,11 @@
-## 2026-06-16 13:52 — [Blog Draft Creation & Database Seeding] ✅
+## 2026-06-16 14:30 — [Blog Draft Update & Seeding Expansion] ✅
 
 ### 完成事项
-1. **写好了实战优化博客草稿 (Draft)**：
-   - 撰写了中英双语博客草稿（不发布，状态设为 `draft`），文件路径 [insert_blog_post.ts](file:///Users/eric/work/openclaweco.com/database/insert_blog_post.ts)。
-   - 正文采用平实严谨的语言，配有 Mermaid 拓扑图描述自愈管线、详细的对比表格说明 SEO 与 GEO 的偏好差异，以及 Astro 模板和脚本代码实现细节。
+1. **完善并扩写了实战优化博客草稿 (Draft)**：
+   - 更新了中英双语博客草稿，文件路径 [insert_blog_post.ts](file:///Users/eric/work/openclaweco.com/database/insert_blog_post.ts)。
+   - **详细补充了五个具体优化步骤、使用的 Claude Code 技能库名称、具体优化内容以及优化前后的 Astro 模板布局、TechArticle 结构化数据、总结盒子组件及 Markdown 文本的代码对比**。
+   - 正文语言平实严谨，含自愈 Pipeline Mermaid 图表及 SEO 与 GEO 四维对比表格。
+   - 状态仍设为 `status: 'draft'`（不发布）。
 2. **配图设计与分发**：
    - 自动生成了 3D 等轴测风格的高保真科技感封面图片 `seo_geo_optimization.png`。
    - 分发拷贝到了管理员后台 [admin/public/images/blog/seo-geo-optimization.png](file:///Users/eric/work/openclaweco.com/admin/public/images/blog/seo-geo-optimization.png) 和主网站 [website/public/images/blog/seo-geo-optimization.png](file:///Users/eric/work/openclaweco.com/website/public/images/blog/seo-geo-optimization.png)。
