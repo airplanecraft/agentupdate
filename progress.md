@@ -1,10 +1,10 @@
-## 2026-06-16 14:30 — [Blog Draft Update & Seeding Expansion] ✅
+## 2026-06-16 14:38 — [Blog Finalization & Summary Chart Addition] ✅
 
 ### 完成事项
 1. **完善并扩写了实战优化博客草稿 (Draft)**：
    - 更新了中英双语博客草稿，文件路径 [insert_blog_post.ts](file:///Users/eric/work/openclaweco.com/database/insert_blog_post.ts)。
-   - **详细补充了五个具体优化步骤、使用的 Claude Code 技能库名称、具体优化内容以及优化前后的 Astro 模板布局、TechArticle 结构化数据、总结盒子组件及 Markdown 文本的代码对比**。
-   - 正文语言平实严谨，含自愈 Pipeline Mermaid 图表及 SEO 与 GEO 四维对比表格。
+   - **在步骤后增补了每个具体优化步骤前后评分/指标对比，并在正文末尾增设了包含优化页面范围、数量、核心手段、目的以及前后数据对比的总结图表，使得优化成效一目了然**。
+   - 正文语言平实严谨，含自愈 Pipeline Mermaid 图表、SEO 与 GEO 对比表以及详细代码对比。
    - 状态仍设为 `status: 'draft'`（不发布）。
 2. **配图设计与分发**：
    - 自动生成了 3D 等轴测风格的高保真科技感封面图片 `seo_geo_optimization.png`。
