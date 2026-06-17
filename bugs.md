@@ -1,3 +1,19 @@
+## BUG-140: Telegram Bot 监听因 SOCKS5 代理挂起导致收不到消息 (Fixed 2026-06-17)
+
+- **发现时间**: 2026-06-17 14:31
+- **自愈轮次**: 1 / 5
+- **症状**: Telegram 机器人收不到消息，用户发送命令无响应。后台 Telegram bot 监听任务（`node scratch/telegram-bot-listener.mjs`）虽然处于 RUNNING 状态，但日志中没有任何新的轮询记录，上一次进度停留在数小时前。
+- **根因**: 由于在本地开发环境下连接 `api.telegram.org` 必须经过 Cloudflare WARP 提供的 SOCKS5 代理（端口 40000），而在之前某个时刻 SOCKS5 代理端口断开或重新连接，导致 polling 脚本在发起 long-polling 请求时遭遇 `connect ECONNREFUSED 127.0.0.1:40000` 错误。因为 `socksFetch` 中使用的 `socks-proxy-agent` 配合原生 `https.request` 时，当连接失败或代理异常时，某些 promise 并没有被正确 reject 或触发 timeout 销毁 socket，导致 long-polling 异步请求处于永久 Pending 的悬挂状态，整个 Node 轮询流程因此锁死挂起。
+- **修复方案**: 
+  1. 检查 Cloudflare WARP 状态，确认 WARP 目前已处于 Connected 状态，且 `WarpProxy on port 40000` 代理已正常启动并可用。
+  2. 使用 `manage_task` 强制杀死已挂起的 Telegram 监听任务进程（原 `task-4513`）。
+  3. 重新在后台启动全新的 Telegram 监听任务（新 `task-4918`，运行 `node scratch/telegram-bot-listener.mjs`）。
+  4. 使用 curl 测试工具模拟通过代理向用户发送消息，确认网络链路和 bot 回复完全畅通。
+- **结果**: PASS。控制台与 bot 日志运行正常，无连接错误日志，测试消息已成功送达用户 Telegram 账号（`chat_id: 8250511379`）。
+- **相关文件**: [telegram-bot-listener.mjs](file:///Users/eric/work/openclaweco.com/scratch/telegram-bot-listener.mjs)
+
+---
+
 ## BUG-139: Crawler 与 Admin 模块全量单元测试及 E2E 测试失败 (Fixed 2026-06-15)
 
 - **发现时间**: 2026-06-15 19:36
