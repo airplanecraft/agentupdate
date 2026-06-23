@@ -1,3 +1,15 @@
+## BUG-141: Astro 静态构建因自定义 ESM 加载器 (patch-loader.js) 导致预渲染分块加载失败 (Fixed 2026-06-23)
+
+- **发现时间**: 2026-06-23 10:25
+- **自愈轮次**: 1 / 5
+- **症状**: 运行本地构建命令 `pnpm local-build` (即 `bash build-deploy.sh --local`) 时，Astro 静态页面预渲染阶段报错 `Cannot find module .../_series__Ck-YjWLH.mjs` 并导致构建中断。
+- **根因**: 构建脚本 `build-deploy.sh` 在执行 `astro build` 时使用了自定义加载器 `patch-loader.js` (`node --import ./patch-loader.js ...`)，该加载器拦截并阻止了 Tailwind CSS (与 `esm-cache`) 相关的加载器注册。而在 Astro 的静态生成阶段，多进程预渲染工作者 (prerender workers) 启动时，由于该自定义加载器的干扰，导致 Node.js 无法解析并加载 Vite 动态分块 (dynamic chunk) 模块。
+- **修复方案**: 在 `website/build-deploy.sh` 中移除了构建命令中对 `patch-loader.js` 的 `--import` 依赖，直接运行标准的 `npx astro build` 进行生产静态资源编译（加载器补丁本是为了开发阶段屏蔽 Tailwind 以提高速度，不应作用于生产构建阶段）。
+- **结果**: PASS。本地 local build 及 Pagefind 索引审计完全成功。
+- **相关文件**: [build-deploy.sh](file:///Users/eric/work/openclaweco.com/website/build-deploy.sh)
+
+---
+
 ## BUG-140: Telegram Bot 监听因 SOCKS5 代理挂起导致收不到消息 (Fixed 2026-06-17)
 
 - **发现时间**: 2026-06-17 14:31
