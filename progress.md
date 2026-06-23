@@ -1094,5 +1094,28 @@
 ### 下一步
 - 运行 `./session-push-all.sh` 一键向远程仓库推送 Root 及子模块的最新代码以完成归档。
 
+---
+
+## 2026-06-23 10:18 — [Content & Telegram Bot] 1000usdinchina Blog Import & Telegram Bot Diagnostics ✅
+
+### 完成事项
+1. **博客转换与数据修复**：
+   - 将 8 篇双语开发博客（关于 `1000usdinchina.com`）导入本地 PostgreSQL 数据库中作为草稿记录。
+   - 解析 Markdown Frontmatter，正确提取 `date` 字段并设置为 `publishedAt` 日期。
+   - **Markdown 链接与图片路径纠偏**：自动解析博客正文，将 Markdown 相对链接（如 `03-travel-data-etl-compliant-json.md`）转换为项目内正式的 URL 路由（如 `/blog/travel-data-etl-compliant-json/`），并将图片路径全部更正为 `/images/blog/`。
+   - **图片资源同步**：将博客所需的全部图片资源复制到 `website/public/images/blog/` 及 `admin/public/images/blog/` 中。
+2. **草稿状态与防止发布**：
+   - 根据用户不要发布的要求，已将全部 8 篇博客的 status 字段修改为 `draft`，防止它们被自动编译发布。
+3. **Telegram 自动化任务处理**：
+   - 检查并完成了 `telegram_tasks.json` 中的 pending 任务（ID `1782034863520`），并已通过 SOCKS5 代理向 Telegram 发送了确认消息。
+
+### 关键决策
+- **自动链接及图片修复逻辑**：在博客导入脚本中加入 Markdown 链接以及图片解析逻辑，实现了一键式、零错误的链接及图片路径自愈。
+- **强制草稿状态**：尊重用户的约束，不发布这些博客文章，将其在数据库中锁定在 `draft` 状态。
+
+### 下一步
+- 运行 `./session-push-all.sh` 一键向远程同步最新代码与配置。
+
+
 
 

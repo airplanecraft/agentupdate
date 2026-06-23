@@ -347,3 +347,14 @@ Plan: `docs/plans/2026-05-19-blog-fixes-implementation.md`
 - [x] Create database script `sync_tutorials.ts` to sync markdown metadata (summary/takeaway) into PostgreSQL database
 - [x] Run local compilation `npm run local-build` to verify successful HTML generation and zero broken links
 - [x] Session Archive
+
+## [1000usdinchina Blog Import & Telegram Bot Diagnostics — 2026-06-23]
+
+- [x] Import 8 blog posts about 1000usdinchina.com as drafts
+- [x] Heal markdown internal relative links to web slugs
+- [x] Copy and update image assets in public directories to /images/blog/
+- [x] Complete the pending Telegram confirmation task in queue
+- [x] Revert the 8 blog posts status to draft per user request
+- [x] Run local compilation and verify zero broken links
+- [x] Session Archive
+
