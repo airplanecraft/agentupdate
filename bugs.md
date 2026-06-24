@@ -525,3 +525,20 @@
 - **结果**: PASS。本地 local build 及链接审计成功通过，审计确认内部 broken links 降至 0。
 - **相关文件**: `website/src/generated/db/`（重新生成）, `database/prisma/schema.prisma`, `website/src/lib/seo.ts`
 
+---
+
+## BUG-139: 中文博客详情页 client-side Mermaid 预处理器正则语法错误导致图表渲染彻底崩溃 (Fixed 2026-06-24)
+- **发现时间**: 2026-06-24 11:15
+- **自愈轮次**: 1 / 5
+- **症状**: 
+  1. 打开包含 Mermaid 图表的中文博客详情页时，所有的 Mermaid 架构图均崩溃无法渲染，只显示带有红炸弹的 "Syntax error in text" 与 "mermaid version 10.9.6"。
+  2. 浏览器控制台抛出 unhandled exception：`Failed to execute 'write' on 'Document': Invalid regular expression: /(\w+)(\)）)([^\)\n]+)())/g: Unmatched ')'`，导致后续的 `mermaid.run()` 初始化过程彻底中断。
+- **根因**:
+  - 在 `website/src/pages/zh/blog/[slug].astro` 中，用于纠正中文括号以防 Mermaid 语法解析出错的客户端正则表达式替换代码为 `code = code.replace(/(\w+)(\)）)([^\)\n]+)(\))/g, ...)`。
+  - 该正则表达式中，第二匹配组原想匹配中文左括号 `（` 或英文左括号 `\(`，但意外写成了 `)）`（转义的英文右括号与中文右括号拼接）。由于 `\)` 在字符类外转义了括号，当它经过 Astro/Vite 构建优化或在某些浏览器中解析时，末尾匹配组 `(\))` 中的转义符丢失或处理异常退化为了 `())`，造成了捕获组括号不配对、正则引擎初始化失败，抛出致命的 `Unmatched ')'` 运行时错误。
+- **修复方案**:
+  - 重构 `website/src/pages/zh/blog/[slug].astro` 的 client-side 预处理器正则，将其修改为正确且语义严谨的 `/(\w+)(\(|（)([^)）\n]+)(\)|）)/g`。该正则无歧义地匹配英文 `(` / 中文 `（` 以及英文 `)` / 中文 `）`，彻底根除了运行时 unmatched bracket 编译错误，并使预处理器在面对中英文混合括号图表节点时均能正确将文本字段用双引号包装。
+- **结果**: PASS。本地 local build 全量编译通过，所有 HTML 文件内部链接审计 broken link 数量为 0。使用 Playwright 仿真客户端 Mermaid 预处理并渲染中文博客 diagram，Mermaid 10.9.6 完美运行渲染，不再抛出任何运行时异常。
+- **相关文件**: `website/src/pages/zh/blog/[slug].astro`
+
+
