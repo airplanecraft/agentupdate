@@ -1,3 +1,21 @@
+## BUG-143: Cloudflare blog post client-side Mermaid preprocessing syntax error due to nested quotes and cylinder shapes (Fixed 2026-06-24)
+
+- **发现时间**: 2026-06-24 11:55
+- **自愈轮次**: 1 / 5
+- **症状**: 在新 Cloudflare 博客页面（`/zh/blog/cloudflare-for-one-person-companies/`）中，第一个 Mermaid 图表（Mermaid 11.15.0 版本）渲染报错，显示 `Syntax error in text`。
+- **根因**:
+  1. 页面中存在 `SSR（$5/月起）`。客户端预处理正则匹配到了该文本（它本已被包含在双引号内：`worker["Workers: 动态后端 / SSR（$5/月起）"]`），然后因为匹配到括号，预处理逻辑在其周围添加了多余的双引号，导致生成了嵌套双引号 `worker["Workers: 动态后端 / SSR（"$5/月起"）"]`，触发 Mermaid 解析器语法错误。
+  2. 数据库柱状图（cylinder shape）定义如 `d1[("D1: 边缘 SQLite")]` 被中括号的预处理正则修改为了 `d1["('D1: 边缘 SQLite')"]`，破坏了柱状图的表示法，生成了普通的矩形框。
+- **修复方案**:
+  1. 引入 `isInsideQuotes` 辅助函数，通过计算匹配位置前当前行内双引号的奇偶个数，如果是奇数则跳过处理，避免在已有的引号 label 内部做二次包裹。
+  2. 针对中括号 `[...]` 的标签匹配，如果内部内容以括号开始并以括号结束（如 `(...)`），或者已经包裹在双引号中，则直接跳过，防止破坏 D1/KV/R2 等数据库的特殊柱状图样式。
+- **结果**: PASS。本地 local build 完全成功，通过 Playwright 脚本在 Node 11.15.0 环境下验证通过，静态页面成功编译且内部死链审计结果为 **0**。
+- **相关文件**: 
+  - [zh/blog/[slug].astro](file:///Users/eric/work/openclaweco.com/website/src/pages/zh/blog/[slug].astro)
+  - [blog/[slug].astro](file:///Users/eric/work/openclaweco.com/website/src/pages/blog/[slug].astro)
+
+---
+
 ## BUG-142: Astro 404 页面语言切换按钮生成无效 `/zh/404/` 死链与 awesome-claude-code 外部死链 (Fixed 2026-06-24)
 
 - **发现时间**: 2026-06-24 09:36
