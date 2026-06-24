@@ -1,3 +1,16 @@
+## BUG-144: Canonical URL and Hreflang Alternate URL trailing slash mismatch with Astro configuration (Fixed 2026-06-24)
+
+- **发现时间**: 2026-06-24 14:16
+- **自愈轮次**: 1 / 5
+- **症状**: 在 Google Search Console 报告中，系统展示了大量的 308 重定向警告，提示页面存在重复版本且抓取配额被低效重定向消耗。线上抓取显示，访问无斜杠 URL 会重定向，或者 canonical / hreflang 标签内指向的格式不一致，导致搜索引擎索引判断混乱，稀释了页面排名权重。
+- **根因**: 在 `website/astro.config.mjs` 中虽然显式配置了 `trailingSlash: 'never'`（无尾部斜杠），但是在 `website/src/layouts/BaseLayout.astro` 中，此前由其他代理编写的清理逻辑强制给 `cleanPathname` 追加了尾斜杠 `/`（即 `cleanPathname = cleanPathname + '/'`），并生成了带斜杠的 `canonicalURL` 和用于 `hreflang` 的多语言互指链接。这造成了 Astro 的无斜杠输出与渲染的 Canonical 指向发生根本性背离。
+- **修复方案**: 在 `BaseLayout.astro` 中剔除强制追加尾部斜杠的代码逻辑，并将语言切换和 hreflang 指向的目标路径完全统一规范为无斜杠的标准 Clean URL 版本，从源头确保源码声明与服务器 200 HTTP 响应完全一致。
+- **结果**: PASS。本地 local build 完全成功，生成了 5711 个 HTML 文件，经物理审查确认 `news/index.html` 与 `zh/news/index.html` 中的 Canonical 链接与 alternate Hreflang 链接均完美生成为无尾斜杠版，且站内死链审计结果为 **0**。
+- **相关文件**: 
+  - [BaseLayout.astro](file:///Users/eric/work/openclaweco.com/website/src/layouts/BaseLayout.astro)
+
+---
+
 ## BUG-143: Cloudflare blog post client-side Mermaid preprocessing syntax error due to nested quotes and cylinder shapes (Fixed 2026-06-24)
 
 - **发现时间**: 2026-06-24 11:55

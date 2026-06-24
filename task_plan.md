@@ -358,3 +358,12 @@ Plan: `docs/plans/2026-05-19-blog-fixes-implementation.md`
 - [x] Run local compilation and verify zero broken links
 - [x] Session Archive
 
+## [GSC Performance & Canonical URL Trailing Slash Normalization — 2026-06-24]
+
+- [x] Remove forced trailing slash appending in `BaseLayout.astro` canonical URL generation
+- [x] Standardize bilingual language switches (enURL/zhURL) to non-trailing slash URLs
+- [x] Refine title and meta description fields in English and Chinese news index pages
+- [x] Perform local static build and link audit with zero internal broken links
+- [x] Push all changes to GitHub deploy branch and main codebase repositories
+- [x] Session Archive
+

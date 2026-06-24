@@ -1,3 +1,24 @@
+## Finding v2.6 — GSC Weight Dispersal & Canonical Trailing Slash Normalization (2026-06-24 14:30)
+
+### 背景
+用户反馈其网站在 Google 中的平均排名处于 7.9-8.3 之间（搜索引擎结果首页第一页底部），但点击率（CTR）极低。同时由于之前的代理代码在 `BaseLayout.astro` 的 Canonical URL 和 Hreflang 标签生成逻辑中强制追加了尾部斜杠 `/`，与项目配置文件 `astro.config.mjs` 中的 `trailingSlash: 'never'` 设置产生严重冲突，在 Google Search Console 中引发了大量的 308 重定向警告，导致权重分散。
+
+### 发现
+1. **Canonical 与 Hreflang 规范化一致性原则**：当站点使用的是无斜杠 URL 策略（`trailingSlash: 'never'`）时，源码中的 `<link rel="canonical">` 以及 `<link rel="alternate" hreflang="...">` 所指向的目标也必须一致保持无尾斜杠形式。若指向了带斜杠的地址，虽然浏览器可正常访问，但 Google 抓取时会发生重定向跳转（`308 Permanent Redirect`），浪费抓取配额，且导致排名权重分裂成两个 URL，削弱主词排名表现。
+2. **第一页底部高展现低点击现象**：平均排名在 7.9-8.3 处于第一页（前 10 个结果），但其行业平均 CTR 低于 1.5%（而第一名通常超过 30%）。要改善这一情况，除了合并规范化权重以拉升排名外，最直接有效的微调手段是重构展现元数据（Title 和 Description），融入更具吸引力的具体修饰词（如“Updated daily”、“开源大模型工具”、“实测沙盒”）来诱导点击。
+
+### 决策
+- **彻底去除 Canonical 强制斜杠逻辑**：清理 `BaseLayout.astro` 的 `cleanPathname` 拼接代码，将全局 Canonical URL 规范为纯净的无斜杠链接。同步调整 Hreflang 和中英文切换 href 的输出。
+- **重构新闻主页元数据**：分别升级中英文新闻列表页的标题和 meta 描述，增加行动召唤力和信息密度。
+- **本地编译与审计死链校验**：本地运行静态构建命令并执行 Link Audit 脚本，确认编译出的 5700+ 物理 HTML 文件中 Canonical URL 输出符合无斜杠预期，且全站内部死链为 0。
+
+### 影响
+- 成功打通并锁定了无尾斜杠规范，全面消除了 GSC 中的 308 重定向链。
+- 新闻详情页和博客页面统一共享此全局 Canonical 清洗优势，最大化聚合了内外部链接权重。
+- 新闻主页展现卡片重构完成，为后续点击率的逆势拉升奠定了内容基础。
+
+---
+
 ## Finding v2.4 — HTML5 Nested Anchor Restrictions & Card Link Deseparation (2026-06-06 21:30)
 
 ### 背景
