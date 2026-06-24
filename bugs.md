@@ -1,3 +1,21 @@
+## BUG-142: Astro 404 页面语言切换按钮生成无效 `/zh/404/` 死链与 awesome-claude-code 外部死链 (Fixed 2026-06-24)
+
+- **发现时间**: 2026-06-24 09:36
+- **自愈轮次**: 1 / 5
+- **症状**: 运行 `npm run local-build` 进行静态构建与链接审计时，报告发现 2 个内部死链：`/zh/404/` (在 `404.html` 中引用) 以及 `https://www.agentupdate.ai/zh/404/`，另外还有 `https://github.com/anthropics/awesome-claude-code` 外部链接返回 404 Not Found。
+- **根因**:
+  1. 在 `website/src/layouts/BaseLayout.astro` 中，`is404` 的判断条件为 `cleanPathname === '/404' || cleanPathname === '/zh/404' || cleanPathname === '404'`。但由于 canonical 路径处理逻辑会将路径自动补齐尾部斜杠变为 `/404/` 或 `/zh/404/`，导致 `is404` 条件始终为 `false`。因此在 404 页面中，语言切换按钮会被错误地生成为指向 `/zh/404/` 的死链，而实际上网站并没有单独的中文 404 页面，404 页面是单文件并通过客户端 JS 进行中英文适配的。
+  2. 技能市场数据文件 `skills-directory.json` 中配置的 "Awesome Claude Code" GitHub 仓库 URL `https://github.com/anthropics/awesome-claude-code` 并非真实存在的仓库，Anthropic 官方没有此仓库，导致其返回 404 错误。
+- **修复方案**:
+  1. 在 `BaseLayout.astro` 中修改 `is404` 的匹配逻辑，使其支持带尾部斜杠的路径：`cleanPathname === '/404/' || cleanPathname === '/zh/404/' || cleanPathname === '/404' || cleanPathname === '/zh/404' || cleanPathname === '404'`。这样当在 404 页面时，`is404` 能够正确识别为 `true`，从而使语言切换按钮正确指向 `/zh/` 或 `/`，而不是不存在的 `/zh/404/`。
+  2. 将 `skills-directory.json` 中 `awesome-claude-code` 技能的 GitHub URL 修正为社区最活跃的精选仓库 `https://github.com/subinium/awesome-claude-code`。
+- **结果**: PASS。重新运行 `npm run local-build`，静态页面成功编译且内部死链审计结果为 **0**。
+- **相关文件**: 
+  - [BaseLayout.astro](file:///Users/eric/work/openclaweco.com/website/src/layouts/BaseLayout.astro)
+  - [skills-directory.json](file:///Users/eric/work/openclaweco.com/website/src/data/skills-directory.json)
+
+---
+
 ## BUG-141: Astro 静态构建因自定义 ESM 加载器 (patch-loader.js) 导致预渲染分块加载失败 (Fixed 2026-06-23)
 
 - **发现时间**: 2026-06-23 10:25
