@@ -1,3 +1,26 @@
+## 2026-06-24 15:20 — [SEO & Domain Consolidation] Consolidate Domain to agentupdate.ai ✅
+
+### 完成事项
+1. **统一根域名配置**：
+   - 将 `website/astro.config.mjs` 中的 `site` 配置由 `https://www.agentupdate.ai` 统一更改为不带 www 的 `https://agentupdate.ai`。
+2. **文档与配置更新**：
+   - 替换了 `robots.txt`、`llms.txt` 以及中英文 `README.md` 中的所有硬编码 `www.agentupdate.ai` 域名，统一更改为 `agentupdate.ai`。
+3. **组件与模板逻辑对齐**：
+   - 更新了 `Breadcrumbs.astro`、`BaseLayout.astro`（全局 Organization/WebSite 结构化数据、TechArticle 结构化数据等）中的硬编码 URL，确保面包屑和全站页面的 Schema.org 数据一致指向根域名。
+   - 更新了 `sitemap.xml.ts`、`rss.xml.ts` 和 `zh/rss.xml.ts` 中用于生成绝对路径的 site 域名或 fallback 域名。
+   - 批量排查并修改了 `blog/[slug].astro`、`news/[slug].astro`、`product/[slug].astro` 及其对应的中文版模板中，硬编码的 JSON-LD URL。
+4. **本地静态编译与死链校验**：
+   - 执行了 `npm run local-build` 进行本地编译验证，成功生成 5711 个静态 HTML 页面。
+   - 本地 Link Auditor 扫描 **5723 个 HTML 文件，确认 0 个内部 broken link**，完美保证了页面内链完整度。
+
+### 关键决策
+- **规范应用层 canonical 属性与域名映射**：在 Cloudflare 边缘端（Edge）部署 301 重定向将 `www` 流量汇聚到 naked 域名的同时，必须以最高优先级同步更新应用层的全量硬编码 URL。这可以避免搜索引擎在索引抓取时产生 Canonical URL 错位或形成重定向回路，以最快速度完成权重的平滑合并。
+
+### 下一步
+- 运行 `./session-push-all.sh` 一键向远程仓库推送 Root 及子模块 of the codebase to trigger production deployment.
+
+---
+
 ## 2026-06-24 14:30 — [SEO & GSC Performance] Canonical URL Normalization & News Metadata Optimization ✅
 
 ### 完成事项

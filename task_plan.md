@@ -367,3 +367,13 @@ Plan: `docs/plans/2026-05-19-blog-fixes-implementation.md`
 - [x] Push all changes to GitHub deploy branch and main codebase repositories
 - [x] Session Archive
 
+## [Consolidate Domains to agentupdate.ai — 2026-06-24]
+
+- [x] Update site configuration in `astro.config.mjs` to `https://agentupdate.ai`
+- [x] Update URLs in `robots.txt`, `llms.txt`, `README.md`, and `README.zh.md`
+- [x] Update component URLs in `Breadcrumbs.astro` and `BaseLayout.astro`
+- [x] Update fallback and static URLs in `sitemap.xml.ts` and bilingual RSS feeds
+- [x] Update schema URLs in blog, news, and product template files
+- [x] Perform local static build and verify 0 broken links with link auditor
+- [x] Session Archive
+
