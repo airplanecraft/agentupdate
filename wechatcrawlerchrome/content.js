@@ -6,10 +6,9 @@ let isSearchBizStopped = false;
 
 let isContentBizPaused = false;
 let isContentBizStopped = false;
-
 let isRepostBizPaused = false;
 let isRepostBizStopped = false;
-
+let repostBizStopReason = '';
 // 监听来自 inject.js (MAIN world) 的消息
 window.addEventListener('message', function (event) {
     // 确保消息来自我们自己的注入脚本
@@ -327,6 +326,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
             isRepostBizPaused = false;
             isRepostBizStopped = false;
+            repostBizStopReason = '';
 
             console.log(`🚀 [brbott] 开始批量查询文章转载, 共 ${queries.length} 个查询项...`);
 
@@ -380,7 +380,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                         console.log(`✅ [${query}] 第 ${page + 1} 页响应:`, data);
 
                         if (data && data.base_resp && data.base_resp.ret !== 0) {
-                            console.error(`❌ [brbott|Repost] 微信返回错误状态码 ${data.base_resp.ret}, 提早终止！`);
+                            const errMsg = data.base_resp.err_msg || data.base_resp.errmsg || '微信接口未返回详细错误';
+                            const stopReason = `微信接口返回错误 (ret: ${data.base_resp.ret}, msg: ${errMsg})`;
+                            console.error(`❌ [brbott|Repost] ${stopReason}, 提早终止！`);
+                            repostBizStopReason = stopReason;
                             isRepostBizStopped = true;
                             break;
                         }
@@ -444,7 +447,11 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                 await sleep(500);
 
                 const finalStatus = isRepostBizStopped ? 'stopped' : 'completed';
-                chrome.runtime.sendMessage({ action: 'repost_biz_status', status: finalStatus });
+                chrome.runtime.sendMessage({ 
+                    action: 'repost_biz_status', 
+                    status: finalStatus,
+                    message: isRepostBizStopped ? (repostBizStopReason || '任务已中止') : '所有查询项全部执行完毕'
+                });
 
             } catch (e) {
                 console.error('❌ [brbott|Repost] 批量查询中途失败:', e);

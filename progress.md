@@ -1,3 +1,70 @@
+## 2026-07-02 06:50 — [SEO & Blog Content] Implement Keyword Auto-Linker & Publish Claude Ban Blog Post ✅
+
+### 完成事项
+1. **自动语义内链系统（Keyword Auto-Linker）**：
+   - 编写并部署了 `website/src/lib/autolinks-config.ts` 全局规则库，用于配置 `OpenClaw`、`Antigravity`、`Claude Code` 等核心技术资产的中英文跳转目标。
+   - 在 `website/src/lib/seo.ts` 中实现了一套高性能且安全的 HTML 提取替换算法 `autolinkKeywords`，该算法自动隔离已存在的 `<a>` 链接、`<pre>`/`<code>` 代码块和标题，限制单篇最多插入 3 个超链接以防触发滥用惩罚。
+   - 将该内链自动注入机制接入了 Blog、News、Tutorial 三大核心模块的详情页（中英文全部对齐）。
+   - 验证通过：本地静态编译无痛生成，全站共有 **813** 个页面正文被自动织入超链接，死链审计为 0。
+2. **Claude 封号遭遇新博文撰写与发布**：
+   - 撰写了高信息密度的双语原创博文：中文 [claude-5x-max-account-banned-experience.zh.md](file:///Users/eric/work/openclaweco.com/database/claude-5x-max-account-banned-experience.zh.md) 及英文 [claude-5x-max-account-banned-experience.en.md](file:///Users/eric/work/openclaweco.com/database/claude-5x-max-account-banned-experience.en.md)。
+   - 详细记录并解密了用户 5x Max 账号于 6.30 被封的真实经历，分析了包括加拿大独立 VPS + GL-MT3000 homeproxy 网关硬件代理防 IP 漂移、30分钟用尽限额、2周消耗 20 亿 token 触碰“蒸馏”风控、香港时区与加拿大 IP 不匹配、大比例中文提问等多重硬核风控红线维度。
+   - 使用 AI 生成了高水准的 3D 轴测图风格封面 [claude_account_suspended.jpg](file:///Users/eric/work/openclaweco.com/website/public/images/blog/claude_account_suspended.jpg) 并同步分发至 Web/Admin 目录。
+   - 编写并运行了 Prisma 数据库插入脚本 `database/insert_claude_ban_blog.ts`，以 `draft` 草稿状态成功同步写入数据库。
+
+### 关键决策
+- **静态渲染期解耦注入**：内链不需要强行写死在数据库 Markdown 中，而是在 Astro 静态编译（Prerender）阶段以管道函数动态替换输出。这样能保证数据库的整洁性，且支持日后任意批量修改 URL 映射关系，最大化后期维护灵活度。
+- **独立 VPS 封号原因聚焦“指纹与额度”**：在相同 IP 下的 Pro 账户幸存、但 5x Max 账户因半小时额度瞬间耗尽而封杀的细节中，表明当前的 AI 厂商风控（Anti-Abuse）重点不是简单的 IP 库打击，而是结合系统时区（香港时区偏好）、大量中文环境、以及 20 亿极高 token 调用的行为指纹多维评测。
+
+### 下一步
+- 运行 `/session-archive` 整理一键推送，向 GitHub deploy 仓库和主仓库进行代码和新博文的同步。
+
+---
+
+## 2026-06-27 12:35 — [Monitoring & Telegram Bot] Setup GA4 & GSC Status Telegram Scheduler ✅
+
+### 完成事项
+1. **GA4 多项目统计脚本**：
+   - 编写了 Python 脚本 `scratch/query_ga4_status.py`，调用 Google Analytics Data API 成功实现了对 `agentupdate.ai` (531260213) 和 `1000usdinchina.com` (542642277) 的实时在线人数（30分钟内活跃）、今日累计数据及昨日数据汇总查询。
+2. **定时调度与推送控制脚本**：
+   - 编写了 Node.js 脚本 `scratch/telegram-status-scheduler.mjs`，通过子进程执行 `npx mcp-gsc` 并使用 `performance_overview` 接口抓取最新 GSC 指标；同时合并上述 Python 脚本输出 of GA4 统计数据，组装成结构化、易于阅读的 Markdown 状态报告。
+3. **“直连+代理”双重弹性网络适配**：
+   - 设计了 `smartFetch` 网络请求层。默认采用不带 Agent 的直接连接访问 Telegram API，一旦遭遇网络拦截则自动无缝降级为使用 `socks5h://127.0.0.1:40000` 代理，完美适应用户的透明/系统代理与 WARP 代理环境。
+4. **后台常驻服务启动**：
+   - 以后台任务启动了 `telegram-status-scheduler.mjs` 进程，成功发送首条状态简报至用户 Telegram，并设置为每 2 小时定时循环推送。
+
+### 关键决策
+- **直连优先的智能降级策略**：由于用户环境配置了 TUN/透明代理，直连 `api.telegram.org` 即可顺畅送达，强制使用 40000 端口反而因端口未监听抛出 ECONNREFUSED 错误。采用直连优先、出错重试代理的 smartFetch 设计，保证了国内复杂网络环境下的多节点兼容。
+- **GSC 关键指标清洗**：仅抓取并解析 GSC Markdown 中的 Clicks, Impressions, CTR 和 Position 等最核心数据以单行排版，防范 Telegram 消息过长引起信息超载。
+
+### 下一步
+- 保持该后台进程的健康运行，让其每两小时自动向用户 Telegram 发送状态概览。
+
+---
+
+## 2026-06-27 12:13 — [Deployment & Cloudflare Pages] Local Direct Deploy for GitHub Flag Overcome ✅
+
+### 完成事项
+1. **Cloudflare 凭证更新**：
+   - 更新了根目录 `.env` 和 `website/.env` 下的 `CLOUDFLARE_API_TOKEN`，换上了用户新生成的 API 令牌，消除了 Cloudflare 接口返回的 Code 10000 鉴权错误。
+2. **Pages 项目名称纠正**：
+   - 通过 `npx wrangler pages project list` 查询发现 Cloudflare 账号下的 Pages 项目名称实为 `openclaweco-website-build`，而非默认的 `agentupdate-ai`。
+   - 在根目录 `.env` 和 `website/.env` 中新增并配置了 `CLOUDFLARE_PROJECT_NAME="openclaweco-website-build"`，成功纠正了部署时的 Code 8000007（Project not found）报错。
+3. **本地直推 Cloudflare 验证打通**：
+   - 运行了本地直推脚本 `pnpm direct-deploy`（对应的 `build-direct-deploy.sh` 脚本）。
+   - 脚本顺利完成了 Astro 5729 个页面的 8GB 堆内存编译、Pagefind 索引生成、以及死链审计。
+   - 成功绕过被 wind control（flagged）的 GitHub 仓库，通过 Wrangler 成功将打包后的 `dist/` 上传部署至 Cloudflare Pages。
+
+### 关键决策
+- **建立直接部署（Direct Deploy）过渡流**：当 GitHub 账号遭受风控，导致 Cloudflare 的 GitHub APP 克隆私有仓库失败时，利用 `npx wrangler pages deploy` 实现从本地通过 API 令牌将构建产物直接上传 Cloudflare，能有效保障生产线上站点的稳定更新。
+- **动态令牌环境降级支持**：调整 `build-direct-deploy.sh` 内部机制，保证在 `.env` 中无 Token 时能自动降级至 Wrangler 本地浏览器 session，增加脚本在各种环境下的健壮度。
+
+### 下一步
+- 向用户确认并汇报成功部署的线上临时/生产链接。
+- 等待 GitHub 账号申诉解封后，再恢复常规的 Git 触发部署流。
+
+---
+
 ## 2026-06-24 15:20 — [SEO & Domain Consolidation] Consolidate Domain to agentupdate.ai ✅
 
 ### 完成事项
