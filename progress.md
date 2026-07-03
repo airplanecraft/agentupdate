@@ -1,4 +1,26 @@
+## 2026-07-03 09:12 — [Product & Blog Content] Write Composio Local Marketing Ops System Blog Post ✅
+
+### 完成事项
+1. **Composio 本地营销运营系统分析与博文撰写**：
+   - 调研了用户开发在 `/Users/eric/work/composio` 目录下的 Next.js 本地项目，梳理了系统在 AI 增长黑客营销中的痛点需求和定位（Composio 云端托管 API 授权，MCP 规范本地工具接口，本地系统 promo-ops 调度营销内容、审批与账号安全策略）。
+   - 撰写了深度、硬核的双语博文：中文 [composio-mcp-local-marketing-ops.zh.md](file:///Users/eric/work/openclaweco.com/database/composio-mcp-local-marketing-ops.zh.md) 及英文 [composio-mcp-local-marketing-ops.en.md](file:///Users/eric/work/openclaweco.com/database/composio-mcp-local-marketing-ops.en.md)，深度剖析了三层解耦架构、CLI 本地会话生成省钱防泄漏机制、以及双重风控（源头合规+临门阻断）的策略引擎细节。
+   - 使用 AI 生成了精致的 3D 轴测图风格封面图并分发拷贝至 Web/Admin 的 `public/images/blog/composio_marketing_ops.jpg` 中。
+   - 编写并运行了 `database/insert_composio_marketing_blog.ts` Prisma Seeding 脚本，以 `draft` 草稿状态成功同步写入数据库。
+2. **遵守本地编译与部署规范**：
+   - 严格遵循用户设定的内容发布无打包（No automatic `local-build`）规范，本次纯文章写入会话未触发任何构建和发布命令。
+   - 运行 `./session-push-all.sh`，成功将所有更改（新博文、配图、Prisma 脚本及新版 `.agents/AGENTS.md`）提交推送至 GitHub 远程仓库。
+
+### 关键决策
+- **CLI/Web 两层分治以保护隐私和成本**：由 Web UI 仅进行工具调用发帖（无需大语言模型），将高成本 of LLM 内容生成独立至 CLI 在用户终端本地运行（利用现有订阅额度），是独立开发者本地营销系统的极佳低成本设计范式。
+- **双层策略引擎风控**：将防封号策略分别设置在 LLM 生成时的 System Prompt 限制阶段以及发帖前夕的静态 Pre-flight check 阶段，构成了牢固的防封锁防御网。
+
+### 下一步
+- 待用户在后台管理系统中核对并润色博文，满足要求后一键正式发布上线。
+
+---
+
 ## 2026-07-02 06:50 — [SEO & Blog Content] Implement Keyword Auto-Linker & Publish Claude Ban Blog Post ✅
+
 
 ### 完成事项
 1. **自动语义内链系统（Keyword Auto-Linker）**：
