@@ -1,4 +1,17 @@
+## 2026-07-04 21:10 — [Monitoring & Telegram Bot] Fix GSC Table Parser & Trigger Status Report ✅
+
+### 完成事项
+1. **Telegram 双时报/双周报 GSC 数据字段解析修复**：
+   - 发现并定位了 `scratch/telegram-status-scheduler.mjs` 在解析 GSC `search_analytics` 接口返回的 markdown 形式表格时的正则匹配和索引列对齐 Bug（原代码写死只匹配 `Total Clicks` 等性能概览关键字，而实际接口返回的列格式为 `| clicks | impressions | ctr | position |`，导致解析器之前一直输出 `N/A | N/A | N/A | N/A`）。
+   - 重构了 GSC 表现数据解析逻辑，修改为按行切割分割 `|` 的列项，并跳过表头，精准抓取首列数值及百分比（如 `点击: 2 | 展现: 1,225 | CTR: 0.16% | 排名: 9.0`）。
+2. **报表推送重启与核对**：
+   - 顺利运行并触发最新的抓取测试，首次推送成功，Telegram 频道已收到真实正确的 GA4 实时在线与 GSC 近3天表现指标（包括正确的收录数和变化差值）。
+   - 将更新后的调度器 `node scratch/telegram-status-scheduler.mjs` 重新在后台拉起，替换原有的旧进程，保证后续每 2 小时推送数据的正确性。
+
+---
+
 ## 2026-07-03 09:12 — [Product & Blog Content] Write Composio Local Marketing Ops System Blog Post ✅
+
 
 ### 完成事项
 1. **Composio 本地营销运营系统分析与博文撰写**：
