@@ -374,3 +374,12 @@ Plan: `docs/plans/2026-05-19-blog-fixes-implementation.md`
 - [x] Update component URLs in `Breadcrumbs.astro` and `BaseLayout.astro`
 - [x] Update fallback and static URLs in `sitemap.xml.ts` and bilingual RSS feeds
 
+## [Claude Memory Blog & Global Meta Description Fix — 2026-07-09]
+
+- [x] Author bilingual blog post comparing Claude Code Native Memory vs MCP claude-mem (cmem)
+- [x] Insert the blog post as draft (ID 100) into database without running builds
+- [x] Refactor BaseLayout.astro meta description padding logic for optimal length (120-160 characters)
+- [x] Run Playwright E2E tests verifying description length rules
+- [x] Session Archive
+
+

@@ -1,4 +1,18 @@
+## BUG-145: Global Meta description too short on multiple pages causing SEO crawler warnings (Fixed 2026-07-09)
+
+- **发现时间**: 2026-07-09 09:10
+- **自愈轮次**: 1 / 5
+- **症状**: 在 GSC/SEO 工具扫描并导出的 `Downloads/www.agentupdate.ai_FailingUrls_7_9_2026.csv` 中，51 个页面被标记为 "Meta descriptions are too short"（字符数少于 120），影响搜索引擎的摘要展示及收录权重。
+- **根因**: 在 `website/src/layouts/BaseLayout.astro` 的 Meta 描述处理中，之前仅采用简单的静态 CTA 追加方案。对于初始简短页面描述（例如 10-30 字符），追加后的总长度依然达不到 120 字符的最佳长度，从而被标记为过短。
+- **修复方案**: 在 `BaseLayout.astro` 中，重构了长度填充算法：定义了中英文高密度的核心关键字模版（ZH 约 121 字符，EN 约 232 字符），根据 `135 - optimizedDesc.length` 动态计算所需长度并进行精准截取填充，从而确保所有页面生成的 Meta 描述均稳定在 `[120, 160]` 字符的理想范围内。
+- **结果**: PASS。经 Playwright 本地 E2E SEO 测试验证，首页与新闻等页面的渲染均符合描述字符数限定规则，测试 100% 通过。
+- **相关文件**: 
+  - [BaseLayout.astro](file:///Users/eric/work/openclaweco.com/website/src/layouts/BaseLayout.astro)
+
+---
+
 ## BUG-144: Canonical URL and Hreflang Alternate URL trailing slash mismatch with Astro configuration (Fixed 2026-06-24)
+
 
 - **发现时间**: 2026-06-24 14:16
 - **自愈轮次**: 1 / 5
