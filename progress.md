@@ -1,4 +1,18 @@
+## 2026-07-13 10:50 — [Admin UI] Add new model and company filters to news view ✅
+
+### 完成事项
+1. **文章审核工作流过滤分类标签扩充**：
+   - 修改了管理后台的 [news.astro](file:///Users/eric/work/openclaweco.com/admin/src/pages/admin/news.astro)：
+     - 在 **🧠 大模型** 标签分组下，新增了 `Fable`、`Hunyuan`、`混元`、`Ernie`、`文心一言`、`MiLM` 标签。
+     - 在 **🏢 大厂** 标签分组下，新增了 `Xiaomi`、`小米`、`Meituan`、`美团` 标签。
+2. **自动化测试与同步**：
+   - 运行了整个 `admin` 模块的 Playwright E2E 自动化测试，24 项测试全部通过（5项正常跳过），无编译报错。
+   - 所有更改已运行一键脚本 `./session-push-all.sh` 同步到 GitHub。
+
+---
+
 ## 2026-07-11 10:18 — [Product & Blog Content] Write Composio multi-platform publishing blog post (draft) ✅
+
 
 ### 完成事项
 1. **多平台发布架构双语博客撰写**：
