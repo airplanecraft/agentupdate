@@ -1,4 +1,17 @@
+## 2026-07-19 09:10 — [Bugfix & Reliability] Fix GSC parser offset bug & GA4 query retry logic ✅
+
+### 完成事项
+1. **修复 GSC 表现数据解析越界 Bug**：
+   - 修复了 [telegram-status-scheduler.mjs](file:///Users/eric/work/openclaweco.com/scratch/telegram-status-scheduler.mjs) 中的 `parseGscPerformance` 解析方法：以前的分隔符按行切分在遇到 Daily Trend 表时，将首列 of 日期（`/^\d/`）误配成了 Click，导致点击、展现等数据和日期发生了错位偏移。已将其修改为和 `telegram-send-once.mjs` 一致的强健的正则提取逻辑。
+2. **新增 GA4 查询弹性重试与代理机制**：
+   - 优化了 [query_ga4_status.py](file:///Users/eric/work/openclaweco.com/scratch/query_ga4_status.py)：针对网络瞬间抖动导致的 DNS 解析 `analyticsdata.googleapis.com` 超时/503 报错，新增了 3 次自适应退避重试（间隔 2 秒），避免脚本因单次失败而默认返回 0 数据。
+3. **重启监控进程**：
+   - 重新拉起了全新的调度器服务进程，测试表明中英文站点的 GA4 和 GSC 均已拉取到最新的真实数据（而非 0 与 N/A）并投递至 Telegram。
+
+---
+
 ## 2026-07-13 10:50 — [Admin UI] Add new model and company filters to news view ✅
+
 
 ### 完成事项
 1. **文章审核工作流过滤分类标签扩充**：
