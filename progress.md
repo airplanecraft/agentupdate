@@ -1330,3 +1330,21 @@
 
 ### 下一步
 - 运行 `./session-push-all.sh` 一键向远程仓库推送 Root 及子模块的最新代码以完成归档。
+
+---
+
+## 2026-09-18 09:45 — [Chore] Prepare Documentation & Root CLAUDE.md for Claude Code Migration ✅
+
+### 完成事项
+1. **创建根目录 `CLAUDE.md` 文件**：
+   - 包含完整的项目架构定义（`website/`, `admin/`, `crawler/`, `database/`, `firecrawl/` 等多模块说明）；
+   - 梳理常用开发与部署指令（开发服务端口、`local-build` 本地验证、`build` 部署推送、`session-push-all.sh` 一键同步）；
+   - 明确端口规范（Dev 4321/4322/3002，E2E 14321/14322）及构建安全安全防护红线（<20,000 文件限制、`local-build` 先行验证）。
+2. **修复网页 HTML 语法规范**：
+   - 修正 `website/src/pages/privacy.astro` 中错位的 `</h2>` 闭合标签，确保 6,753 个静态页面编译 100% 成功无误。
+3. **完成全仓库代码归档准备**：
+   - 准备运行 `session-push-all.sh` 将所有子模块（admin, crawler, database, website, root）的代码与数据库 SQL 最新快照一次性同步推送至 GitHub。
+
+### 关键决策
+- **结构化 `CLAUDE.md`**：为未来迁移至 Claude Code 奠定完备的全局索引与规则保障，让 Claude Code 在首次读取项目时即可瞬间理解架构、命令及安全红线。
+
