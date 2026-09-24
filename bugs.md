@@ -587,3 +587,139 @@
 - **相关文件**: `website/src/pages/zh/blog/[slug].astro`
 
 
+
+---
+
+# 早期 Bug 补录 (BUG-006~008, BUG-013~019, 迁移自 docs/bugs.md 2026-09-24)
+
+## BUG-006: pg_trgm 扩展未在生产数据库自动创建
+- **发现时间**: 2026-03-26 21:12
+- **严重程度**: Major
+- **症状**: `title-dedup.ts` 调用 `similarity()` 函数时报错 `function similarity(character varying, text) does not exist`
+- **根因**: `pg_trgm` 扩展仅在测试数据库 `openclaweco_test` 通过 Prisma Migration 创建，生产数据库 `openclaweco` 未执行 `CREATE EXTENSION IF NOT EXISTS pg_trgm`。
+- **修复**: 新增 `crawler/setup_db.ts` 脚本，在应用启动前执行 `prisma.$executeRawUnsafe('CREATE EXTENSION IF NOT EXISTS pg_trgm;')`，确保幂等创建扩展。
+- **修复时间**: 2026-03-26 21:14
+- **回归测试**: PASS
+- **自愈轮次**: 1 / 5
+- **相关文件**: `crawler/setup_db.ts`, `crawler/src/dedup/title-dedup.ts`
+
+---
+
+
+## BUG-007: Admin 弹出层数据访问触发 Prisma dbNull 对象崩溃
+- **发现时间**: 2026-03-27 12:30
+- **严重程度**: Critical
+- **症状**: 访问 `/admin/published` 时，弹出 Article Modal 抛出 `PrismaClientValidationError`，特别是包含 `summaryEn` 等新增双语字段时直接导致服务端崩溃。
+- **根因**: 项目升级和隔离测试中，`npx prisma generate` 在个别环境下自动将依赖推到了 Prisma v7，但实际运行环境依赖严格锁定为 `@prisma/client@...6`。这导致了生成的内部 client 类型与实际运行时的二进制引擎处理 Json 及 null 的能力不匹配。
+- **修复**: 降级项目全局或本地 `prisma` CLI 工具回 `^6.19.2`，清空 `admin/node_modules/.prisma` 并重新执行 `generate`，确保生产代码和生成代码版本精准对齐。
+- **修复时间**: 2026-03-27 13:00
+
+---
+
+
+## BUG-008: 图片生成静默失败与 429 配额耗尽处理缺陷
+- **发现时间**: 2026-03-27 13:50
+- **严重程度**: Major
+- **症状**: `status: pending` 的文章全部没有成功附带生成双语图片（均为 `null`），且没有任何报错日志输出。
+- **根因**:
+  1. 使用了官方 `@google/genai` v1.x SDK，它在调用 Imagen 预测时存在认证 Bug（即使传了 apiKey，也会隐蔽且强制性地要求 GCP application default credentials）。它抛出了 Auth Error，被 `catch` 并返回了 `null`，导致真实配额耗尽（429）的真正错误被掩盖。
+  2. Imagen 模型当天绘图限额（70次）耗尽后，原逻辑没有 fallback 方案。
+- **修复**:
+  1. 放弃官方 SDK 内的 `models.generateImages` 方法，改为原生的 `fetch` 直连 `REST API` (`v1beta/models/{model}:predict`)，成功恢复完整异常输出。
+  2. 通过 `.env` 提供 `IMAGE_GENERATOR_MODEL` 逗号分隔数组（如 `gemini-3.1-flash-image-preview,gemini-3-pro-image-preview,imagen-4.0-fast-generate-001`）实现请求 429/404 时的瀑布流轮询降级生成。
+- **修复时间**: 2026-03-27 14:10
+- **相关文件**: `crawler/src/ai/image-generator.ts`, `.env`
+
+---
+
+
+## BUG-013: GitHub 搜索报 403 API rate limit exceeded
+- **发现时间**: 2026-04-04 16:20
+- **严重程度**: Minor
+- **症状**: `/admin/product` GitHub 搜索时经常提示失败 (Rate limit exceeded)
+- **根因**: 请求 GitHub API 没有使用 token，匿名 API (10次/分钟/IP) 很容易被开发机环境耗尽
+- **修复方案**: 在 `github-search.ts` 中读取并传入 `import.meta.env.GITHUB_TOKEN`，同时在 `.env` 添加示例
+- **结果**: PASS
+- **相关文件**: `admin/src/pages/api/github-search.ts`, `.env`
+
+---
+
+
+## BUG-014: 审批通过的产品列表未按时间排序
+- **发现时间**: 2026-04-04 16:38
+- **严重程度**: Trivial
+- **症状**: 用户在 UI 端点击发布后，产品没有出现在列表最顶部
+- **根因**: 页面通过 Prisma 获取 approved variants 时的 `orderBy` 是硬编码按类别和名称升序排列的 `[{ type: 'asc' }, { name: 'asc' }]`
+- **修复方案**: 修改查询逻辑中的 orderBy 选项为按最近更新时间倒序 `{ updatedAt: 'desc' }`
+- **结果**: PASS
+- **相关文件**: `admin/src/pages/admin/product.astro`
+
+---
+
+
+## BUG-015: Simulator - WebView Audio Autoplay Policy / TTS Suspension
+- **发现时间**: 2026-04-09 17:00
+- **严重程度**: Major
+- **症状**: Simulator 中点击后续步骤或 Deep Link 刷新后，Ting-Ting 语音突然彻底消失（被吞音或假死挂起）。
+- **根因**: Chromium 内核对 `speechSynthesis` 存在 `cancel()` 和 `speak()` 竞态崩溃问题，且在无用户交互空降页面时彻底封杀 Web Audio。
+- **修复方案**: 在 `SoundManager.ts` 中拦截一切用户交互（挂载 onClick `unlock` 唤醒引擎）；并在发起新的 `utterance` 播报前植入 50ms `setTimeout` 避开引擎清理死锁。
+- **结果**: PASS
+- **相关文件**: `admin/simulator/n8n/app/src/engine/SoundManager.ts`
+
+---
+
+
+## BUG-016: Simulator - 幽灵计时器溢出 (Global setTimeout Leak)
+- **发现时间**: 2026-04-09 16:50
+- **严重程度**: Critical
+- **症状**: scene_03_rag 刚进入第一步就自动跳转到第二步。
+- **根因**: 系统在全局依赖 setTimeout 控制 `autoDelay`。当用户在倒计时中途切换 Scene 时，残留的上一场景的 Timer 未被清理，强行触发新场景的 `advanceFrame`。
+- **修复方案**: 在 `useSimulatorStore.ts` 顶层增加 `playbackTimeoutId` 引用变量，在任何人工干预、切页或 reset 行为前调用 `clearPlaybackTimeout()`。
+- **结果**: PASS
+- **相关文件**: `admin/simulator/n8n/app/src/store/useSimulatorStore.ts`
+
+---
+
+
+## BUG-017: Simulator - SPA 画布视口缩放与元素穿透遮挡
+- **发现时间**: 2026-04-09 18:00
+- **严重程度**: Minor
+- **症状**: scene_03 长宽流布局下，靠后节点在视野外；Cohere Node 点击极度困难；Inspector 其它 Tab 为空易误会。
+- **根因**: React Flow `fitView` 在 SPA 里只在首次 Mount 生效，不再自适应宽幅场景；节点拖拽默认 text selection 抑制了 onClick 命中率；假数据不包含 input tab。
+- **修复方案**: 绑定 `rfInstance` 拦截器监听 Scene 变化强制动画重置 `fitView`；给被点节点加 `user-select: none;` 防误拖；在 store 给 inspector 默认托底数据。
+- **结果**: PASS
+- **相关文件**: `admin/simulator/n8n/app/src/components/Canvas/SimulatorCanvas.tsx`, `index.css`
+
+---
+
+
+## BUG-018: Cloudflare Pages 静态节点发布停滞 Bug (The Ghost Git Backup Bug)
+- **发现时间**: 2026-04-11 22:00
+- **严重程度**: Critical
+- **症状**: 本地 `npm run build` 和推送脚本正常，但线上的 `agentupdate.ai` 始终停留在 12 小时之前的版本，且 CSS 有时 404，完全无法展示新栏目“动态(Releases)”。
+- **根因**: 
+  1. `build-deploy.sh` 依赖 `/tmp/.git-dist-backup` 来保留部署层的 Git 历史，但过去的某个时间点，有人将源码仓库的完整 `.git` 文件夹复制到了这里！
+  2. 这导致内部 `dist/.git` 认为自己是整个仓库，而在执行 `git add -A` 时，由于根目录 `.gitignore` 屏蔽了 `dist`，因此它永远忽略所有新生成的 HTML 文件。
+  3. 它反而将 `package.json` 和 `src/` 推送到了给 Cloudflare 消费的 `-build.git` 仓库中，导致 Cloudflare Pages 无法获取最新静态资源并触发持续阻断！
+  4. CDN 边缘缓存配置缺失，导致旧的 HTML 文件继续指向已被滚动的 CSS hash。
+- **修复方案**: 
+  1. 彻底删除污染的 `/tmp/.git-dist-backup` 和 `dist/.git`，重新在 `dist` 中建立纯粹的 Git tracking。
+  2. 修改 `build-deploy.sh` 为 `git push -f origin main` 暴力覆盖线上错乱记录。
+  3. 在 `public/` 下新增 `_headers` 文件，显式对 HTML 执行 `max-age=0`，对 `/_astro/` 执行一年强制缓存。
+- **结果**: PASS
+- **相关文件**: `website/build-deploy.sh`, `website/public/_headers`
+
+---
+
+
+## BUG-019: Admin Dashboard Simulator Preview 404 Error
+- **发现时间**: 2026-04-16 23:38
+- **严重程度**: Minor
+- **症状**: 访问 Admin 面板中的 `simulators` 页面点击预览按钮时报 404 错误。
+- **根因**: Admin 项目与 Website 项目运行在不同的端口（4322 和 4321）。代码中使用了相对路径 `<a href="/simulators/[slug]/">`，导致 Admin Dashboard 把请求发送到了后台端口。
+- **修复方案**: 在 `admin/src/pages/admin/simulators.astro` 注入运行时环境变量判定 `import.meta.env.DEV ? 'http://localhost:4321' : 'https://openclaweco.com'` 并追加至 `href` 前。
+- **修复时间**: 2026-04-16 23:40
+- **回归测试**: PASS
+- **自愈轮次**: 1 / 5
+- **相关文件**: `admin/src/pages/admin/simulators.astro`
+

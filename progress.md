@@ -1348,3 +1348,565 @@
 ### 关键决策
 - **结构化 `CLAUDE.md`**：为未来迁移至 Claude Code 奠定完备的全局索引与规则保障，让 Claude Code 在首次读取项目时即可瞬间理解架构、命令及安全红线。
 
+
+---
+
+# 早期会话补录 (2026-03-25 → 2026-04-27, 迁移自 docs/progress.md 2026-09-24)
+
+## Session: 2026-04-27 — 同步脚本约束优化与全局 SEO 架构设计
+
+### 🚀 Phase 19: 全局 SEO 架构升级与首页重构落地
+- [x] 开发并发布了 `<Breadcrumbs />` 组件，集成了标准的 `BreadcrumbList` JSON-LD 结构化数据，供各大搜索引擎无缝爬取网站深层路径。
+- [x] 全面覆盖了新闻 (`news/[slug]`)、产品 (`product/[slug]`)、以及教程 (`tutorial/[series]/[lesson]`) 的双语详情页，彻底抛弃了纯样式类的“返回”链接，实现了真实的路径导览。
+- [x] 对中英文首页 (`index.astro` & `zh/index.astro`) 进行了结构重构：将 "Latest News / 最新资讯" 权重提至 Hero 下方第一屏；重写了 SEO-friendly 的 TDK (Title & Description) 和 Hero 标语（"AI 智能体生态聚合" -> "Your Gateway to the AI Agent Ecosystem"）；并更新了 Hero 区 CTA 按钮，直达 `/tutorial/` 教程。
+- [x] 经 `pnpm build` 全量测试，中英双语共 2817 页面全部成功编译。
+
+### ⚡ Phase 20: 深度 SEO 与 Core Web Vitals 优化落地
+- [x] **OG 标签补全**：在 `BaseLayout.astro` 中注入了 `og:locale` 与 `og:locale:alternate`，补齐了多语言社交媒体抓取的最后一块拼图。
+- [x] **CLS 零容忍重构**：通过脚本自动化处理了全站 22 个页面模板，为所有 `<img>` 显式声明了 `width`, `height` 与 `decoding="async"`，彻底消灭了图片加载引起的布局偏移。
+- [x] **验证**：全站 2819 个页面全量编译通过，无任何语法或路径回归错误。
+
+### 🕸️ Phase 21: 内部织网 (Internal Linking Mesh) 落地
+- [x] **交叉推荐组件**：开发了 `RelatedItems.astro` 统一组件，支持根据 `tags` 标签自动计算并推荐最相关的技能市场 (`Skills`)、插件 (`Plugins`) 或产品 (`Products`)。
+- [x] **全场景注入**：已成功注入教程详情页 (`tutorial/[series]/[lesson]`) 与新闻详情页 (`news/[slug]`) 的双语版本。
+- [x] **权重闭环**：打破了数据孤岛，实现了“内容驱动工具，工具反哺流量”的网状链接闭环，有利于延长用户 Session 时长。
+
+### 完成事项
+1. **数据库同步约束 (Sync Constraint)**：
+   - 优化了 `admin/scripts/sync_teams_to_db.ts` 和 `admin/scripts/sync_caveman_to_db.ts`。
+   - 引入增量判定机制：自动比对本地 Markdown 与数据库内容 (title/summary/content/sortOrder)，未发生变更时跳过执行数据库更新，减少无用 IO。
+   - 支持通过 CLI 参数（如 `npx tsx script.ts lesson-01`）精确指定同步文件，强力满足了"没有显式说明就不要做更新"的需求。
+2. **全局 SEO 架构设计与方案交付**：
+   - 为网站多层级菜单聚合、面包屑导航 (Breadcrumbs)、结构化数据 Schema 注入提供了一揽子 SEO 架构设计方案。
+   - 解答了纯 CSS Dropdown 的抓取友好性疑虑，并提供了 Hub Page / Fat Footer 的可替代组织策略。
+   - 为 `index.astro` 首页量身定制了改版计划：提升 Latest News 到首屏抓取位，并重构核心 H1/H2 品牌定位文案。
+
+
+## Session: 2026-04-12 21:00 — LangChain & LangGraph Tutorial Creation + Admin Enhancements
+
+**Tutorial Content (Major)**
+1. **LangChain 全栈大师课** (30期): 中文版 ✅ 30/30 + 英文版 ✅ 30/30
+   - 贯穿项目：智能客服知识库 (Intelligent Support Copilot)
+   - 6 大模块：基础概念 → 数据连接 & RAG → 进阶 RAG → Agents & Tools → LangGraph → 生产部署
+   - 脚本: `admin/scripts/seed_langchain.ts`
+2. **LangGraph 多智能体专家课** (30期): 中文版 ✅ 30/30 + 英文版 🔄 翻译中
+   - 贯穿项目：AI 万能内容创作机构 (AI Content Agency)
+   - 6 大模块：基础架构 → ReAct & ToolNode → 高级图模式 → 多智能体 → 生产集成 → Capstone
+   - 脚本: `admin/scripts/seed_langgraph.ts`
+3. **英文翻译基建**: 创建通用翻译脚本 `admin/scripts/seed_en_tutorials.ts`
+   - 支持按系列翻译 (`langchain|langgraph|both`)
+   - 使用 Gemini 3.1 Pro Preview，内置 5 次重试 + 20s 退避
+
+**Admin Dashboard**
+4. **产品页搜索功能**: 在 `/admin/products` 添加实时搜索框
+   - 支持按名称、组织、策略、URL 全文过滤
+   - 与分类筛选卡片互相兼容（叠加过滤）
+5. **Admin news.astro 修复**: 消除重复 `const batchBar` 声明导致的 JS 运行时错误
+
+**基础设施**
+6. **robots.txt 简化**: 移除冗余的逐 bot 规则和 `/pagefind/` 屏蔽，改为通配符全开放
+
+**遗留/后续**
+- LangGraph 英文版翻译在后台运行中
+- 教程尚未 seed 到数据库的英文版内容（contentEn 字段）
+- 两个教程系列尚未在 Admin tutorials 页面发布
+
+---
+
+
+## Session: 2026-04-04 17:00 — Bug Fixing
+
+### 完成事项
+1. **修复 GitHub 搜索频率限制问题** — 在 `admin/src/pages/api/github-search.ts` 中增加了对 `GITHUB_TOKEN` (.env 载入) 的支持，突破匿名 10次/分钟 的速率限制。在 `.env` 中新增了 `GITHUB_TOKEN` 占位符。
+2. **产品审批列表排序修复** — `admin/src/pages/admin/product.astro` 中，将批准产品的排序从分类/名称固定排序调整为按审批时间 (`updatedAt: 'desc'`) 倒序，以优先显示最新通过的产品。
+
+### 关键 Bug 修复
+- **BUG-013**: GitHub Search API 返回 `403 rate limit exceeded`。改用 Authenticated 请求。
+- **BUG-014**: Admin 界面 `/admin/product` 下面 Approved 产品没有按照审批时间排序。更新 Prisma `orderBy`。
+
+---
+
+
+## Session: 2026-04-04 — Phase 15 教程生产线 + GitHub 搜索 + 工作流
+
+### 完成事项
+
+1. **双语教程生成管线** — 升级 `/api/ai-draft.ts` 强制 JSON 输出，重构教程编辑器为单次双语 Prompt。编写 `translate_to_en.ts` 批量翻译 50 篇 Claude Code 教程。
+2. **Claude Code 补全** — 通过 `generate_lessons.ts` 生成 lesson-21 ~ lesson-50（30 篇），存入 `content/claudecode/lessons/`。
+3. **Hermes Agent** — 产品入库（23.4k stars，NousResearch）+ `seed_hermes_agent.ts` 生成 5 期教程，涵盖安装部署、模型切换、Skills 系统、Memory 机制、消息网关。
+4. **Google Gemma** — 产品入库（Google DeepMind）+ `seed_gemma.ts` 生成 15 期教程，4 大模块：部署（Ollama/HF/Vertex AI）、多模态/128K 上下文、LoRA/QLoRA/JAX 微调、Agent 工具链集成（Hermes Agent + LangChain + vLLM）。
+5. **域名迁移** — `astro.config.mjs` + `sitemap.xml.ts` + Schema.org 全站更新为 `www.agentupdate.ai`。
+6. **Admin 全局搜索** — 产品管理页顶部新增 full-width 搜索框，跨 Tab 过滤 name/company/description/tags。
+7. **GitHub 搜索 Tab** — 新增 `/api/github-search.ts` 代理 GitHub Search API，产品页新增🐙 GitHub 搜索 Tab，支持搜索 → 预览结果 → 📥 一键导入产品库。
+8. **产品排序修复** — `variants.ts` 查询排序从 `crawledAt desc` 改为 `updatedAt desc`，确保最新产品置顶。
+9. **文档体系** — 双语 `README.md`/`README.zh.md`；`build-deploy.sh` 自动拷贝 README 到 dist/。
+10. **工作流** — 新建 `/git-push` 多仓库推送 workflow；增强 `/session-archive` 加入 commit+push 全流程。
+
+### 关键数据
+
+| 教程系列 | 篇数 | 总字数 |
+|----------|------|--------|
+| Claude Code (补全) | 30 篇 (21-50) | ~300k chars |
+| Hermes Agent | 5 篇 | ~67k chars |
+| Google Gemma | 15 篇 | ~166k chars |
+
+### 新增文件
+
+| 文件 | 用途 |
+|------|------|
+| `admin/scripts/generate_lessons.ts` | Claude Code 批量生成 |
+| `admin/scripts/seed_hermes_agent.ts` | Hermes Agent 产品+教程 |
+| `admin/scripts/seed_gemma.ts` | Google Gemma 产品+教程 |
+| `admin/src/pages/api/github-search.ts` | GitHub 搜索 API |
+| `website/README.md` / `README.zh.md` | 双语项目文档 |
+| `.agents/workflows/git-push.md` | 多仓库推送 workflow |
+
+---
+
+
+## Session: 2026-04-03 — Phase 14 AI 改写流水线诊断 + Admin 失败队列 + 按钮修复
+
+### 完成事项
+
+1. **AI 改写错误追踪** — `crawler/src/ai/heartbeat.ts` 每步失败显式记录 `errorMessage`（区分"内容提取失败"vs"LLM 改写失败"），写入数据库 `error_message` 字段。
+2. **Admin 失败队列 Tab** — `admin/src/pages/admin/news.astro` 新增 ❌ 失败队列 Tab（查询 `error` + `dead_letter` 状态文章），显示错误原因列、🔄 重试按钮、✗ 废弃按钮。
+3. **Retry API** — `admin/src/pages/api/review.ts` 新增 `retry` action（重置 `status=approved_for_ai, retryCount=0, errorMessage=null`），支持单条和批量重试。
+4. **按钮消失 Bug 修复 (系统性)** — 根因：`actionArticle()` 函数使用 fire-and-forget `fetch()` 不 await，立即 `row.remove()`。修复为 async/await + loading 状态（⏳...）+ 成功才淡出移除 + 失败恢复按钮并弹窗。
+5. **批量重试** — news.astro 新增批量重试事件处理器 + confirm 弹窗 + 操作后 UI 更新。
+6. **键盘快捷键** — 失败队列新增 T=重试, R=废弃 快捷键。
+7. **E2E 测试端口隔离** — 创建 `.agents/workflows/e2e-testing.md` 工作流，Agent E2E 测试专用 14321/14322 端口，彻底避免与用户 4321/4322 开发端口冲突。
+
+### 关键 Bug 修复
+
+- **BUG-011**: `actionArticle()` fire-and-forget fetch 导致行被乐观删除但 API 可能失败。改为 async/await + try/catch + loading 状态。
+- **BUG-012**: 多个 dev server 进程同时占用同一端口导致 API 超时无响应。解决方案：E2E 测试使用独立端口 14321/14322。
+
+### 关键数据
+
+- 失败文章数量：36 篇（error + dead_letter）
+- 主要失败原因：内容提取失败（付费墙/反爬虫），来源如 theinformation.com、bloomberg.com
+
+---
+
+
+## Session: 2026-04-01 — Phase 13 产品自动爬取系统 + 审批工作流
+
+### 完成事项
+
+1. **数据库扩展** — 新增 `ProductSource` 表（爬取来源管理）；`Variant` 表追加 8 个爬取来源字段（sourceType/sourceId/sourceUrl/sourceData/stars/upvotes/crawledAt/approvalStatus）+ 复合唯一约束 `(sourceType, sourceId)` 防重。
+2. **Prisma 客户端同步** — 更新并重新生成 database/admin/crawler/website 四处的 Prisma Client，修复 Prisma v6 vs v7 generate 路径问题（admin 的 output 路径统一对齐 `src/generated/db`）。
+3. **GitHub Trending 爬虫** — `crawler/src/product-scraper/github-trending.ts` — 解析 github.com/trending HTML，支持多语言（python/typescript/rust/go），首次运行爬取 19 个仓库写入 `pending`。
+4. **ProductHunt 爬虫** — `crawler/src/product-scraper/producthunt.ts` — 使用 PH GraphQL API v2 + Bearer Token，爬取「最近 24h Top Products」（等同 PH 首页 Launching Today），top 40 按票数排序，去重写入。
+5. **爬虫调度器** — `crawler/src/product-scraper/index.ts` — 读取 active ProductSource，按 type 分发到对应 scraper，更新 lastRunAt/totalFetched/lastError。
+6. **去重写入器** — `crawler/src/product-scraper/product-writer.ts` — 基于 `(sourceType, sourceId)` 唯一键，新产品 INSERT（approvalStatus=pending），已有产品只更新 stars/upvotes（不改审批状态）。
+7. **环境变量** — `.env` 追加 `PH_API_TOKEN` 配置（ProductHunt 免费 Developer Token）。
+8. **Admin 数据来源页** — `/admin/sources` — 列出所有 ProductSource，支持：toggle active/inactive、编辑 config JSON（含 cronSchedule）、🚀 立即爬取按钮、显示 lastRunAt/totalFetched/lastError。
+9. **API: /api/sources** — POST（toggle / updateConfig / trigger）+ GET。`updateConfig` 动作会自动从 config JSON 中提取 `cronSchedule` 字段同步到 DB `cron_schedule` 列。
+10. **产品审批 Tab** — `/admin/product` 新增「🔔 待审产品」Tab（有 pending 时自动置前），支持：单个 ✅/❌、全选 + 批量通过/拒绝、来源图标（🟧 PH / 🐙 GitHub / ✋ 手动）、stars/upvotes 展示。
+11. **API: /api/product-review** — POST（approve / reject / reset），按 variant ID 列表批量操作 approvalStatus。
+12. **侧边栏** — Admin `AdminLayout.astro` 新增「数据来源」导航项（key=sources）。
+13. **Website 过滤** — `website/src/lib/variants.ts` 和 `tags.ts` 均加入 `approvalStatus: 'approved'` 过滤，确保 pending/rejected 产品对外不可见。
+14. **爬取周期配置化** — 两个 source 的 `cronSchedule` 字段写入 config JSON（`"0 */2 * * *"` 每2小时），管理员可在 Sources 页面 JSON 配置框直接修改并保存。
+
+### 关键数据
+
+- GitHub Trending 首次爬取：19 条 repo 写入 pending
+- ProductHunt 首次爬取（旧 topic 模式）：34 条产品
+- ProductHunt 改写后（24h rolling 模式）：20 条 top products，8 条新品
+- 存量 variants backfill：119 条手动产品全部设为 `approvalStatus=approved`
+
+### 状态机
+
+```
+爬虫写入 → pending
+    ↓ Admin 审批
+approved ──→ Website 可见
+rejected ──→ 仅在 Admin「已拒绝」Tab 归档
+```
+
+### 追加改进 (2026-04-01 15:40)
+
+15. **PH 爬取双时间窗口** — `producthunt.ts` 支持 `mode: daily | weekly | both`，每次爬取今日最佳(24h) + 上周最佳(7d)，内存去重后统一写入。
+16. **PH 拆分为两个独立数据源** — `producthunt`（每3小时，`mode=daily`）和 `producthunt_weekly`（每周一，`mode=weekly`）各自独立调度，共用同一 Scraper 实例。
+17. **cronSchedule 显示在 Sources 页面标题栏** — 每个 Source 卡片标题右侧新增 `⏱ cron表达式` 徽章，无需展开 JSON 即可看到调度周期。
+18. **产品 Logo 保存** — `product-writer.ts` UPDATE 逻辑新增：若 DB 现有 logo 为 null 则写入爬取的 logo，已有 logo 不覆盖（保护手动维护数据）。
+19. **待审产品 Logo 展示** — `/admin/product` 待审 Tab 每行产品名左侧显示 32px 圆角 logo 缩略图。
+20. **来源 Tag 彩色样式** — 待审 Tab 来源列：🟧 PH = 橙色边框、🐙 GitHub = 紫色边框，内联动态 style，无需额外 CSS 类。
+
+### 最终数据来源配置
+
+| 来源 | type | mode | cron | 备注 |
+|---|---|---|---|---|
+| 🟧 ProductHunt 今日最佳 | `producthunt` | `daily` | `0 */3 * * *` | 每3小时 |
+| 🟧 ProductHunt 上周最佳 | `producthunt_weekly` | `weekly` | `0 0 * * 1` | 每周一 |
+| 🐙 GitHub Trending | `github_trending` | — | `0 */2 * * *` | 每2小时 |
+
+---
+
+
+## Session: 2026-03-30 19:30 — Phase 12 Agent Products 品牌泛化 + Admin 全局搜索
+
+### 完成事项
+1. **Agent Products 品牌重命名** — 将 `/product/` 和 `/zh/product/` 页面的 H1 标题、副标题、描述文案从 "OpenClaw Products" 更新为 "Agent Products"（英文）和 "Agent 产品"（中文），反映更广泛的 AI Agent 生态定位。
+2. **Admin 全局搜索** — 在 6 个 Admin 管理页面 (`news`, `published`, `crawler`, `feeds`, `skills`, `plugins`) 全部添加了客户端实时搜索输入框。基于 `innerText.includes()` 实现零延迟过滤，无需后端 API。
+3. **文档同步** — 更新 `architecture.md` (v3.0)、`task_plan.md`、`progress.md`、`GEMINI.md` 以反映 Phase 10-12 的全部变更。
+4. **E2E 验证** — Browser subagent 截图确认英文/中文产品页标题正确，插件管理页搜索功能正常。
+
+---
+
+
+## Session: 2026-03-29 — Phase 11 统一标签系统 + 技能市场 + 插件图谱
+
+### 完成事项
+1. **全局标签系统 (Tags Hub)** — 为 `Variant`、`SkillMarket`、`Plugin`、`Article` 四个核心模型统一添加 `tags` 字段。建立 `/tags/` 和 `/zh/tags/` 标签中心页。利用 Astro `getStaticPaths` 创建动态 `/tags/[tag]` 聚合页，跨越 News/Products/Skills/Plugins 四个象限。
+2. **技能市场 (Skills Market)** — 新增 `SkillMarket` Prisma model，种子数据 10 个平台，Admin `/admin/skills` 卡片 CRUD，Website `/skills/` 和 `/zh/skills/` 双语展示。
+3. **插件图谱 (Plugin Registry)** — 新增 `Plugin` Prisma model，种子数据 45 个插件，Admin `/admin/plugins` 卡片 CRUD + 分类筛选，Website `/plugins/` 和 `/zh/plugins/` 双语展示。
+4. **Crawler AI 标签提取** — 修改 `llm-rewriter.ts` Prompt，强制提取 Agent 生态实体名称作为标签。
+5. **导航栏更新** — 全局 `BaseLayout.astro` 新增 Tags / Skills / Plugins 导航项。
+
+---
+
+
+## Session: 2026-03-29 — Phase 10 品牌重塞 (AgentUpdate.ai)
+
+### 完成事项
+1. **PRD 更新** — 产品愿景更新为泛 AI 智能体 (AI Agent) 生态综合入口。
+2. **Admin 后台** — Logo 更新为 `AgentUpdate.ai Admin`，导航栏软重命名。
+3. **Website 前端** — 全局 title/og:site_name/Header/Footer 更新为 AgentUpdate.ai。首页 Hero 增加企业级 CTA。
+4. **产品矩阵** — 标题从 OpenClaw 产品矩阵 → Featured Agent Architectures。
+5. **URL 路径** — `/variants/` 重命名为 `/product/`，中英文同步。
+6. **Blog 重命名** — Blog 改为 Tutorials / 教程。
+
+---
+
+
+### 完成事项
+1. **Variant 数据库模型** — 在 `schema.prisma` 新增 `Variant` model (22 字段)，包含双语名称/描述、平台、技能市场URL、定价、特性标签等，通过 `npx prisma db push` 同步
+2. **种子数据集** — `database/variants.json` 收录 20 个 OpenClaw 变种产品 (6 大厂 + 7 开源 + 2 创业 + 3 托管 + 2 硬件)
+3. **幂等导入脚本** — `database/seed-variants.ts` 基于 slug upsert，可反复执行不重复
+4. **Admin 变种管理页面** — `/admin/variants` 实现卡片网格 + 分类筛选 (big_tech/open_source/startup/hosting/hardware) + 删除功能
+5. **Admin API** — `api/variants.ts` 支持 GET/POST/DELETE CRUD 操作
+6. **Admin 侧边栏** — `AdminLayout.astro` 新增 "变种产品" 导航项
+7. **Website 英文产品图谱** — `/variants` Hero 区 + 分类筛选 + 产品卡片网格
+8. **Website 中文产品图谱** — `/zh/variants` 同上中文版
+9. **Website 导航栏** — `BaseLayout.astro` 新增 Variants 入口 (英文/中文)
+10. **LLM 变种识别方案** — 设计了 Crawler 侧的 Prompt 扩展方案 (知识注入+模式识别)，记录为 `implementation_plan.md`，待后续实施
+
+### 关键决策
+- Variant 数据与 Article 表独立，不建外键关联 (变种产品是相对静态的目录数据)
+- 采用 JSON 种子数据 + upsert 脚本，便于手工维护和版本控制
+- LLM 变种自动识别方案延后至下一 Phase 实施
+
+### 下一步
+- Phase 9 文档归档 (architecture.md + task_plan.md 更新)
+- Phase 8 RSS Feed 管理 或 LLM 变种识别 Prompt 扩展
+
+---
+
+
+## Session: 2026-03-27 22:20 — 优化 AI 改写质量与审核体验
+
+### 完成事项
+1. **AI 改写信息密度优化**：修改了 `crawler/src/ai/llm-rewriter.ts` 提示词，强制要求字数和信息密度保持原文 80% 左右，禁止过度浓缩，保障技术细节留存。
+2. **待审列表去冗余与筛选强化**：移除了 `admin/news.astro` 顶部无用的物理来源大分类 Filter，强化了标签矩阵体系 (Tag Pills) 以及清空选择、URL 参数同步绑定，保持界面干净且专注度高。
+3. **沉浸式原文核对**：在 `admin/news.astro` 待审列表中加入了 `[👀 预览原文]` 按钮和详情弹窗 (Modal) 对照功能，极大提升了对生肉对照判断改写深度的审核校对效率。
+4. **代码状态恢复**：在误用 `git checkout` 导致未提交的 Astro 页面代码部分丢失后，通过 agent context memory 成功完美地 1:1 还原了代码状态并修复了因 `define:vars` 字符串化引发的 JSON.parse 转义解析 Bug。
+5. **Browser Subagent 验证通过**：通过完整的页面流自动化点击测试（包含点击标签、全选框、弹窗启闭等UI验证链路），确认重构后的交互稳定可靠。
+
+---
+
+
+## Session: 2026-03-27 17:30 — 爬虫调试 + Admin 标签筛选规划
+
+### 完成事项
+1. **爬虫日志降噪** — 移除 `rss-fetcher.ts` 中逐条打印所有抓取文章的噪音日志，改为仅在 `writer.ts` 输出 `[SAVED]` 前缀的成功入库记录
+2. **去重系统 Bug 修复** — 诊断并修复 `prisma db push --force-reset` 导致 `pg_trgm` 扩展丢失，使 `similarity()` 函数不存在，所有文章被 catch 吞没误判为重复的致命隐蔽 Bug
+3. **DeadLetter 死信队列** — 将 RSS 抓取失败（Timeout/404/403/429）的源持久化到 `dead_letters` 表，支持 Upsert 累加 `retryCount`，便于后期剔除僵尸 Feed
+4. **Approve 按钮 400 修复** — 修复详情页 `[id].astro` 发送过时的 `action: 'approve'` 导致 400 Bad Request，改为正确的 `action: 'publish'`
+5. **Phase 7 规划** — 创建 `implementation_plan.md`，规划标签筛选（6大类84标签）+ 时间过滤（24h/48h）+ 批量操作（批量改写/物理删除）
+
+### 关键 Bug 修复
+- **BUG-009**: pg_trgm 扩展在 force-reset 后丢失导致去重全部误判
+- **BUG-010**: 详情页 Approve 按钮 action 名称与后端不匹配导致 400
+
+### 下一步
+- Phase 7 实施：标签筛选 + 时间过滤 + 批量操作
+
+---
+
+
+## Session: 2026-03-27 14:00 — 稳定性修复与大模型画图轮询
+
+### 完成事项
+1. **解决 Prisma Client 版本冲突**：修复了由 `npx prisma generate` 带来的 V7 升级导致运行时强校验 Prisma V6 JSON Null 引发的严重奔溃。彻底清空了 `.prisma` 重新生成了严格对齐的 client，完全恢复了 `/admin/published` 与 `/admin/crawler` 内弹窗的文章展现能力。
+2. **重写 Imagen 生成模块**：移除了带有严重 Auth Bug 导致静默失败的 `@google/genai` sdk 中的 `generateImages`，改为基于原生 `fetch` 与大模型 REST API 的请求。
+3. **实现 AI 模型多级回退 (Fallback)**：对 `IMAGE_GENERATOR_MODEL` 扩展了配置项支持，接受以逗号分隔的模型列表（如 `gemini-3.1-flash-image-preview,imagen-4.0-fast-generate-001`）。当首选模型出现配额满载（429）或无访问权限（404）时自动抛弃并尝试下一个模型，确保配图生成的极高可用保障。
+4. **清理与复盘测试**：编写了专用于画图调用的 TypeScript 沙盒脚本充分走查通过了 Fallback 逻辑，通过 `db push --force-reset` 将数据库全量还原，以备开启全新规模的 E2E 拉取大考。
+
+### 关键 Bug 修复
+- **BUG-007**: 修复 Admin 页面 `DbNull` Prisma 报错（详见 bugs.md）。
+- **BUG-008**: 修复生成图片报错被静默吞吐、额度用尽但没有任何反馈的隐形大坑（详见 bugs.md）。
+
+---
+
+
+## Session: 2026-03-26 22:01 — 双语全流水线 (Bilingual Pipeline)
+
+### 完成事项
+1. **数据库 Schema 扩展** (`database/prisma/schema.prisma`):
+   - 新增 `summaryEn` — 英文摘要 (≤150 words)
+   - 新增 `contentEn` — 英文正文 (HTML)
+   - 新增 `coverImageEn` — 英文专用封面图 R2 URL
+   - 手动迁移脚本: `002_bilingual_fields.sql` + `npx prisma generate` ✅
+
+2. **LLM Rewriter 双语输出** (`crawler/src/ai/llm-rewriter.ts`):
+   - Prompt 改为单次调用产出 `title` / `summary` / `content` (中文) + `title_en` / `summary_en` / `content_en` (英文)
+   - 校验逻辑同步升级，缺任一语言字段则返回 null 触发重试
+
+3. **Image Generator 双语封面 & 图片优化** (`crawler/src/ai/image-generator.ts`):
+   - 引入 `sharp` 构建全自动化图片压缩流水线，彻底解决 AI 绘图平台生成 1024x1024 PNG/JPEG 体积过大（1-3MB）导致的 SSG 页面加载缓慢与流量消耗问题。
+   - 所有生成的图像在上传 R2 前自动裁剪压缩为 **800x450 (16:9比例)** 并强制转换为 **WebP 格式 (画质80)**，最终单图体积锐减至 40KB-80KB。
+   - 新增 `generateAndUploadBilingualCovers(summaryZh, summaryEn, slug)` — 并行调用 Imagen 两次，生成中英文风格各异的封面图。
+   - 中文版: `-zh.webp` (偏向国内科技媒体视觉风格)
+   - 英文版: `-en.webp` (偏向全球科技媒体简约风格)
+   - 此模块已有专属的单元测试 `tests/unit/image-optimizer.test.ts` 进行保证。
+
+4. **处理中状态(Processing State)可视化** (`crawler/src/ai/heartbeat.ts` & `admin/src/pages/admin/news.astro`):
+   - 移除了 Heartbeat 静默抓取可能引发的重复生成行为，在流程起始阶段即更新状态为 `processing` 以获取数据锁。
+   - 在 Admin UI 的『第二阶段：终审』页面（`stage=pending`）同步查询 `pending` 与 `processing` 两个维度的文章。
+   - 对于 `processing` 状态文章提供专用的“UI旋转挂件（AI改写中...）”，防止人工提前介入产生操作冲突。
+
+5. **Heartbeat 双语存储** (`crawler/src/ai/heartbeat.ts`):
+   - 持久化全部6个语言字段: `title/summary/content` (中文) + `titleEn/summaryEn/contentEn` (英文)
+   - 封面图分别存 `coverImage` (中文封面) 和 `coverImageEn` (英文封面)
+
+6. **Website 双语首页结构统一** (`website/src/pages/zh/index.astro`):
+   - 废除了之前 `website/src/pages/zh/index.astro` 的纯文本占位符设计。
+   - 完全映射并移植了主英文站点 (`index.astro`) 的 HTML 树丛与 Astro 组件封装（涵盖：英雄巨幕 Hero、产品矩阵 Products、智能组件能力 Agent Skills、最新生态资讯 Latest News）。
+   - 执行了本地深度翻译渲染，重新构筑静态站点内容（SSG: `npm run build`）。
+
+7. **Website 双语渲染机制完善** (`website/src/lib/articles.ts` + 页面):
+   - `NewsArticle` 接口新增 `summaryEn/contentEn/coverImageEn` 字段
+   - 英文页面 (`/news/[slug]`): 优先展示 `contentEn/coverImageEn`，fallback 到中文
+   - 中文页面 (`/zh/news/[slug]`): 优先展示 `content/coverImage`，fallback 到英文
+   - Schema.org metadata 使用对应语言字段
+
+8. **文档同步**: `e2e_process.md` / `findings.md` / `bugs.md` / `task_plan.md` 全部更新
+
+### 架构变化摘要
+```
+旧: 1篇文章 → 1份中文内容 → 1张封面图
+新: 1篇文章 → 中文内容 + 英文内容 → 中文封面 + 英文封面
+                 (LLM 单次生成)      (Imagen 并行调用 ×2)
+```
+
+### 下一步
+- 下次 AI Heartbeat 运行将自动填充新字段
+- 可通过 `npm run build` 验证双语页面正确渲染各自语言封面
+
+---
+
+
+## Session: 2026-03-26 21:37 — Phase 6 生产级 E2E 验证 & Admin 详情页
+
+### 完成事项
+1. **真实数据满配生产验证**: 完全清空 Mock 数据，使用 229 个 RSS 真实 OPML 源执行大规模爬取，验证 `MAX_DAILY_ARTICLES="80"` 配额控制精确生效 (写入恰好 80 篇，无越限)。
+2. **AI 流水线全链路验证**: Heartbeat 对 80 篇文章批次串联 Readability 提取 + Gemini 改写 + Imagen 封面图生成，403/404/429/Timeout 错误全部进入 `error` 状态，正常处理文章进入 `pending`。
+3. **精确的审批配额控制**: 实现 `precise_approve.ts` 脚本，从全量中精确控制保留 20 篇 `pending`，其中 12 篇 Approve 为 `published`，8 篇继续留队待审。
+4. **Admin 详情页新增** (`admin/src/pages/admin/news/[id].astro`):
+   - 完整的文章内容全文审查：中英双标题、AI 摘要、AI 翻译全文、封面大图、标签、原始来源链接。
+   - 在详情页直接操作 Approve / Reject 按钮，审批后自动跳回列表。
+   - 列表页(`/admin/news`)的标题变为可点击链接（悬停高亮）。
+5. **SQL 去重层 Bug 修复**: 发现并修复 `title-dedup.ts` 中 Raw SQL 错误使用了 Prisma model 名称 `"Article"` 而非实际数据库表名 `articles`，以及依赖 `pg_trgm` 扩展未被自动安装的问题 (新增 `setup_db.ts` 脚本)。
+6. **Astro SSG 最终构建**: 执行 `npm run build` 成功输出 28 个多语言静态页面，Pagefind 索引 2546 词，完全与数据库解耦。
+
+### 关键 Bug 修复
+- **BUG-005**: `title-dedup.ts` Raw SQL 表名错误 (`"Article"` → `articles`)。修复方案见 bugs.md。
+- **BUG-006**: pg_trgm 扩展在测试环境缺失。新增 `setup_db.ts` 脚本，执行 `CREATE EXTENSION IF NOT EXISTS pg_trgm`。
+
+### 关键决策
+- `admin_mock.ts` (自动秒批所有 pending) 与真实 Admin UI 工作流分离——后者保留 pending 状态供人工审核。
+- `MAX_DAILY_ARTICLES` 作为软配额不仅控制成本也保证测试可重复性。
+
+### 下一步
+- Phase 6.3 浏览器视觉截图验收 (Admin 详情页、Website 新闻列表)
+- Phase 6.4 全仓库回归测试
+- Phase 6.5 architecture.md / README.md 更新
+
+---
+
+
+## Session: 2026-03-26 14:30 — Phase 5 Website 静态首发
+
+### 完成事项
+1. **网址架构**: 基于 Astro SSG 引擎架构完成 `/news` 与双语 `/zh` 版本。
+2. **Prisma JSON 解析适配**: 修复了由共享 `schema.prisma` JSON 类型带来的读取兼容问题。由于 seed 字符串化存入数据库，我们在读取时 `typeof r.tags === 'string'` 介入 `JSON.parse` 避免构建期报错。
+3. **i18n & SEO 建设**: `/zh/news/` 双语页面映射、文章页动态 `<script type="application/ld+json">` (Schema.org `NewsArticle`) 的生成。
+4. **纯粹 XML Sitemap**: 将原本引发问题的 `sitemap.xml.astro` 组件改为 `sitemap.xml.ts` API Endpoint。在 `static` 输出模式下完美生成去除了 HTML 污染的有效规范 XML 内容。
+5. **Pagefind 搜索模态框**: NavBar 中添加 `#search-trigger`，在页面插入 `#search-modal` 包装 `PagefindUI`。
+6. **Playwright 11/11 ✅**: 完美通过 TC-5.1.X（多语言路由）、TC-5.2.X（文章页元标记、结构化数据映射）及 TC-5.3.X（sitemap + robots.txt 和搜索容器断言）。
+
+### 延后事项
+- Phase 6 的 整体验收。
+
+
+## Session: 2026-03-26 13:58 — Phase 4 Admin 内容审核后台
+
+### 完成事项
+1. **Admin DB 复用** — 通过 symlink (`src/generated/db → ../../crawler/src/generated/db`) + `@prisma/client@^6` 复用 crawler 已生成的 Prisma client，避免 Prisma 7 兼容问题
+2. **Layout + 侧边栏** — `AdminLayout.astro` 四项导航 + 当前页高亮，已存在基础骨架，完善了样式
+3. **4.2 待审列表 `/admin/news`** — 真实 DB 查询 + 分类标签过滤 + ✓通过/✗拒绝按钮（event delegation）
+4. **4.3 审核 API `POST /api/review`** — approve → status=approved + reviewedAt，reject → status=rejected + rejectionReason
+5. **4.4 JSON 导出 `GET /api/export`** — 返回所有 approved 文章的 news.json 格式 JSON 数组
+6. **额外页面** — `/admin/published`（已审核列表）、`/admin/crawler`（爬虫状态 stats 卡片）、`/admin/settings`
+7. **Playwright E2E 9/9 ✅** — TC-4.1.1\~4.1.3（布局导航）、TC-4.2.1\~4.2.3（列表筛选）、TC-4.3.1\~4.3.2（审核 API）、TC-4.4（JSON 导出）
+
+### 关键 Bug 修复
+- **Astro module script + onclick = 不工作**：Astro `<script>` 是 ESM module scope，函数不在 `window` 上，`onclick="fn()"` 无法调用。改为 `data-action` + event delegation 方案解决
+- **Playwright route mock 时序**：`page.route` 必须在 navigation 之后、click 之前，且用 `waitForRequest` 替代变量捕获更可靠
+
+### 延后事项
+- TC-4.3.3 键盘快捷键 E2E 测试（已实现前端逻辑，测试延后）
+- TC-4.3.4 编辑后通过（延后至 Phase 5 inline edit 功能）
+- Git push 发布流程（延后至 Phase 5 website 就绪）
+
+---
+
+
+## Session: 2026-03-26 13:44 — Phase 3 Layer 3 AI Processing (TDD)
+
+### 完成事项
+1. **3.1 Readability 全文提取 (`readability-extractor.ts`)** — 使用 `@mozilla/readability` + `jsdom` 提取正文。HTTP 错误/网络超时/Readability 解析失败全部优雅返回 null，单测 4/4 绿。
+2. **3.2 LLM 改写 (`llm-rewriter.ts`)** — 调用 `@google/genai` SDK（Gemini 2.0 Flash），输出结构化 JSON（title/title_en/summary/content/category/tags/slug）。含 JSON code-fence 自动剥离、字段校验、指数退避重试 3 次。单测 3/3 绿。
+3. **3.4 Heartbeat 队列调度 (`heartbeat.ts`)** — 轮询 `status='raw'|'error'` 文章（每批≤20），串联 Readability→LLM 流水线，状态机：raw → pending（成功）/ error（失败+retryCount++）/ dead_letter（≥3次）。单测 4/4 绿。
+4. **全量回归 58/58 ✅ | typecheck ✅**
+
+### 延后事项
+- **3.3 AI 封面图生成**：Imagen API + R2 上传，依赖云存储配置，延后至 Phase 4。
+- **3.5 E2E 冒烟测试**：需要真实 GEMINI_API_KEY 在 `.env` 中，延后至环境就绪后独立执行。
+
+### 关键技术发现
+- `vi.mock()` 在 Vitest 中被 hoisted，工厂函数内不能引用外部 `const` 变量，必须使用 `vi.hoisted()` 包裹初始化。
+- `GoogleGenAI` 是构造函数，mock 时必须用 `function` 关键字而非 arrow function，否则 `new` 调用失败。
+- Prisma 字段名为 camelCase（`titleEn`），DSL 中定义了 `@map("title_en")`，代码层面统一使用 camelCase。
+
+---
+
+
+## Session: 2026-03-26 13:34 — Phase 2 Layer 2 Dedup (TDD)
+
+### 完成事项
+1. **2.1 URL 去重 (`url-dedup.ts`)** — 调用 `prisma.findUnique` 查 `source_url`，空 URL 抛 ValidationError，单测 3/3 绿。
+2. **2.2 标题去重 (`title-dedup.ts`)** — 直接 `prisma.$queryRaw` 调用 pg_trgm `similarity()` 函数，7天时间窗口 + 0.6 阈值可配置，集成测试 4/4 绿。
+3. **2.3 去重服务 (`dedup-service.ts`)** — L1 URL 通过才进 L2 标题检测，异常统一捕获为 `VALIDATION_ERROR`，单测 4/4 绿。
+4. **2.4 E2E 集成测试 (`dedup-e2e.test.ts`)** — 使用随机 RUN_ID 前缀隔离数据，L1/L2 三条路径全覆盖，集成测试 3/3 绿。
+5. **接入 Pipeline** — `writer.ts` 重构，在 `createMany` 前先跑 `deduplicate()`，新增 `WriteResult { total, written, skipped }` 返回值供上层统计。
+6. **测试环境隔离修复** — 修复了多个集成测试套件共享 DB 导致的数据竞争问题：
+   - `title-dedup.test.ts` 改用 URL 前缀隔离，不再 `deleteMany()` 全表
+   - `poller-e2e.test.ts` 改用 URL 前缀过滤，mock dedup-service
+   - `writer.test.ts` mock dedup-service，避免 L2 相似度误伤
+   - `vitest.config.ts` 加入 `env: { NODE_ENV: 'test' }` 确保 db.ts 正确切换至测试库
+7. **全量回归 47/47 通过**, `pnpm typecheck` 无报错。
+
+### 关键技术发现
+- pg_trgm `similarity()` 对超长字符串的相似度感知比较精确，但字符串结构决定 trigram 分布，随机 RUN_ID 嵌入标题会使即使截去1字符的 similarity 也大幅下降。
+- Vitest 并发集成测试共享 DB 时，必须采用 URL 前缀隔离 + scoped deleteMany，全表 deleteMany 是不可接受的。
+
+---
+
+
+## Session: 2026-03-26 11:38 — Phase 1 RSS Fetcher (TDD)
+
+
+### 完成事项
+1. **测试修复: `rss-fetcher.test.ts`** — 解决了因为缺乏 `baseDelayMs` 设定以及 `mockParseURL` 调用返回 `undefined` 导致的超时死循环问题。
+2. **重构: `retry.ts` 独立提取** — 抽象出带有指数退避机制的 `withRetry` 通用并发重试工具函数，供之后的多处重试场景复用。
+3. **实现: `rss-fetcher.ts` 重构** — 改用 `withRetry` 工具拉取单一 Feed，大幅减小代码冗余。单元测试全部绿灯 (12 passed)。
+4. **功能开发: `1.3 时间过滤器`** — TDD 模式完成 (RED 测试 -> GREEN 实现 -> REFACTOR)，针对过时新闻和缺少 pubDate 的情况执行正确过滤。完全绿灯 (3 passed)。
+5. **功能开发: `1.4 数据库写入`** — 基于 Prisma 的 `openclaweco_test` 数据库编写并跑通了真实的集成测试，使用 `src/generated` 软链接解决了跨仓库强隔离下的 Client 类型兼容问题，并实装功能。
+6. **功能开发: `1.5 定时调度`** — 安装 `node-cron`，基于 TDD 完成 `scheduler.ts` 调度器开发，每 30 分钟自动调度并正确触发 `runLayer1Poller`。单测用例覆盖验证通过。
+7. **功能开发: `1.6 端到端测试与集成`** — 创建 `poller-e2e.test.ts` 验证 OPML 解析 ➔ RSS 抓取 ➔ 时间维度的过滤 ➔ Prisma 入库的完整链路。此外补充 `src/index.ts` 将 Poller 和 Scheduler 接通，从而完成 **Phase 1: Layer 1** 开发的所有目标。
+
+8. **Lint 全量修复** — 引入 `eslint.config.js` 的 globals 环境，清理了测试中所有的 TS `any` 和未使用参数报错。
+9. **环境读取注入** — 修复了 `crawler/src/db.ts` 单独运行时的 `dotenv` 加载路径问题。
+10. **Phase 1 正式竣工打点** (`2026-03-26 13:25`) — 达成 100% 测试覆盖通过率，跨向下一个架构节点。
+
+### 遗留问题
+- [已解决] eslint 报未定义 global variables (`console`, `setTimeout`)，已在 Phase 1 完成前通过 flat config 中注入 `globals.node` 完美解决。
+- `no-console` 的 warn 仍然存在，后续如有必要再引入 `pino` 日志库或直接 ignore。
+
+---
+
+
+## Session: 2026-03-26 08:54 — 开发治理规则完善 + TDD 对齐
+
+### 完成事项
+1. **task_plan.md TDD 重构** — 将所有功能点从"先实现后测试"改为 🔴RED→🟢GREEN→🔵REFACTOR 循环
+2. **GEMINI.md v1.1 对齐** — 修复 8 处不一致：Node 25、Prisma 6、TDD 标记、密钥列表、E2E 自愈上限
+3. **Phase 检查点标准化** — 每个 Phase 末尾增加 🧪回归→💬Verification→💾Commit→📝归档→🔍Review
+4. **E2E test case 补充** — 18 个 Given-When-Then 场景覆盖 Phase 3-5 全部 7 个测试文件
+5. **findings.md 对齐** — 补充 Prisma 6/OpenClaw/TDD 3 条决策 + 3 条已解决问题
+6. **bugs.md 补录** — BUG-001(Prisma 7) + BUG-002(dotenv) 使用标准模板
+
+### 关键决策
+- E2E 测试用 Given-When-Then 格式嵌入 task_plan，不建独立文档（避免重复维护）
+- 单测自愈 5 次 vs E2E 自愈 3 次（E2E 更重更慢，失败更应及时人工介入）
+- Phase 检查点强制 Code Review + 文档归档
+
+### 下一步
+- Phase 0 剩余: 0.6 crawler 初始化 / 0.7 admin Astro 初始化 / 0.8 website Astro 初始化
+- 进入 Phase 1: Layer 1 RSS Poller TDD 开发
+- ⚠️ 建议新会话开始，利用 5-Question Reboot Check 恢复上下文
+
+### 遗留问题
+- GEMINI_API_KEY / R2 密钥待用户填入 .env
+- Prisma 6 的 lint 警告（@types/node 未安装）不影响运行，Phase 0.6 时一并解决
+
+---
+
+
+## Session: 2026-03-25 21:55 — Phase 0 数据库层
+
+### 完成事项
+1. **PostgreSQL 17 安装** — `brew install postgresql@17` + `brew services start`
+2. **数据库创建** — `createuser openclaweco` + `createdb openclaweco` + `createdb openclaweco_test`
+3. **pg_trgm 扩展** — 两个数据库均启用 `CREATE EXTENSION IF NOT EXISTS pg_trgm`
+4. **pnpm 安装** — `npm install -g pnpm`
+5. **Prisma 初始化** — `pnpm add prisma@6 @prisma/client@6 dotenv tsx`
+6. **Schema 编写** — articles (三层流水线实体+状态机) + image_cache (AI封面图) + dead_letters
+7. **迁移成功** — `npx prisma migrate dev --name init_core_tables`
+8. **pg_trgm GIN 索引** — 手动 SQL 迁移 `001_pg_trgm_index.sql`
+9. **种子脚本** — 5条文章(5种状态/6种分类) + 1图片 + 1死信
+10. **.env 创建** — PostgreSQL / Gemini / R2 / Cloudflare 占位配置
+11. **setup.sh 脚本** — 一键数据库安装脚本
+
+### 关键决策
+- Prisma 7 不兼容 Node 25 → 降级 Prisma 6
+- OpenClaw 暂不需要 → RSS 直连 Gemini API
+
+### Phase 0 验证结果
+| Test | Expected | Actual | Status |
+|------|----------|--------|--------|
+| PostgreSQL 连接 | 可连接 | ✅ success | ✓ |
+| Prisma 迁移 | 3 张表创建 | ✅ articles + image_cache + dead_letters | ✓ |
+| pg_trgm GIN 索引 | 创建成功 | ✅ CREATE INDEX | ✓ |
+| 种子数据写入 | 7 条记录 | ✅ 5 articles + 1 image + 1 dead_letter | ✓ |
+| pg_trgm 查询 | 相似标题匹配 | ✅ similarity=0.25 正确匹配 | ✓ |
+
+---
+
+## 5-Question Reboot Check
+
+| Question | Answer |
+|----------|--------|
+| Where am I? | Phase 0 — 数据库层完成 (0.1-0.5)，0.6-0.8 待执行 |
+| Where am I going? | Phase 0 剩余 → Phase 1 RSS Poller (TDD) |
+| What's the goal? | 三层流水线 + Admin + 静态站点 Phase 1 系统 |
+| What have I learned? | Prisma 6 稳定；TDD 需 Given-When-Then 细化 E2E；Phase 检查点 5 步 |
+| What have I done? | PG17 安装、DB 迁移、治理规则 9 文件、TDD 重构、18个 E2E TC |
+
+---
+
+*Update after completing each phase or encountering errors*
+
+
