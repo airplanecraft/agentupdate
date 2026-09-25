@@ -1,3 +1,16 @@
+## BUG-146: dist/.git 损坏导致源码仓库被强推到部署仓库并在线暴露 (Fixed 2026-09-25)
+
+- **发现时间**: 2026-09-25 14:30 左右
+- **症状**: DB 已有 9/25 审核通过的新闻, `pnpm run build` 显示成功, 但 agentupdate.ai 不出新文章; 且线上可直取 `astro.config.mjs`、`package.json`、`src/pages/index.astro` (HTTP 200) — 网站源码公开暴露。
+- **根因**: `website/dist/.git` 丢失 `HEAD`/`config` 成为空壳 (mtime 2026-09-25 00:00, 起因不明, 疑似备份还原与 Astro 清空 outDir 竞态)。`build-deploy.sh` 在 dist 内执行的 git 命令全部上溯解析到**父级 website 源仓库**: `git remote remove/add` 把源仓库 origin 改成了 `openclaweco-website-build.git`; `git add -A` 因 `.gitignore` 的 `dist/` 规则什么都没加; `git commit --allow-empty` 生成空提交; `git push -f` 把**源码树**强推到部署仓库。CF Pages 12 秒 "构建" 后将其作为静态站点部署, alias `agentupdate.ai` 生效, 源码文件在线可访问。自 9/15 起 `session-push-all.sh` 也一直在把源码推到 build repo (同源问题)。
+- **修复方案**:
+  1. 密钥安全扫描确认源仓库 tracked 文件与 dist 输出均不含 GEMINI_API_KEY 值
+  2. website 源仓库 origin 改回 `openclaweco-website` 并推送 (备份恢复, fast-forward)
+  3. `git init -b main` 修复 dist 空壳仓库, 重新指向 build repo, 提交 18,468 个构建产物并强推 (`7538e5af`)
+  4. `build-deploy.sh` 新增 4.5 步守卫: 还原后校验 `git rev-parse --git-dir` 必须解析在 dist 内, 否则重新 `git init` (`65da2b2d`)
+- **结果**: PASS。新文章 EN/ZH 均 200, `/news` 列表已含新 slug; 源码文件回源 404 (CDN 边缘旧缓存对象带唯一 query 已验证 404, 自然过期中)。Gemini key 零暴露。
+- **相关文件**: `website/build-deploy.sh`, `website/dist/.git`, `session-push-all.sh`
+
 ## BUG-145: Global Meta description too short on multiple pages causing SEO crawler warnings (Fixed 2026-07-09)
 
 - **发现时间**: 2026-07-09 09:10

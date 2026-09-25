@@ -1910,3 +1910,16 @@ rejected ──→ 仅在 Admin「已拒绝」Tab 归档
 *Update after completing each phase or encountering errors*
 
 
+
+---
+
+## 2026-09-25 15:10 — [Incident & Recovery] 部署管线修复: dist/.git 空壳导致源码强推到 build 仓库 ✅
+
+### 完成事项
+1. **诊断**: 9/25 新文章发布后 `pnpm run build` 线上不出新内容。逐环节排查 (DB→dist→GitHub→CF Pages→线上) 定位: `dist/.git` 缺 HEAD/config 成空壳 → `build-deploy.sh` git 命令上溯到 website 源仓库 → 源仓库 origin 被改成 build repo → 空提交强推**源码树**到 `openclaweco-website-build`, CF Pages 部署后源码在线暴露 (astro.config.mjs 等 200)。
+2. **修复**: ① 密钥扫描 (Gemini key 零暴露) → ② 源仓库 origin 复原 + 推送备份 → ③ `git init` 修复 dist 仓库, 强推 18,468 文件真实产物 (`7538e5af`) → ④ CF 部署验证: 新文章 EN/ZH 200, 源码文件 404 → ⑤ `build-deploy.sh` 加 git-dir 守卫防复发 (`65da2b2d`)。
+3. **同场其他工作**: 完成 4 仓库文档更新 (admin/database README 重写, architecture v5.0, PRD v1.5, progress/bugs 合并单一来源); 诊断微信抓取失败 (edge proxy 正常, 微信 verify.html 风控拦截) 与新闻 dead_letter (marktechpost Cloudflare 封锁 + Gemini JSON 偶发)。
+
+### 关键决策
+- 线上 astro.config.mjs 的 200 与新文章 200 并存 = CDN 边缘残留缓存, 回源已是新部署; 以 cache-buster 请求为准。
+- 修复顺序: 先保源码备份 (origin 复原推送), 再修部署产物。
